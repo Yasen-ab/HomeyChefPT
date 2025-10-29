@@ -26,9 +26,12 @@ async function loadPopularDishes() {
 
 // Create dish card HTML
 function createDishCard(dish) {
+    const imageUrl = dish.image
+        ? (dish.image.startsWith('/uploads') ? `${API_URL.replace('/api','')}${dish.image}` : dish.image)
+        : 'https://via.placeholder.com/300';
     return `
         <div class="dish-card">
-            <img src="${dish.image || 'https://via.placeholder.com/300'}" alt="${dish.name}" class="dish-image">
+            <img src="${imageUrl}" alt="${dish.name}" class="dish-image">
             <div class="dish-content">
                 <div class="dish-header">
                     <h3 class="dish-title">${dish.name}</h3>

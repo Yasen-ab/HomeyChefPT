@@ -7,6 +7,10 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Ensure Sequelize associations are registered
+const { setupRelationships } = require('./config/syncDatabase');
+setupRelationships();
+
 // Import routes
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');

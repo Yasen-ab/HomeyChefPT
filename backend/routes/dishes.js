@@ -87,7 +87,7 @@ router.post('/', authenticate, isChefOrAdmin, upload.single('image'), async (req
     }
 
     // Chef can only create dishes for themselves, admin can create for any chef
-    if (req.userType === 'chef' && req.userId.toString() !== chefId) {
+    if (req.userType === 'chef' && req.userId.toString() !== chefId.toString()) {
       return res.status(403).json({ error: 'Access denied' });
     }
 

@@ -1,5 +1,6 @@
 // Utility functions
-const API_URL = 'http://localhost:3000/api';
+const API_URL = 'http://localhost:3001/api';
+
 
 // Get auth token from localStorage
 function getAuthToken() {
