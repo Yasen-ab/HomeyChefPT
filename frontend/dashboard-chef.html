@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chef Dashboard - HomeyChef</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="index.html"><h1>🍽️ HomeyChef</h1></a>
+            </div>
+            <div class="nav-links">
+                <a href="dashboard-chef.html" class="active">Dashboard</a>
+                <a href="dishes.html">My Dishes</a>
+                <a href="orders.html">Orders</a>
+                <a href="#" id="logout-btn">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Section -->
+    <section class="dashboard">
+        <div class="container">
+            <h1 class="dashboard-title">Chef Dashboard</h1>
+            
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <div class="stat-icon">🍽️</div>
+                    <div class="stat-info">
+                        <h3 id="total-dishes">0</h3>
+                        <p>Total Dishes</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📦</div>
+                    <div class="stat-info">
+                        <h3 id="total-orders">0</h3>
+                        <p>Total Orders</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-info">
+                        <h3 id="total-revenue">$0</h3>
+                        <p>Total Revenue</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⏳</div>
+                    <div class="stat-info">
+                        <h3 id="pending-orders">0</h3>
+                        <p>Pending Orders</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Orders -->
+            <div class="dashboard-section">
+                <h2>Recent Orders</h2>
+                <div id="recent-orders-container" class="orders-list">
+                    <!-- Orders will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/utils.js"></script>
+    <script src="js/dashboard-chef.js"></script>
+</body>
+</html>
+

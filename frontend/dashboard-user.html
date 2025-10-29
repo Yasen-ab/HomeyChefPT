@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - HomeyChef</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="index.html"><h1>🍽️ HomeyChef</h1></a>
+            </div>
+            <div class="nav-links">
+                <a href="menu.html">Menu</a>
+                <a href="dashboard-user.html" class="active">Dashboard</a>
+                <a href="orders.html">My Orders</a>
+                <a href="#" id="logout-btn">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Section -->
+    <section class="dashboard">
+        <div class="container">
+            <h1 class="dashboard-title">Welcome, <span id="user-name"></span>!</h1>
+            
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <div class="stat-icon">📦</div>
+                    <div class="stat-info">
+                        <h3 id="total-orders">0</h3>
+                        <p>Total Orders</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⏳</div>
+                    <div class="stat-info">
+                        <h3 id="pending-orders">0</h3>
+                        <p>Pending Orders</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-info">
+                        <h3 id="completed-orders">0</h3>
+                        <p>Completed Orders</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Orders -->
+            <div class="dashboard-section">
+                <h2>Recent Orders</h2>
+                <div id="recent-orders-container" class="orders-list">
+                    <!-- Orders will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Profile Section -->
+            <div class="dashboard-section">
+                <h2>Profile</h2>
+                <div class="profile-card">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" id="profile-name" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="profile-email" class="form-control" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="tel" id="profile-phone" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <textarea id="profile-address" class="form-control" rows="3"></textarea>
+                    </div>
+                    <button class="btn btn-primary" id="update-profile-btn">Update Profile</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/utils.js"></script>
+    <script src="js/dashboard-user.js"></script>
+</body>
+</html>
+

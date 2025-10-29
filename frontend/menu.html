@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu - HomeyChef</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="index.html"><h1>🍽️ HomeyChef</h1></a>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="menu.html" class="active">Menu</a>
+                <span id="nav-auth">
+                    <a href="login.html">Login</a>
+                    <a href="register.html" class="btn-primary">Sign Up</a>
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Menu Section -->
+    <section class="menu-section">
+        <div class="container">
+            <h1 class="page-title">Our Menu</h1>
+
+            <!-- Filters -->
+            <div class="menu-filters">
+                <div class="search-box">
+                    <input type="text" id="search-input" placeholder="Search dishes...">
+                    <span class="search-icon">🔍</span>
+                </div>
+                <select id="category-filter" class="filter-select">
+                    <option value="">All Categories</option>
+                    <option value="Appetizer">Appetizer</option>
+                    <option value="Main Course">Main Course</option>
+                    <option value="Dessert">Dessert</option>
+                    <option value="Beverage">Beverage</option>
+                </select>
+                <input type="number" id="max-price" class="filter-input" placeholder="Max Price" min="0">
+            </div>
+
+            <!-- Dishes Grid -->
+            <div id="dishes-container" class="dishes-grid">
+                <!-- Dishes will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <script src="js/utils.js"></script>
+    <script src="js/menu.js"></script>
+</body>
+</html>
+

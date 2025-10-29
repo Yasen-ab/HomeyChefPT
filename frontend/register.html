@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - HomeyChef</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="index.html"><h1>🍽️ HomeyChef</h1></a>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="menu.html">Menu</a>
+                <a href="login.html">Login</a>
+                <a href="register.html" class="active">Sign Up</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Register Form -->
+    <section class="auth-section">
+        <div class="container">
+            <div class="auth-container">
+                <h2>Create Account</h2>
+                <p class="auth-subtitle">Join HomeyChef and start ordering delicious meals</p>
+                
+                <div class="user-type-tabs">
+                    <button class="tab-btn active" data-type="user">User</button>
+                    <button class="tab-btn" data-type="chef">Chef</button>
+                    <button class="tab-btn" data-type="admin">Admin</button>
+                </div>
+
+                <form id="register-form" class="auth-form">
+                    <div id="register-error" class="error-message"></div>
+                    
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+
+                    <div class="form-group" id="phone-group">
+                        <label for="phone">Phone</label>
+                        <input type="tel" id="phone" name="phone">
+                    </div>
+
+                    <div class="form-group" id="address-group">
+                        <label for="address">Address</label>
+                        <textarea id="address" name="address" rows="3"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-full">Sign Up</button>
+                </form>
+
+                <p class="auth-footer">
+                    Already have an account? <a href="login.html">Login here</a>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/utils.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>
+
