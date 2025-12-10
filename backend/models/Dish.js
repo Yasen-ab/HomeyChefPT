@@ -57,5 +57,12 @@ const Dish = sequelize.define('Dish', {
   tableName: 'dishes'
 });
 
+Dish.associate = function(models) {
+  Dish.belongsTo(models.Chef, { foreignKey: 'chefId', as: 'Chef' });
+  Dish.hasMany(models.Review, { foreignKey: 'dishId', as: 'reviews' });
+  Dish.hasMany(models.OrderItem, { foreignKey: 'dishId' });
+};
+
+
 module.exports = Dish;
 

@@ -32,7 +32,7 @@ router.post('/register', async (req, res) => {
     // Generate token
     const token = jwt.sign(
       { userId: user.id, role: user.role, userType: 'user' },
-      process.env.JWT_SECRET || 'your_super_secret_jwt_key_here',
+      process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
 
@@ -78,7 +78,7 @@ router.post('/register/chef', async (req, res) => {
     // Generate token
     const token = jwt.sign(
       { userId: chef.id, role: 'chef', userType: 'chef' },
-      process.env.JWT_SECRET || 'your_super_secret_jwt_key_here',
+      process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
 
@@ -97,48 +97,58 @@ router.post('/register/chef', async (req, res) => {
   }
 });
 
-// Login
+// Login (auto-detect Chef or User by email)
 router.post('/login', async (req, res) => {
   try {
-    const { email, password, userType } = req.body;
+    const { email, password } = req.body;
 
-    let user, tokenData;
+    // Find both User and Chef in parallel to decide who this email belongs to
+    const [dbUser, chef] = await Promise.all([
+      User.findOne({ where: { email } }),
+      Chef.findOne({ where: { email } })
+    ]);
 
-    // Check user type and authenticate accordingly
-    if (userType === 'chef') {
-      const chef = await Chef.findOne({ where: { email } });
-      if (!chef) {
+    let user = null;
+    let tokenData = null;
+
+    // Prioritize admin User if exists
+    if (dbUser && dbUser.role === 'admin') {
+      const isPasswordValid = await bcrypt.compare(password, dbUser.password);
+      if (!isPasswordValid) {
+        console.warn(`Failed admin login attempt for ${email}`);
         return res.status(401).json({ error: 'Invalid credentials' });
       }
 
+      user = dbUser;
+      tokenData = { userId: dbUser.id, role: dbUser.role || 'user', userType: 'user' };
+    } else if (chef) {
+      // If not admin, prefer chef account when present
       const isPasswordValid = await bcrypt.compare(password, chef.password);
       if (!isPasswordValid) {
+        console.warn(`Failed chef login attempt for ${email}`);
         return res.status(401).json({ error: 'Invalid credentials' });
       }
 
       user = chef;
       tokenData = { userId: chef.id, role: 'chef', userType: 'chef' };
-    } else {
-      const dbUser = await User.findOne({ where: { email } });
-      if (!dbUser) {
-        return res.status(401).json({ error: 'Invalid credentials' });
-      }
-
+    } else if (dbUser) {
+      // Fallback to regular user
       const isPasswordValid = await bcrypt.compare(password, dbUser.password);
       if (!isPasswordValid) {
+        console.warn(`Failed user login attempt for ${email}`);
         return res.status(401).json({ error: 'Invalid credentials' });
       }
 
       user = dbUser;
-      tokenData = { userId: dbUser.id, role: dbUser.role, userType: 'user' };
+      tokenData = { userId: dbUser.id, role: dbUser.role || 'user', userType: 'user' };
+    } else {
+      // No account found
+      console.warn(`Login attempt for non-existent account: ${email}`);
+      return res.status(401).json({ error: 'Invalid credentials' });
     }
 
     // Generate token
-    const token = jwt.sign(
-      tokenData,
-      process.env.JWT_SECRET || 'your_super_secret_jwt_key_here',
-      { expiresIn: '24h' }
-    );
+    const token = jwt.sign(tokenData, process.env.JWT_SECRET, { expiresIn: '24h' });
 
     res.json({
       message: 'Login successful',
@@ -147,7 +157,7 @@ router.post('/login', async (req, res) => {
         id: user.id,
         name: user.name,
         email: user.email,
-        role: user.role || 'chef'
+        role: tokenData.role
       }
     });
   } catch (error) {
@@ -163,7 +173,7 @@ router.get('/me', async (req, res) => {
       return res.status(401).json({ error: 'No token provided' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your_super_secret_jwt_key_here');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
     let user;
     if (decoded.userType === 'chef') {

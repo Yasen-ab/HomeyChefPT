@@ -40,7 +40,7 @@ function createDishCard(dish) {
                 <p class="dish-description">${dish.description.substring(0, 80)}...</p>
                 <div class="dish-meta">
                     <span>${dish.category}</span>
-                    <span>⭐ 4.5</span>
+                    <span>⭐ ${(dish.averageRating ?? 0).toFixed(1)} (${dish.reviewCount ?? dish.reviews?.length ?? 0})</span>
                 </div>
                 <a href="menu.html" class="btn btn-primary btn-order">View Details</a>
             </div>

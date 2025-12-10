@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu - HomeyChef</title>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <!-- ========================= NAVIGATION ========================= -->
+    <nav class="navbar">
+  <div class="container">
+    <div class="nav-brand">
+      <a href="index.html"><h1>🍽️ HomeyChef</h1></a>
+    </div>
+
+    <div class="nav-links" id="main-nav-links">
+      <a href="index.html">Home</a>
+      <a href="menu.html">Menu</a>
+
+      <!-- هذا هو المكان الذي سيُحقَن فيه Login/Register أو Dashboard/Logout -->
+      <span id="nav-auth">
+        <a href="login.html">Login</a>
+        <a href="register.html" class="btn-primary">Sign Up</a>
+      </span>
+    </div>
+
+    <div class="nav-mobile">
+      <span id="menu-toggle">☰</span>
+    </div>
+  </div>
+</nav>
+
+
+    <!-- ========================= MENU SECTION ========================= -->
+    <section class="menu-section">
+        <div class="container">
+
+            <h1 class="page-title">Our Menu</h1>
+            <p class="page-subtitle">Discover delicious dishes from our talented chefs</p>
+
+            <!-- ---------- FILTERS & SEARCH ---------- -->
+            <div class="menu-controls">
+
+                <!-- Search -->
+                <div class="search-box">
+                    <input id="search-input" type="text" placeholder="Search dishes, ingredients, chefs...">
+                    <span class="search-icon">🔍</span>
+                </div>
+
+                <!-- Filters -->
+                <div class="filters-row">
+                    <select id="category-filter" class="filter-select">
+                        <option value="">All Categories</option>
+                        <option value="Appetizer">Appetizer</option>
+                        <option value="Main Course">Main Course</option>
+                        <option value="Dessert">Dessert</option>
+                        <option value="Beverage">Beverage</option>
+                        <option value="Salad">Salad</option>
+                        <option value="Soup">Soup</option>
+                    </select>
+
+                    <select id="chef-filter" class="filter-select">
+                        <option value="">All Chefs</option>
+                    </select>
+
+                    <select id="rating-filter" class="filter-select">
+                        <option value="">All Ratings</option>
+                        <option value="4.5">⭐ 4.5+ Stars</option>
+                        <option value="4.0">⭐ 4.0+ Stars</option>
+                        <option value="3.5">⭐ 3.5+ Stars</option>
+                        <option value="3.0">⭐ 3.0+ Stars</option>
+                    </select>
+
+                    <input id="max-price" type="number" class="filter-input"
+                           placeholder="Max Price ($)" min="0" step="0.01">
+
+                    <button class="btn btn-secondary" onclick="clearFilters()">
+                        Clear Filters
+                    </button>
+                </div>
+            </div>
+
+            <!-- ---------- RESULTS INFO ---------- -->
+            <div class="results-info">
+                <span id="results-count">Loading dishes...</span>
+
+                <div class="sort-options">
+                    <label>Sort by:</label>
+                    <select id="sort-options">
+                        <option value="popular">Most Popular</option>
+                        <option value="rating">Highest Rated</option>
+                        <option value="price-low">Price: Low to High</option>
+                        <option value="price-high">Price: High to Low</option>
+                        <option value="newest">Newest First</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- ---------- LOADING ---------- -->
+            <div id="loading-state" class="loading-state">
+                <div class="loading-spinner"></div>
+                <p>Loading delicious dishes...</p>
+            </div>
+
+            <!-- ---------- DISHES GRID ---------- -->
+            <div id="dishes-container" class="dishes-grid"></div>
+
+            <!-- ---------- EMPTY STATE ---------- -->
+            <div id="empty-state" class="empty-state" style="display: none;">
+                <div class="empty-icon">🍽️</div>
+                <h3>No Dishes Found</h3>
+                <p>Try adjusting your search or filters to find more dishes.</p>
+
+                <button class="btn btn-primary" onclick="clearFilters()">
+                    Clear All Filters
+                </button>
+            </div>
+
+            <!-- ---------- LOAD MORE ---------- -->
+            <div id="load-more-container" class="load-more-container" style="display: none;">
+                <button id="load-more-btn" class="btn btn-outline" onclick="loadMoreDishes()">
+                    Load More Dishes
+                </button>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ========================= RATING MODAL ========================= -->
+    <div id="rating-modal" class="modal">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h3>Rate This Dish</h3>
+                <span class="close" onclick="closeRatingModal()">&times;</span>
+            </div>
+
+            <div class="modal-body">
+
+                <!-- Dish Info -->
+                <div class="selected-dish">
+                    <img id="rating-dish-image" src="" alt="">
+                    <div>
+                        <h4 id="rating-dish-name"></h4>
+                        <p id="rating-dish-chef"></p>
+                    </div>
+                </div>
+
+                <!-- Stars -->
+                <div class="rating-stars">
+                    <p>How would you rate this dish?</p>
+
+                    <div id="stars-container" class="stars-container">
+                        <span class="star" data-rating="1">☆</span>
+                        <span class="star" data-rating="2">☆</span>
+                        <span class="star" data-rating="3">☆</span>
+                        <span class="star" data-rating="4">☆</span>
+                        <span class="star" data-rating="5">☆</span>
+                    </div>
+
+                    <div id="rating-text" class="rating-text">Select a rating</div>
+                </div>
+
+                <!-- Comment -->
+                <div class="form-group">
+                    <label for="review-comment">Your Review (Optional)</label>
+                    <textarea id="review-comment" rows="4"
+                              placeholder="Share your experience with this dish..."></textarea>
+                </div>
+
+                <div id="rating-error" class="error-message"></div>
+
+                <div class="form-actions">
+                    <button class="btn btn-secondary" onclick="closeRatingModal()">Cancel</button>
+                    <button class="btn btn-primary" onclick="submitRating()">Submit Review</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================= SCRIPTS ========================= -->
+    <script src="js/utils.js"></script>
+    <script src="js/menu.js"></script>
+    <script src="js/navbar.js"></script>
+
+</body>
+</html>

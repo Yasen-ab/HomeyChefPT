@@ -41,5 +41,11 @@ const Review = sequelize.define('Review', {
   tableName: 'reviews'
 });
 
+// Associations are registered in config/syncDatabase.js
+Review.associate = function(models) {
+  Review.belongsTo(models.Dish, { foreignKey: 'dishId', as: 'dish' });
+  Review.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
+};
+
 module.exports = Review;
 

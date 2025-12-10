@@ -116,6 +116,11 @@ function isUser() {
     return user && user.role === 'user';
 }
 
+// Backward-compatible helper used in some pages
+function getCurrentUser() {
+  return getUserData();
+}
+
 // Redirect based on user role
 function redirectToDashboard() {
     const user = getUserData();

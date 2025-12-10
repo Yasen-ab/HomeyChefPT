@@ -2,8 +2,10 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const { authenticate, isAdmin, isChef } = require('../middleware/auth');
+const sequelize = require('../config/database');
 const Chef = require('../models/Chef');
 const Dish = require('../models/Dish');
+const Review = require('../models/Review');
 const Order = require('../models/Order');
 
 const router = express.Router();
@@ -78,11 +80,40 @@ router.delete('/:id', authenticate, isAdmin, async (req, res) => {
 // Get chef's dishes
 router.get('/:id/dishes', async (req, res) => {
   try {
+    const ratingAttributes = [
+      [
+        sequelize.literal('(SELECT COALESCE(AVG(r.rating), 0) FROM reviews r WHERE r.dishId = Dish.id)'),
+        'averageRating'
+      ],
+      [
+        sequelize.literal('(SELECT COUNT(*) FROM reviews r WHERE r.dishId = Dish.id)'),
+        'reviewCount'
+      ]
+    ];
+
     const dishes = await Dish.findAll({
       where: { chefId: req.params.id },
+      attributes: { include: ratingAttributes },
+      include: [
+        {
+          model: Review,
+          as: 'reviews',
+          attributes: ['id', 'rating', 'comment', 'userId', 'createdAt'],
+          separate: true,
+          order: [['createdAt', 'DESC']]
+        }
+      ],
       order: [['createdAt', 'DESC']]
     });
-    res.json(dishes);
+    const serialized = dishes.map(dish => {
+      const data = dish.toJSON();
+      data.ratings = data.reviews || [];
+      data.averageRating = Number(data.averageRating || 0);
+      data.reviewCount = Number(data.reviewCount || 0);
+      return data;
+    });
+
+    res.json(serialized);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

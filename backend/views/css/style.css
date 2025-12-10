@@ -35,7 +35,7 @@ body {
     padding: 0 20px;
 }
 
-/* ===== Navigation ===== */
+/*===== Navigation =====*/
 .navbar {
     background: var(--white);
     box-shadow: 0 2px 10px var(--shadow);
@@ -228,6 +228,7 @@ body {
     overflow: hidden;
     box-shadow: 0 5px 20px var(--shadow);
     transition: all 0.3s;
+    
 }
 
 .dish-card:hover {
@@ -240,6 +241,9 @@ body {
     height: 200px;
     object-fit: cover;
 }
+
+
+
 
 .dish-content {
     padding: 1.5rem;
@@ -611,4 +615,352 @@ body {
         transform: translateY(0);
     }
 }
+  .role-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
 
+        .role-badge.admin {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .role-badge.user {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .user-info .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e74c3c;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 12px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .avatar.large {
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .profile-header h4 {
+            margin: 0 0 5px 0;
+            font-size: 1.5rem;
+        }
+
+        .profile-header p {
+            margin: 0;
+            color: #666;
+        }
+
+        .detail-group {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f5f5f5;
+        }
+
+        .detail-group label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .detail-group span {
+            color: #666;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .text-muted {
+            color: #999;
+            font-style: italic;
+        }
+
+          /* Additional styles for dishes page */
+        .dish-info {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .dish-image {
+             width: 100%;       /* full width */
+    height: 250px;     /* ارتفاع أكبر */
+    border-radius: 15px; /* شكل أجمل */
+    overflow: hidden;
+    flex-shrink: 0;  
+        }
+
+        .dish-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-placeholder {
+            width: 100%;
+            height: 100%;
+            background: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .dish-image.large {
+            width: 80px;
+            height: 80px;
+        }
+
+        .image-placeholder.large {
+            font-size: 2rem;
+        }
+
+        .dish-description {
+            margin: 5px 0;
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .category-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #e74c3c;
+            color: white;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .availability-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .availability-badge.available {
+            background: #27ae60;
+            color: white;
+        }
+
+        .availability-badge.unavailable {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .price {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #e74c3c;
+        }
+
+        .price-large {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: #e74c3c;
+            margin: 5px 0;
+        }
+
+        .chef-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            gap: 15px;
+        }
+
+        .profile-header h4 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .detail-group {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f5f5f5;
+        }
+
+        .detail-group.full-width {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .detail-group.full-width label {
+            margin-bottom: 5px;
+        }
+
+        .detail-group label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .detail-group span, .detail-group p {
+            color: #666;
+            text-align: right;
+        }
+
+        .detail-group.full-width p {
+            text-align: left;
+            margin: 0;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #e74c3c;
+        }
+/* mobile toggle */
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* when mobile: collapsed by default — you probably already have breakpoints */
+.nav-links.active {
+  display: block; /* or flex-column depending design */
+}
+
+/* toggle state */
+#menu-toggle {
+  cursor: pointer;
+  user-select: none;
+}
+
+/* optional: change icon when open */
+#menu-toggle.open::after {
+  content: " ✖";
+}
+
+
+/* =========================
+     FOOTER - ULTRA POLISHED
+========================= */
+
+/* FOOTER MAIN */
+/* Footer Container */
+/* ========== FOOTER (Aligned with NAVBAR) ========== */
+
+.footer {
+    background: var(--white);
+    color: var(--text-color);
+    box-shadow: 0 -2px 10px var(--shadow); /* نفس النافبار بس معكوس */
+    padding: 2.5rem 0;
+    margin-top: 4rem;
+}
+
+.footer .container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+
+/* نفس روح nav-links */
+.footer-section h3,
+.footer-section h4 {
+    font-size: 1.1rem;
+    color: var(--primary-color);
+    margin-bottom: 0.8rem;
+    font-weight: 600;
+}
+
+/* النصوص */
+.footer-section p,
+.footer-section li,
+.footer-section a {
+    color: var(--text-color);
+    opacity: 0.85;
+    transition: opacity 0.3s, transform 0.3s;
+}
+
+/* hover = مثل سلوك nav-links */
+.footer-section a:hover {
+    opacity: 1;
+    transform: translateX(3px);
+    color: var(--primary-color);
+}
+
+/* الروابط */
+.footer-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-section ul li {
+    margin-bottom: 0.6rem;
+}
+
+/* خط خفيف — clean مثل navbar */
+.footer-bottom {
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    text-align: center;
+    margin-top: 2rem;
+    padding-top: 1.2rem;
+    color: var(--text-color);
+    opacity: 0.7;
+    font-size: 0.9rem;
+}

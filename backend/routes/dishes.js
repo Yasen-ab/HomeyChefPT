@@ -3,9 +3,12 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const { Op } = require('sequelize');
+const sequelize = require('../config/database');
 const { authenticate, isChefOrAdmin } = require('../middleware/auth');
 const Dish = require('../models/Dish');
 const Chef = require('../models/Chef');
+const Review = require('../models/Review');
+const User = require('../models/User');
 
 const router = express.Router();
 
@@ -46,13 +49,43 @@ router.get('/', async (req, res) => {
       ];
     }
 
+    const ratingAttributes = [
+      [
+        sequelize.literal('(SELECT COALESCE(AVG(r.rating), 0) FROM reviews r WHERE r.dishId = Dish.id)'),
+        'averageRating'
+      ],
+      [
+        sequelize.literal('(SELECT COUNT(*) FROM reviews r WHERE r.dishId = Dish.id)'),
+        'reviewCount'
+      ]
+    ];
+
     const dishes = await Dish.findAll({
       where,
-      include: [{ model: Chef, attributes: ['name', 'id'] }],
+      attributes: { include: ratingAttributes },
+      include: [
+        { model: Chef, as: 'Chef', attributes: ['name', 'id'] },
+        {
+          model: Review,
+          as: 'reviews',
+          attributes: ['id', 'rating', 'comment', 'userId', 'createdAt'],
+          include: [{ model: User, as: 'user', attributes: ['id', 'name'] }],
+          separate: true,
+          order: [['createdAt', 'DESC']]
+        }
+      ],
       order: [['createdAt', 'DESC']]
     });
 
-    res.json(dishes);
+    const serialized = dishes.map(dish => {
+      const data = dish.toJSON();
+      data.ratings = data.reviews || [];
+      data.averageRating = Number(data.averageRating || 0);
+      data.reviewCount = Number(data.reviewCount || 0);
+      return data;
+    });
+
+    res.json(serialized);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -61,15 +94,79 @@ router.get('/', async (req, res) => {
 // Get single dish
 router.get('/:id', async (req, res) => {
   try {
+    const ratingAttributes = [
+      [
+        sequelize.literal('(SELECT COALESCE(AVG(r.rating), 0) FROM reviews r WHERE r.dishId = Dish.id)'),
+        'averageRating'
+      ],
+      [
+        sequelize.literal('(SELECT COUNT(*) FROM reviews r WHERE r.dishId = Dish.id)'),
+        'reviewCount'
+      ]
+    ];
+
     const dish = await Dish.findByPk(req.params.id, {
-      include: [{ model: Chef, attributes: ['name', 'id', 'bio'] }]
+      attributes: { include: ratingAttributes },
+      include: [
+        { model: Chef, as: 'Chef', attributes: ['name', 'id', 'bio'] },
+        {
+          model: Review,
+          as: 'reviews',
+          attributes: ['id', 'rating', 'comment', 'userId', 'createdAt'],
+          include: [{ model: User, as: 'user', attributes: ['id', 'name'] }],
+          separate: true,
+          order: [['createdAt', 'DESC']]
+        }
+      ]
     });
     
     if (!dish) {
       return res.status(404).json({ error: 'Dish not found' });
     }
     
-    res.json(dish);
+    const data = dish.toJSON();
+    data.ratings = data.reviews || [];
+    data.averageRating = Number(data.averageRating || 0);
+    data.reviewCount = Number(data.reviewCount || 0);
+
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Rate a dish (create or update review) - Users only
+router.post('/:id/rate', authenticate, async (req, res) => {
+  try {
+    if (req.role !== 'user') {
+      return res.status(403).json({ error: 'Only users can submit ratings' });
+    }
+
+    const dishId = req.params.id;
+    const { rating, comment } = req.body;
+
+    const dish = await Dish.findByPk(dishId);
+    if (!dish) {
+      return res.status(404).json({ error: 'Dish not found' });
+    }
+
+    // Validate rating
+    const r = parseInt(rating, 10);
+    if (!r || r < 1 || r > 5) {
+      return res.status(400).json({ error: 'Rating must be an integer between 1 and 5' });
+    }
+
+    // Check if review exists -> update, else create
+    const existing = await require('../models/Review').findOne({ where: { userId: req.userId, dishId } });
+    let review;
+    if (existing) {
+      await existing.update({ rating: r, comment });
+      review = existing;
+    } else {
+      review = await require('../models/Review').create({ userId: req.userId, dishId, rating: r, comment });
+    }
+
+    res.json({ message: 'Rating submitted', review });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

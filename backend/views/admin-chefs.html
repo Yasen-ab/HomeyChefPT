@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Chefs Management | HomeyChef</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="index.html"><h1>🍽️ HomeyChef</h1></a>
+            </div>
+            <div class="nav-links">
+                <a href="dashboard-admin.html">Dashboard</a>
+                <a href="admin-users.html">Users</a>
+                <a href="admin-chefs.html" class="active">Chefs</a>
+                <a href="admin-dishes.html">Dishes</a>
+                <a href="orders.html">Orders</a>
+                <a href="#" id="logout-btn">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="admin-section">
+        <div class="container">
+            <div class="page-header">
+                <h1>Chefs Management</h1>
+                <p>Manage all registered chefs in the system</p>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Chefs</h3>
+                    <span class="stat-number" id="total-chefs">0</span>
+                </div>
+                <div class="stat-card">
+                    <h3>Active Chefs</h3>
+                    <span class="stat-number" id="active-chefs">0</span>
+                </div>
+                <div class="stat-card">
+                    <h3>Pending Approval</h3>
+                    <span class="stat-number" id="pending-chefs">0</span>
+                </div>
+            </div>
+
+            <!-- Actions Bar -->
+            <div class="actions-bar">
+                <div class="search-box">
+                    <input type="search" id="chefs-search" placeholder="Search chefs by name, email, or phone..." />
+                    <span class="search-icon">🔍</span>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="exportChefs()">
+                        📊 Export
+                    </button>
+                    <button class="btn btn-secondary" onclick="showAddChefModal()">
+                        👨‍🍳 Add New Chef
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters">
+                <select id="status-filter" onchange="loadChefs()">
+                    <option value="">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="pending">Pending</option>
+                </select>
+                <select id="sort-by" onchange="loadChefs()">
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="name">Name A-Z</option>
+                </select>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loading-state" class="loading-state">
+                <div class="loading-spinner"></div>
+                <p>Loading chefs data...</p>
+            </div>
+
+            <!-- Chefs Table -->
+            <div class="table-responsive" id="table-container" style="display: none;">
+                <table class="table" id="chefs-table">
+                    <thead>
+                        <tr>
+                            <th>Chef Info</th>
+                            <th>Contact</th>
+                            <th>Status</th>
+                            <th>Registration Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="chefs-tbody">
+                        <!-- Dynamic content -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="empty-state" style="display: none;">
+                <div class="empty-icon">👨‍🍳</div>
+                <h3>No Chefs Found</h3>
+                <p>No chefs match your search criteria.</p>
+                <button class="btn btn-primary" onclick="clearFilters()">Clear Filters</button>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" id="pagination" style="display: none;">
+                <button id="prev-btn" class="pagination-btn" onclick="changePage(-1)">Previous</button>
+                <span id="page-info">Page 1 of 1</span>
+                <button id="next-btn" class="pagination-btn" onclick="changePage(1)">Next</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Chef Details Modal -->
+    <div id="chef-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Chef Details</h3>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body" id="chef-details">
+                <!-- Dynamic content -->
+            </div>
+        </div>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/admin-chefs.js"> </script>
+</body>
+</html>

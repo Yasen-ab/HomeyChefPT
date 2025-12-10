@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Dishes - HomeyChef</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="index.html"><h1>🍽️ HomeyChef</h1></a>
+            </div>
+            <div class="nav-links">
+                <a href="dashboard-chef.html">Dashboard</a>
+                <a href="dishes.html" class="active">My Dishes</a>
+                <a href="orders.html">Orders</a>
+                <a href="#" id="logout-btn">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="container" style="padding: 2rem 0;">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>Manage Your Dishes</h1>
+            <p>Add, edit, and manage your delicious creations</p>
+        </div>
+
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Dishes</h3>
+                <span class="stat-number" id="total-dishes">0</span>
+            </div>
+            <div class="stat-card">
+                <h3>Available</h3>
+                <span class="stat-number" id="available-dishes">0</span>
+            </div>
+            <div class="stat-card">
+                <h3>Categories</h3>
+                <span class="stat-number" id="categories-count">0</span>
+            </div>
+        </div>
+
+        <!-- Add/Edit Dish Form -->
+        <div class="card form-section" id="form-section">
+            <div class="form-header">
+                <h2 id="form-title">Add New Dish</h2>
+                <button type="button" class="btn btn-secondary" id="cancel-edit" style="display: none;">
+                    Cancel Edit
+                </button>
+            </div>
+            
+            <form id="dish-form" enctype="multipart/form-data">
+                <input type="hidden" id="dish-id" name="id">
+                
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="name">Dish Name *</label>
+                        <input type="text" id="name" name="name" placeholder="e.g., Spaghetti Carbonara" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="price">Price ($) *</label>
+                        <input type="number" step="0.01" min="0" id="price" name="price" placeholder="12.99" required />
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="category">Category *</label>
+                        <select id="category" name="category" required>
+                            <option value="">Select Category</option>
+                            <option value="Appetizer">Appetizer</option>
+                            <option value="Main Course">Main Course</option>
+                            <option value="Dessert">Dessert</option>
+                            <option value="Salad">Salad</option>
+                            <option value="Soup">Soup</option>
+                            <option value="Beverage">Beverage</option>
+                            <option value="Side Dish">Side Dish</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="preparationTime">Preparation Time (minutes) *</label>
+                        <input type="number" min="1" max="300" id="preparationTime" name="preparationTime" placeholder="30" required />
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="calories">Calories (optional)</label>
+                        <input type="number" min="0" id="calories" name="calories" placeholder="e.g., 450" />
+                    </div>
+                    <div class="form-group">
+                        <label for="allergens">Allergens (optional)</label>
+                        <input type="text" id="allergens" name="allergens" placeholder="e.g., Nuts, Dairy" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="ingredients">Ingredients *</label>
+                    <textarea id="ingredients" name="ingredients" placeholder="List main ingredients separated by commas&#10;Example: Tomato, Cheese, Basil, Olive Oil" rows="3" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description *</label>
+                    <textarea id="description" name="description" placeholder="Describe your dish in detail. What makes it special?&#10;Example: Classic Italian pasta with creamy sauce and crispy bacon." rows="3" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="image">Dish Image</label>
+                    <div class="file-upload">
+                        <input type="file" id="image" name="image" accept="image/*" />
+                        <label for="image" class="file-upload-label">
+                            <span class="file-upload-text">Choose Image</span>
+                        </label>
+                        <div id="image-preview" class="image-preview"></div>
+                    </div>
+                    <small>Recommended: 800x600px, Max 2MB</small>
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="isAvailable" name="isAvailable" checked />
+                        <span class="checkmark"></span>
+                        Make this dish available for ordering
+                    </label>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" id="submit-btn">
+                        <span id="btn-text">Add Dish</span>
+                        <span id="btn-loading" class="loading" style="display: none;"></span>
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="resetForm()">Clear Form</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Dishes List -->
+        <div class="card">
+            <div class="section-header">
+                <h2>Your Dishes</h2>
+                <div class="section-actions">
+                    <input type="search" id="dishes-search" placeholder="Search your dishes..." />
+                    <select id="category-filter">
+                        <option value="">All Categories</option>
+                    </select>
+                    <select id="availability-filter">
+                        <option value="">All</option>
+                        <option value="available">Available</option>
+                        <option value="unavailable">Unavailable</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loading-state" class="loading-state">
+                <div class="loading-spinner"></div>
+                <p>Loading your dishes...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="empty-state" style="display: none;">
+                <div class="empty-icon">🍽️</div>
+                <h3>No Dishes Yet</h3>
+                <p>Start by adding your first delicious creation!</p>
+            </div>
+
+            <!-- Dishes Grid -->
+            <div id="dishes-list" class="cards-grid" style="display: none;"></div>
+        </div>
+    </section>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Confirm Delete</h3>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete "<span id="delete-dish-name"></span>"?</p>
+                <p class="text-warning">This action cannot be undone.</p>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirm-delete-btn">Delete Dish</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/dishes.js"></script>
+</body>
+</html>

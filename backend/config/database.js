@@ -16,6 +16,7 @@ const sequelize = new Sequelize(
       min: 0,
       acquire: 30000,
       idle: 10000
+      //idle: we use this to specify the maximum time, in milliseconds, that a connection can be idle before being released.
     }
   }
 );

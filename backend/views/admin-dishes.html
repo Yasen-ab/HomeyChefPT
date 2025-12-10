@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Dishes Management | HomeyChef</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="index.html"><h1>🍽️ HomeyChef</h1></a>
+            </div>
+            <div class="nav-links">
+                <a href="dashboard-admin.html">Dashboard</a>
+                <a href="admin-users.html">Users</a>
+                <a href="admin-chefs.html">Chefs</a>
+                <a href="admin-dishes.html" class="active">Dishes</a>
+                <a href="orders.html">Orders</a>
+                <a href="#" id="logout-btn">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="admin-section">
+        <div class="container">
+            <div class="page-header">
+                <h1>Dishes Management</h1>
+                <p>Manage all dishes available in the system</p>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Dishes</h3>
+                    <span class="stat-number" id="total-dishes">0</span>
+                </div>
+                <div class="stat-card">
+                    <h3>Available Dishes</h3>
+                    <span class="stat-number" id="available-dishes">0</span>
+                </div>
+                <div class="stat-card">
+                    <h3>Categories</h3>
+                    <span class="stat-number" id="total-categories">0</span>
+                </div>
+            </div>
+
+            <!-- Actions Bar -->
+            <div class="actions-bar">
+                <div class="search-box">
+                    <input type="search" id="dishes-search" placeholder="Search dishes by name, category, or chef..." />
+                    <span class="search-icon">🔍</span>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="exportDishes()">
+                        📊 Export
+                    </button>
+                    <button class="btn btn-secondary" onclick="showAddDishModal()">
+                        🍽️ Add New Dish
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters">
+                <select id="category-filter" onchange="loadDishes()">
+                    <option value="">All Categories</option>
+                    <!-- Dynamic categories will be populated -->
+                </select>
+                <select id="availability-filter" onchange="loadDishes()">
+                    <option value="">All Availability</option>
+                    <option value="available">Available</option>
+                    <option value="unavailable">Unavailable</option>
+                </select>
+                <select id="chef-filter" onchange="loadDishes()">
+                    <option value="">All Chefs</option>
+                    <!-- Dynamic chefs will be populated -->
+                </select>
+                <select id="sort-by" onchange="loadDishes()">
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="name">Name A-Z</option>
+                    <option value="price-low">Price: Low to High</option>
+                    <option value="price-high">Price: High to Low</option>
+                </select>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loading-state" class="loading-state">
+                <div class="loading-spinner"></div>
+                <p>Loading dishes data...</p>
+            </div>
+
+            <!-- Dishes Table -->
+            <div class="table-responsive" id="table-container" style="display: none;">
+                <table class="table" id="dishes-table">
+                    <thead>
+                        <tr>
+                            <th>Dish Info</th>
+                            <th>Chef & Category</th>
+                            <th>Price & Availability</th>
+                            <th>Created Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dishes-tbody">
+                        <!-- Dynamic content -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="empty-state" style="display: none;">
+                <div class="empty-icon">🍽️</div>
+                <h3>No Dishes Found</h3>
+                <p>No dishes match your search criteria.</p>
+                <button class="btn btn-primary" onclick="clearFilters()">Clear Filters</button>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" id="pagination" style="display: none;">
+                <button id="prev-btn" class="pagination-btn" onclick="changePage(-1)">Previous</button>
+                <span id="page-info">Page 1 of 1</span>
+                <button id="next-btn" class="pagination-btn" onclick="changePage(1)">Next</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dish Details Modal -->
+    <div id="dish-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Dish Details</h3>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body" id="dish-details">
+                <!-- Dynamic content -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Dish Modal -->
+    <div id="edit-dish-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Dish</h3>
+                <span class="close" onclick="closeEditModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="edit-dish-form" class="auth-form">
+                    <div id="edit-error" class="error-message"></div>
+                    
+                    <div class="form-group">
+                        <label for="edit-name">Dish Name</label>
+                        <input type="text" id="edit-name" name="name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-description">Description</label>
+                        <textarea id="edit-description" name="description" rows="3"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-price">Price ($)</label>
+                        <input type="number" id="edit-price" name="price" step="0.01" min="0" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-category">Category</label>
+                        <select id="edit-category" name="category" required>
+                            <!-- Dynamic categories -->
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-availability">Availability</label>
+                        <select id="edit-availability" name="isAvailable" required>
+                            <option value="true">Available</option>
+                            <option value="false">Unavailable</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-image">Image URL</label>
+                        <input type="url" id="edit-image" name="imageUrl" placeholder="https://example.com/image.jpg">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Update Dish</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/admin-dishes.js"> </script>
+
+</body>
+</html>

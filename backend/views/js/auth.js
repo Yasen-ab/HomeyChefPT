@@ -62,14 +62,14 @@ async function handleLogin(e) {
     
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-    
+
     try {
+        // Send only email & password. Server will detect whether account is chef or user/admin.
         const response = await apiRequest('/auth/login', {
             method: 'POST',
             body: JSON.stringify({
                 email,
-                password,
-                userType: currentUserType
+                password
             })
         });
         

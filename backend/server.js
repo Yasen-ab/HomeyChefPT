@@ -25,6 +25,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Serve frontend static files
+app.use(express.static(path.join(__dirname, 'views')));
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
@@ -38,9 +41,24 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'HomeyChef API is running' });
 });
 
+// Serve HTML files - keep compatibility
+const htmlFiles = ['login', 'register', 'menu', 'dashboard-user', 'dashboard-chef', 'dashboard-admin', 'dishes', 'orders', 'admin-users', 'admin-chefs', 'admin-dishes'];
+
+htmlFiles.forEach(file => {
+  app.get(`/${file}`, (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', `${file}.html`));
+  });
+  
+  app.get(`/${file}.html`, (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', `${file}.html`));
+  });
+});
+
+
+
 // Start server
 app.listen(PORT, () => {
   console.log(`🚀 HomeyChef Server running on port ${PORT}`);
-  console.log(`📍 API available at http://localhost:${PORT}/api`);
+  console.log(`📍 API available at http://localhost:${PORT}/`);
 });
 

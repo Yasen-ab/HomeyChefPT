@@ -1,0 +1,130 @@
+I'll quickly scan the main backend routes and models to extract all functional and non-functional requirements, then summarize them clearly.
+
+[5 tools called]
+
+### المتطلبات الوظيفية (Functional)
+
+- التسجيل وتسجيل الدخول
+  - تسجيل مستخدم عادي أو أدمن عبر `POST /api/auth/register` مع الدور.
+  - تسجيل شيف عبر `POST /api/auth/register/chef`.
+  - تسجيل الدخول للمستخدم/الشيف عبر `POST /api/auth/login` مع `userType` لتحديد نوع الحساب.
+  - استرجاع بيانات المستخدم الحالي عبر `GET /api/auth/me` باستخدام JWT.
+
+- إدارة الأدوار والصلاحيات
+  - أدوار: `admin`، `chef`، `user`.
+  - حماية المسارات بـ JWT.
+  - سياسات وصول:
+    - الأدمن: وصول كامل لقوائم المستخدمين، حذف المستخدمين، الاطلاع على الطلبات.
+    - الشيف: إدارة أطباقه، الاطلاع وتحديث حالات طلباته فقط.
+    - المستخدم: إنشاء طلبات جديدة، رؤية طلباته، إضافة تقييمات للأطباق.
+
+- إدارة المستخدمين `users`
+  - `GET /api/users` (أدمن فقط): قائمة المستخدمين.
+  - `GET /api/users/:id` (المالك أو أدمن): عرض مستخدم.
+  - `PUT /api/users/:id` (المالك أو أدمن): تعديل الاسم/الهاتف/العنوان.
+  - `DELETE /api/users/:id` (أدمن): حذف مستخدم.
+  - `GET /api/users/:id/orders` (المالك أو أدمن): طلبات المستخدم.
+
+- إدارة الشيف `chefs`
+  - `GET /api/chefs`: قائمة الشيفات النشطين.
+  - `GET /api/chefs/:id`: عرض شيف.
+  - `PUT /api/chefs/:id` (المالك شيف أو أدمن): تعديل بيانات الشيف.
+  - `DELETE /api/chefs/:id` (أدمن): حذف شيف.
+  - `GET /api/chefs/:id/dishes`: أطباق الشيف.
+  - `GET /api/chefs/:id/orders` (المالك شيف أو أدمن): طلبات الشيف.
+
+- إدارة الأطباق `dishes`
+  - رفع صور الأطباق عبر `multer` إلى `backend/uploads/` وتقديمها عبر `/uploads`.
+  - `GET /api/dishes`: استعراض الأطباق المتاحة `isAvailable = true` مع فلاتر (تصنيف/سعر/بحث).
+  - `GET /api/dishes/:id`: عرض طبق مع بيانات الشيف.
+  - `POST /api/dishes` (شيف أو أدمن): إنشاء طبق (يُسند `chefId` للشيف الحالي).
+  - `PUT /api/dishes/:id` (الشيف المالك أو أدمن): تعديل الطبق.
+  - `DELETE /api/dishes/:id` (الشيف المالك أو أدمن): حذف الطبق.
+
+- إدارة الطلبات `orders`
+  - `GET /api/orders` (مصفاة حسب الدور): 
+    - المستخدم يرى طلباته فقط.
+    - الشيف يرى طلباته (حسب `chefId`).
+    - الأدمن يرى الجميع.
+  - `GET /api/orders/:id` مع صلاحيات الاطلاع حسب الدور.
+  - `POST /api/orders` (مستخدم): إنشاء الطلب. يدعم تجميع العناصر بحسب الشيف وإنشاء أوامر متعددة إذا كانت الأطباق من شيفات مختلفين. يحسب الإجمالي ويخزن عناصر الطلب.
+  - `PUT /api/orders/:id/status` (شيف مالك أو أدمن): تحديث الحالة.
+  - `PUT /api/orders/:id/cancel` (مستخدم مالك أو شيف مالك): إلغاء الطلب.
+
+- التقييمات `reviews`
+  - `GET /api/reviews/dish/:dishId`: مراجعات طبق مع متوسط تقييم.
+  - `POST /api/reviews` (مستخدم): إضافة تقييم لمرة واحدة لكل طبق.
+  - `PUT /api/reviews/:id` (مالك التقييم): تعديل.
+  - `DELETE /api/reviews/:id` (مالك أو أدمن): حذف.
+
+- الواجهات الأمامية
+  - صفحات عامة: `index.html`، `menu.html`.
+    - عرض الأطباق مع صور مضبوطة من `/uploads/...`.
+    - زر “Order Now” للمستخدم المسجّل.
+  - مصادقة: `login.html`، `register.html` مع تبويب نوع الحساب.
+  - لوحات التحكم:
+    - `dashboard-admin.html`: إحصائيات إجمالية (Users, Chefs, Dishes, Orders, Revenue).
+    - `dashboard-chef.html`: إحصائيات الشيف، أحدث الطلبات مع تغيير الحالة.
+    - `dashboard-user.html`: ملخص للمستخدم.
+    - `dishes.html`: صفحة “My Dishes” للشيف: إضافة طبق واستعراض أطباقه.
+    - `orders.html`: عرض طلبات المستخدم.
+
+### المتطلبات غير الوظيفية (Non-Functional)
+
+- المعمارية والبنية
+  - فصل Frontend (Static HTML/JS/CSS) وBackend (Express + Sequelize + MySQL).
+  - نمط RESTful APIs.
+  - تنظيم المجلدات: `routes/`, `models/`, `config/`, `middleware/`, `uploads/`.
+
+- قاعدة البيانات
+  - MySQL عبر Sequelize ORM.
+  - تهيئة العلاقات وتشغيل المزامنة `sync({ alter: true })`.
+  - سكربت `init.js` لإنشاء الجداول وإدخال أدمن افتراضي.
+  - علاقات واضحة بين `User`, `Chef`, `Dish`, `Order`, `OrderItem`, `Review`.
+
+- الأمان
+  - JWT للمصادقة مع سر مستمد من `.env`.
+  - Middleware للصلاحيات حسب الدور ونوع الحساب.
+  - تشفير كلمات المرور `bcryptjs`.
+  - رفع ملفات الصور مع تقييد المسار إلى مجلد `uploads` وخدمة الملفات ثابتة.
+
+- الأداء والقابلية للتوسع
+  - إعدادات اتصال Sequelize Pool.
+  - تسجيل SQL معطّل افتراضياً `logging: false`.
+  - فلاتر واستعلامات بحد أدنى من الأعمدة عند الحاجة.
+
+- سهولة التشغيل
+  - إعداد `.env` (اسم قاعدة البيانات، المستخدم، كلمة السر، المضيف، المنفذ).
+  - سكربتات npm: `start`, `dev`.
+  - ملفات إرشادية عربية `SETUP_ARABIC.md` و”خطوات التشغيل”.
+
+- قابلية الاستخدام
+  - إشعارات على الواجهة عند النجاح/الفشل.
+  - حماية الصفحات حسب الدور، توجيه تلقائي للداشبورد المناسب.
+  - واجهات بسيطة للفلترة والبحث.
+
+- تسجيل الأخطاء
+  - رسائل خطأ واضحة في الـ API مع HTTP status مناسبة.
+  - Health check `GET /api/health`.
+
+- التخزين والملفات
+  - مسار ثابت للصور `/uploads`، واحتفاظ بمسار الصورة في جدول `dishes`.
+
+- التوافق
+  - يعمل محلياً مع XAMPP (MySQL) وNode.js.
+  - المنفذ قابل للتغيير عبر `.env` (تم تبديله إلى 3001 في بيئتك).
+
+ملاحظات مهمة لبيئتك الحالية
+- تأكد أن `API_URL` في `frontend/js/utils.js` مضبوط على `http://localhost:3001/api`.
+- تم تفعيل العلاقات على بدء الخادم باستدعاء `setupRelationships()` في `backend/server.js` لتفادي خطأ “Chef is not associated to Dish!”.
+- عند إضافة طبق كـ Chef، يظهر في:
+  - `menu.html` للمستخدمين.
+  - إحصائية `Total Dishes` في لوحة الأدمن.
+  - جدول `dishes` في قاعدة البيانات.
+- الطلب من المينيو يعمل للمستخدمين فقط عبر “Order Now” (ينشئ `orders` و`order_items`).
+
+إذا تريد، أضيف:
+- صفحات إدارة للأدمن: `admin-dishes.html`, `admin-chefs.html`, `admin-users.html` لعرض/بحث/تعطيل/حذف.
+- سلة حقيقية بدل “Order Now”.
+- رفع وحجم صورة مع تحقق النوع والحدود.
+- Pagination للأطباق والطلبات.
