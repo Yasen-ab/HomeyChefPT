@@ -29,10 +29,10 @@
                 <h2>Create Account</h2>
                 <p class="auth-subtitle">Join HomeyChef and start ordering delicious meals</p>
                 
+                
                 <div class="user-type-tabs">
                     <button class="tab-btn active" data-type="user">User</button>
                     <button class="tab-btn" data-type="chef">Chef</button>
-                    <button class="tab-btn" data-type="admin">Admin</button>
                 </div>
 
                 <form id="register-form" class="auth-form">
@@ -53,15 +53,31 @@
                         <input type="password" id="password" name="password" required>
                     </div>
 
-                    <div class="form-group" id="phone-group">
-                        <label for="phone">Phone</label>
-                        <input type="tel" id="phone" name="phone">
-                    </div>
+                    <div class="form-group" id="phone-group" style="display: none;">
+    <label for="phone">Phone</label>
+    <input type="tel" id="phone" name="phone">
+</div>
 
-                    <div class="form-group" id="address-group">
-                        <label for="address">Address</label>
-                        <textarea id="address" name="address" rows="3"></textarea>
-                    </div>
+<div class="form-group" id="address-group" style="display: none;">
+    <label for="address">Address</label>
+    <textarea id="address" name="address" rows="3"></textarea>
+</div>
+
+<!-- الحقول الجديدة للشيف -->
+<div class="form-group" id="specialties-group" style="display: none;">
+    <label for="specialties">Specialties</label>
+    <input type="text" id="specialties" name="specialties" 
+           placeholder="e.g., Italian, Vegan, Desserts, BBQ">
+    <small class="form-hint">Separate specialties with commas</small>
+</div>
+
+<div class="form-group" id="bio-group" style="display: none;">
+    <label for="bio">Bio / About Me</label>
+    <textarea id="bio" name="bio" rows="3" 
+              placeholder="Tell us about your culinary background, experience, and passion for cooking..."></textarea>
+    <small class="form-hint">Max 500 characters</small>
+</div>
+
 
                     <button type="submit" class="btn btn-primary btn-full">Sign Up</button>
                 </form>
@@ -77,4 +93,3 @@
     <script src="js/auth.js"></script>
 </body>
 </html>
-

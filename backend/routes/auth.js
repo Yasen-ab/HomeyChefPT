@@ -54,7 +54,8 @@ router.post('/register', async (req, res) => {
 // Register Chef
 router.post('/register/chef', async (req, res) => {
   try {
-    const { name, email, password, phone, address, bio } = req.body;
+    const { name, email, password, phone, address, specialties, bio } = req.body;
+
 
     // Check if chef exists
     const existingChef = await Chef.findOne({ where: { email } });
@@ -72,6 +73,7 @@ router.post('/register/chef', async (req, res) => {
       password: hashedPassword,
       phone,
       address,
+      specialties,
       bio
     });
 
