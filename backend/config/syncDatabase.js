@@ -12,29 +12,33 @@ const bcrypt = require('bcryptjs');
 const setupRelationships = () => {
   // User relationships
   User.hasMany(Order, { foreignKey: 'userId', onDelete: 'CASCADE' });
-  User.hasMany(Review, { foreignKey: 'userId', onDelete: 'CASCADE', as: 'reviews' });
-
+  User.hasMany(Review, { foreignKey: 'userId', onDelete: 'CASCADE' });
+  
   // Chef relationships
-  Chef.hasMany(Dish, { foreignKey: 'chefId', onDelete: 'CASCADE', as: 'dishes' });
+  Chef.hasMany(Dish, { foreignKey: 'chefId', onDelete: 'CASCADE' });
   Chef.hasMany(Order, { foreignKey: 'chefId', onDelete: 'SET NULL' });
-
+  
   // Dish relationships
-  Dish.belongsTo(Chef, { foreignKey: 'chefId', as: 'Chef' });
+  Dish.belongsTo(Chef, { foreignKey: 'chefId' });
   Dish.hasMany(OrderItem, { foreignKey: 'dishId', onDelete: 'CASCADE' });
-  Dish.hasMany(Review, { foreignKey: 'dishId', onDelete: 'CASCADE', as: 'reviews' });
-
+  Dish.hasMany(Review, { foreignKey: 'dishId', onDelete: 'CASCADE' });
+  
   // Order relationships
   Order.belongsTo(User, { foreignKey: 'userId' });
   Order.belongsTo(Chef, { foreignKey: 'chefId' });
   Order.hasMany(OrderItem, { foreignKey: 'orderId', onDelete: 'CASCADE' });
-
+  
   // OrderItem relationships
   OrderItem.belongsTo(Order, { foreignKey: 'orderId' });
   OrderItem.belongsTo(Dish, { foreignKey: 'dishId' });
-
+  
   // Review relationships
-  Review.belongsTo(User, { foreignKey: 'userId', as: 'user' });
-  Review.belongsTo(Dish, { foreignKey: 'dishId', as: 'dish' });
+  Review.belongsTo(User, { foreignKey: 'userId' });
+  Review.belongsTo(Dish, { foreignKey: 'dishId' });
+
+  // Also define inverse relations for convenience
+  User.hasMany(Review, { foreignKey: 'userId' });
+  Dish.hasMany(Review, { foreignKey: 'dishId' });
 };
 
 // Sync database and create default admin
