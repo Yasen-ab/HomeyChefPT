@@ -4,10 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - HomeyChef</title>
+    
+    <!-- Styles & Fonts -->
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍽️</text></svg>">
+    
+    <!-- Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
-    <!-- Navigation -->
+
+    <!-- ========================= NAVIGATION ========================= -->
     <nav class="navbar">
         <div class="container">
             <div class="nav-brand">
@@ -21,41 +32,269 @@
             </div>
         </div>
     </nav>
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">
+        <i class="fas fa-chevron-up"></i>
+    </button>
 
-    <!-- Login Form -->
-    <section class="auth-section">
+    <!-- ========================= LOGIN SECTION ========================= -->
+    <section class="auth-section" aria-label="Login section">
         <div class="container">
-            <div class="auth-container">
-                <h2>Welcome Back!</h2>
-                <p class="auth-subtitle">Login to access your account</p>
+            <div class="auth-container animate-fade-in">
+                <!-- Decorative Background Elements -->
+                <div class="auth-decoration">
+                    <div class="decoration-item" style="top: 20%; left: 10%;">🍽️</div>
+                    <div class="decoration-item" style="top: 60%; right: 15%;">👨‍🍳</div>
+                    <div class="decoration-item" style="bottom: 20%; left: 20%;">🍲</div>
+                </div>
                 
-                <!-- Login does not require selecting a role; server will detect account type automatically -->
-
+                <!-- Auth Header -->
+                <div class="auth-header">
+                    <div class="auth-brand">
+                        <div class="auth-logo">🍽️</div>
+                        <div>
+                            <h2 class="auth-title">Welcome Back!</h2>
+                            <p class="auth-subtitle">Login to access your delicious journey</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Login Form -->
                 <form id="login-form" class="auth-form">
-                    <div id="login-error" class="error-message"></div>
+                    <!-- Error Display -->
+                    <div id="login-error" class="error-message" style="display: none;"></div>
                     
+                    <!-- Email Input -->
                     <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" name="email" required>
+                        <div class="input-with-icon">
+                            <i class="fas fa-envelope input-icon"></i>
+                            <input type="email" 
+                                   id="email" 
+                                   name="email" 
+                                   placeholder="Enter your email address"
+                                   required
+                                   autocomplete="email">
+                        </div>
+                        <div class="input-helper">We'll never share your email</div>
                     </div>
 
+                    <!-- Password Input -->
                     <div class="form-group">
-                        <label for="password">Password</label>
-                        <input type="password" id="password" name="password" required>
+                        <div class="input-with-icon">
+                            <i class="fas fa-lock input-icon"></i>
+                            <input type="password" 
+                                   id="password" 
+                                   name="password" 
+                                   placeholder="Enter your password"
+                                   required
+                                   autocomplete="current-password">
+                            <button type="button" class="password-toggle" id="passwordToggle">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="input-helper">Must be at least 8 characters</div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary btn-full">Login</button>
+                    <!-- Remember & Forgot -->
+                    <div class="form-options">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="remember-me" name="remember-me">
+                            <span class="checkmark"></span>
+                            <span class="checkbox-label">Remember me</span>
+                        </label>
+                        <a href="forgot-password.html" class="forgot-password">
+                            Forgot password?
+                        </a>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-primary btn-full btn-auth">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span class="btn-text">Sign In</span>
+                        <div class="btn-loading" style="display: none;">
+                            <div class="loading-spinner-small"></div>
+                        </div>
+                    </button>
+
+                    <!-- Social Login -->
+                    <div class="social-login">
+                        <p class="social-divider">Or continue with</p>
+                        <div class="social-buttons">
+                            <button type="button" class="social-btn google-btn" id="googleSignIn">
+                                <i class="fab fa-google"></i>
+                                Google
+                            </button>
+                            <button type="button" class="social-btn facebook-btn" id="facebookSignIn">
+                                <i class="fab fa-facebook-f"></i>
+                                Facebook
+                            </button>
+                        </div>
+                        <!-- Google Sign-In Button Container (will be populated by JavaScript) -->
+                        <div id="google-signin-button-container" style="margin-top: 15px; display: none;"></div>
+                    </div>
+
+                    <!-- Sign Up Link -->
+                    <div class="auth-footer">
+                        <p>Don't have an account?</p>
+                        <a href="register.html" class="auth-link">
+                            <i class="fas fa-user-plus"></i>
+                            Create your free account
+                        </a>
+                    </div>
                 </form>
 
-                <p class="auth-footer">
-                    Don't have an account? <a href="register.html">Sign up here</a>
-                </p>
+                <!-- App Download -->
+                <div class="auth-app-promo">
+                    <p class="promo-text">
+                        <i class="fas fa-mobile-alt"></i>
+                        Get the best experience on our mobile app
+                    </p>
+                    <div class="app-download-buttons">
+                        <a href="#" class="app-store-btn-small">
+                            <i class="fab fa-apple"></i>
+                            App Store
+                        </a>
+                        <a href="#" class="google-play-btn-small">
+                            <i class="fab fa-google-play"></i>
+                            Google Play
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
+    <!-- ========================= FOOTER ========================= -->
+    <footer class="footer" aria-label="Footer section">
+        <div class="container">
+            <div class="footer-content">
+                <!-- Brand Info -->
+                <div class="footer-section">
+                    <div class="footer-brand">
+                        <div class="brand-logo">🍽️</div>
+                        <h3>HomeyChef</h3>
+                    </div>
+                    <p class="footer-description">
+                        Connecting food lovers with passionate home chefs since 2024.
+                    </p>
+                </div>
+                
+                <!-- Quick Links -->
+                <div class="footer-section">
+                    <h4 class="footer-title">Help & Support</h4>
+                    <ul class="footer-links">
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> Help Center</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> Contact Us</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> Privacy Policy</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="footer-bottom-content">
+                    <p>&copy; 2024 HomeyChef. All rights reserved. Made with <i class="fas fa-heart" style="color: #e74c3c;"></i> for food lovers.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========================= SCRIPTS ========================= -->
     <script src="js/utils.js"></script>
     <script src="js/auth.js"></script>
+    <script src="js/navbar.js"></script>
+    
+      
+    <!-- Login Page JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const passwordToggle = document.getElementById('passwordToggle');
+    const passwordInput = document.getElementById('password');
+    const loginForm = document.getElementById('login-form');
+    const submitBtn = loginForm.querySelector('.btn-auth');
+    const btnText = submitBtn.querySelector('.btn-text');
+    const btnLoading = submitBtn.querySelector('.btn-loading');
+    const errorDiv = document.getElementById('login-error');
+
+    // Toggle password visibility
+    if (passwordToggle && passwordInput) {
+        passwordToggle.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+        });
+    }
+
+    // Form submission
+    loginForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        // Clear previous errors
+        errorDiv.style.display = 'none';
+        errorDiv.textContent = '';
+
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value.trim();
+
+        // Show loading
+        submitBtn.classList.add('loading');
+        btnLoading.style.display = 'block';
+        submitBtn.disabled = true;
+
+        try {
+            // Call actual API
+            const response = await fetch('/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                // Show server error
+                throw new Error(data.message || 'Login failed');
+            }
+
+            // Save token and user data
+            localStorage.setItem('authToken', data.token);
+            localStorage.setItem('userData', JSON.stringify(data.user));
+
+            // Show success message
+            const successMsg = document.createElement('div');
+            successMsg.className = 'success-message';
+            successMsg.textContent = 'Login successful! Redirecting...';
+            loginForm.insertBefore(successMsg, loginForm.firstChild);
+
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1500);
+
+        } catch (err) {
+            errorDiv.textContent = err.message;
+            errorDiv.style.display = 'block';
+        } finally {
+            // Hide loading
+            submitBtn.classList.remove('loading');
+            btnLoading.style.display = 'none';
+            submitBtn.disabled = false;
+        }
+    });
+
+    // Input focus effect
+    const inputs = document.querySelectorAll('.input-with-icon input');
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentElement.style.transform = 'translateY(-2px)';
+        });
+        input.addEventListener('blur', function() {
+            this.parentElement.style.transform = 'translateY(0)';
+        });
+    });
+});
+</script>
+
+    <script src="js/social-auth.js"></script>
+    
 </body>
 </html>
-

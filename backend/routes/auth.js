@@ -2,10 +2,16 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { OAuth2Client } = require('google-auth-library');
+const { Op } = require('sequelize');
 const User = require('../models/User');
 const Chef = require('../models/Chef');
+const rateLimit = require('express-rate-limit');
 
 const router = express.Router();
+
+// Initialize Google OAuth Client
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Register Admin/User
 router.post('/register', async (req, res) => {
@@ -98,9 +104,14 @@ router.post('/register/chef', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 دقيقة
+    max: 5, // 5 محاولات فقط
+    message: { error: 'Too many login attempts, try again later' }
+});
 
 // Login (auto-detect Chef or User by email)
-router.post('/login', async (req, res) => {
+router.post('/login',loginLimiter, async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -167,6 +178,117 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// Google OAuth Login
+router.post('/google', async (req, res) => {
+  try {
+    const { credential } = req.body;
+
+    if (!credential) {
+      return res.status(400).json({ error: 'Google credential is required' });
+    }
+
+    // Verify Google token
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID
+    });
+
+    const payload = ticket.getPayload();
+    const { sub: googleId, email, name, picture } = payload;
+
+    if (!email) {
+      return res.status(400).json({ error: 'Email not provided by Google' });
+    }
+
+    // Check if user exists by Google ID or email
+    let user = null;
+    let userType = null;
+
+    // Check User table first
+    const existingUser = await User.findOne({
+      where: {
+        [Op.or]: [
+          { googleId },
+          { email }
+        ]
+      }
+    });
+
+    // Check Chef table
+    const existingChef = await Chef.findOne({
+      where: {
+        [Op.or]: [
+          { googleId },
+          { email }
+        ]
+      }
+    });
+
+    // Prioritize admin User if exists
+    if (existingUser && existingUser.role === 'admin') {
+      // Update Google ID if not set
+      if (!existingUser.googleId) {
+        existingUser.googleId = googleId;
+        await existingUser.save();
+      }
+      user = existingUser;
+      userType = 'user';
+    } else if (existingChef) {
+      // Update Google ID if not set
+      if (!existingChef.googleId) {
+        existingChef.googleId = googleId;
+        await existingChef.save();
+      }
+      user = existingChef;
+      userType = 'chef';
+    } else if (existingUser) {
+      // Update Google ID if not set
+      if (!existingUser.googleId) {
+        existingUser.googleId = googleId;
+        await existingUser.save();
+      }
+      user = existingUser;
+      userType = 'user';
+    } else {
+      // Create new user account (default to regular user)
+      user = await User.create({
+        name,
+        email,
+        googleId,
+        password: null, // No password for OAuth users
+        role: 'user'
+      });
+      userType = 'user';
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      {
+        userId: user.id,
+        role: userType === 'chef' ? 'chef' : (user.role || 'user'),
+        userType
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    res.json({
+      message: 'Google login successful',
+      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: userType === 'chef' ? 'chef' : (user.role || 'user'),
+        picture: picture || null
+      }
+    });
+  } catch (error) {
+    console.error('Google OAuth error:', error);
+    res.status(500).json({ error: error.message || 'Google authentication failed' });
+  }
+});
+
 // Get current user
 router.get('/me', async (req, res) => {
   try {
@@ -193,7 +315,7 @@ router.get('/me', async (req, res) => {
         id: user.id,
         name: user.name,
         email: user.email,
-        role: user.role || 'chef',
+        role: decoded.userType === 'chef' ? 'chef' : user.role,
         phone: user.phone,
         address: user.address
       }

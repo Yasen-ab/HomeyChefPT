@@ -4,15 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Menu - HomeyChef</title>
-
-    <!-- Styles -->
+    <meta name="description" content="Explore our curated menu of handcrafted dishes prepared by passionate chefs">
+    
+    <!-- Styles & Icons -->
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍽️</text></svg>">
 </head>
 
 <body>
-
     <!-- ========================= NAVIGATION ========================= -->
-    <nav class="navbar">
+<nav class="navbar">
   <div class="container">
     <div class="nav-brand">
       <a href="index.html"><h1>🍽️ HomeyChef</h1></a>
@@ -20,7 +25,7 @@
 
     <div class="nav-links" id="main-nav-links">
       <a href="index.html">Home</a>
-      <a href="menu.html">Menu</a>
+      <a href="menu.html" class="active">Menu</a>
 
       <!-- هذا هو المكان الذي سيُحقَن فيه Login/Register أو Dashboard/Logout -->
       <span id="nav-auth">
@@ -29,69 +34,100 @@
       </span>
     </div>
 
-    <div class="nav-mobile">
+    <!-- <div class="nav-mobile">
       <span id="menu-toggle">☰</span>
-    </div>
+    </div> -->
   </div>
 </nav>
 
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">
+        <i class="fas fa-chevron-up"></i>
+    </button>
 
     <!-- ========================= MENU SECTION ========================= -->
-    <section class="menu-section">
+    <main class="menu-section">
         <div class="container">
+            <!-- Hero Section -->
+            <div class="menu-hero">
+                <h1>Our Culinary Collection</h1>
+                <p class="menu-subtitle">Handcrafted dishes by passionate chefs, made with love and fresh ingredients</p>
+            </div>
 
-            <h1 class="page-title">Our Menu</h1>
-            <p class="page-subtitle">Discover delicious dishes from our talented chefs</p>
-
-            <!-- ---------- FILTERS & SEARCH ---------- -->
+            <!-- Search and Filters -->
             <div class="menu-controls">
-
-                <!-- Search -->
+                <!-- Search Box -->
                 <div class="search-box">
-                    <input id="search-input" type="text" placeholder="Search dishes, ingredients, chefs...">
-                    <span class="search-icon">🔍</span>
+                    <input id="search-input" 
+                           type="search" 
+                           placeholder="Search dishes, ingredients, chefs..." 
+                           aria-label="Search menu items">
+                    <button class="search-button" aria-label="Search">
+                        <i class="fas fa-search"></i>
+                    </button>
                 </div>
 
-                <!-- Filters -->
+                <!-- Filter Controls -->
                 <div class="filters-row">
-                    <select id="category-filter" class="filter-select">
-                        <option value="">All Categories</option>
-                        <option value="Appetizer">Appetizer</option>
-                        <option value="Main Course">Main Course</option>
-                        <option value="Dessert">Dessert</option>
-                        <option value="Beverage">Beverage</option>
-                        <option value="Salad">Salad</option>
-                        <option value="Soup">Soup</option>
-                    </select>
+                    <div class="filter-group">
+                        <label for="category-filter" class="filter-label">Category</label>
+                        <select id="category-filter" class="filter-select">
+                            <option value="">All Categories</option>
+                            <option value="Appetizer">Appetizer</option>
+                            <option value="Main Course">Main Course</option>
+                            <option value="Dessert">Dessert</option>
+                            <option value="Beverage">Beverage</option>
+                            <option value="Salad">Salad</option>
+                            <option value="Soup">Soup</option>
+                        </select>
+                    </div>
 
-                    <select id="chef-filter" class="filter-select">
-                        <option value="">All Chefs</option>
-                    </select>
+                    <div class="filter-group">
+                        <label for="chef-filter" class="filter-label">Chef</label>
+                        <select id="chef-filter" class="filter-select">
+                            <option value="">All Chefs</option>
+                            <!-- Options will be populated dynamically -->
+                        </select>
+                    </div>
 
-                    <select id="rating-filter" class="filter-select">
-                        <option value="">All Ratings</option>
-                        <option value="4.5">⭐ 4.5+ Stars</option>
-                        <option value="4.0">⭐ 4.0+ Stars</option>
-                        <option value="3.5">⭐ 3.5+ Stars</option>
-                        <option value="3.0">⭐ 3.0+ Stars</option>
-                    </select>
+                    <div class="filter-group">
+                        <label for="rating-filter" class="filter-label">Minimum Rating</label>
+                        <select id="rating-filter" class="filter-select">
+                            <option value="">All Ratings</option>
+                            <option value="4.5">⭐ 4.5+ Stars</option>
+                            <option value="4.0">⭐ 4.0+ Stars</option>
+                            <option value="3.5">⭐ 3.5+ Stars</option>
+                            <option value="3.0">⭐ 3.0+ Stars</option>
+                        </select>
+                    </div>
 
-                    <input id="max-price" type="number" class="filter-input"
-                           placeholder="Max Price ($)" min="0" step="0.01">
+                    <div class="filter-group">
+                        <label for="max-price" class="filter-label">Max Price ($)</label>
+                        <input id="max-price" 
+                               type="number" 
+                               class="filter-input"
+                               placeholder="e.g., 25" 
+                               min="0" 
+                               step="0.01"
+                               aria-label="Maximum price">
+                    </div>
 
-                    <button class="btn btn-secondary" onclick="clearFilters()">
-                        Clear Filters
+                    <button class="btn btn-secondary btn-clear" onclick="clearFilters()" aria-label="Clear all filters">
+                        <i class="fas fa-times"></i> Clear Filters
                     </button>
                 </div>
             </div>
 
-            <!-- ---------- RESULTS INFO ---------- -->
+            <!-- Results Info -->
             <div class="results-info">
-                <span id="results-count">Loading dishes...</span>
-
+                <div class="results-count">
+                    <span id="results-count" class="count-text">Loading dishes...</span>
+                    <span class="results-tag" id="results-tag"></span>
+                </div>
+                
                 <div class="sort-options">
-                    <label>Sort by:</label>
-                    <select id="sort-options">
+                    <label for="sort-options" class="sort-label">Sort by:</label>
+                    <select id="sort-options" class="sort-select">
                         <option value="popular">Most Popular</option>
                         <option value="rating">Highest Rated</option>
                         <option value="price-low">Price: Low to High</option>
@@ -101,85 +137,88 @@
                 </div>
             </div>
 
-            <!-- ---------- LOADING ---------- -->
-            <div id="loading-state" class="loading-state">
+            <!-- Loading State -->
+            <div id="loading-state" class="loading-state" style="display: none;" aria-live="polite">
                 <div class="loading-spinner"></div>
                 <p>Loading delicious dishes...</p>
             </div>
 
-            <!-- ---------- DISHES GRID ---------- -->
-            <div id="dishes-container" class="dishes-grid"></div>
+            <!-- Dishes Grid -->
+            <div id="dishes-container" class="dishes-grid" style="display: none;"></div>
 
-            <!-- ---------- EMPTY STATE ---------- -->
-            <div id="empty-state" class="empty-state" style="display: none;">
-                <div class="empty-icon">🍽️</div>
-                <h3>No Dishes Found</h3>
-                <p>Try adjusting your search or filters to find more dishes.</p>
-
+            <!-- Empty State -->
+            <div id="empty-state" class="empty-state" style="display: none;" aria-live="polite">
+                <div class="empty-state-icon">🍽️</div>
+                <div class="empty-state-content">
+                    <h3>No dishes found</h3>
+                    <p>Try adjusting your filters or search term to find what you're looking for.</p>
+                </div>
                 <button class="btn btn-primary" onclick="clearFilters()">
-                    Clear All Filters
+                    <i class="fas fa-filter"></i> Clear All Filters
                 </button>
             </div>
 
-            <!-- ---------- LOAD MORE ---------- -->
+            <!-- Load More -->
             <div id="load-more-container" class="load-more-container" style="display: none;">
                 <button id="load-more-btn" class="btn btn-outline" onclick="loadMoreDishes()">
-                    Load More Dishes
+                    <i class="fas fa-plus"></i> Load More Dishes
                 </button>
             </div>
-
         </div>
-    </section>
+    </main>
 
     <!-- ========================= RATING MODAL ========================= -->
-    <div id="rating-modal" class="modal">
-        <div class="modal-content">
-
+    <div id="rating-modal" class="rating-modal" role="dialog" aria-modal="true" aria-labelledby="rating-modal-title" style="display: none;">
+        <div class="rating-modal-content">
             <div class="modal-header">
-                <h3>Rate This Dish</h3>
-                <span class="close" onclick="closeRatingModal()">&times;</span>
+                <h3 id="rating-modal-title">Rate This Dish</h3>
+                <button class="close-modal" onclick="closeRatingModal()" aria-label="Close rating modal">
+                    &times;
+                </button>
             </div>
-
-            <div class="modal-body">
-
-                <!-- Dish Info -->
-                <div class="selected-dish">
-                    <img id="rating-dish-image" src="" alt="">
-                    <div>
-                        <h4 id="rating-dish-name"></h4>
-                        <p id="rating-dish-chef"></p>
-                    </div>
+            
+            <div class="dish-preview">
+                <img id="rating-dish-image" class="dish-preview-image" alt="Dish image">
+                <div class="dish-preview-info">
+                    <h4 id="rating-dish-name"></h4>
+                    <p id="rating-dish-chef"></p>
                 </div>
-
-                <!-- Stars -->
-                <div class="rating-stars">
-                    <p>How would you rate this dish?</p>
-
-                    <div id="stars-container" class="stars-container">
-                        <span class="star" data-rating="1">☆</span>
-                        <span class="star" data-rating="2">☆</span>
-                        <span class="star" data-rating="3">☆</span>
-                        <span class="star" data-rating="4">☆</span>
-                        <span class="star" data-rating="5">☆</span>
-                    </div>
-
-                    <div id="rating-text" class="rating-text">Select a rating</div>
+            </div>
+            
+            <div id="rating-error" class="rating-error" role="alert"></div>
+            
+            <div class="rating-input">
+                <p class="rating-label">Your Rating:</p>
+                <div class="stars-container" id="stars-container" data-current-rating="0">
+                    <span class="star" data-rating="1" role="button" tabindex="0" aria-label="1 star">☆</span>
+                    <span class="star" data-rating="2" role="button" tabindex="0" aria-label="2 stars">☆</span>
+                    <span class="star" data-rating="3" role="button" tabindex="0" aria-label="3 stars">☆</span>
+                    <span class="star" data-rating="4" role="button" tabindex="0" aria-label="4 stars">☆</span>
+                    <span class="star" data-rating="5" role="button" tabindex="0" aria-label="5 stars">☆</span>
                 </div>
-
-                <!-- Comment -->
-                <div class="form-group">
-                    <label for="review-comment">Your Review (Optional)</label>
-                    <textarea id="review-comment" rows="4"
-                              placeholder="Share your experience with this dish..."></textarea>
-                </div>
-
-                <div id="rating-error" class="error-message"></div>
-
-                <div class="form-actions">
-                    <button class="btn btn-secondary" onclick="closeRatingModal()">Cancel</button>
-                    <button class="btn btn-primary" onclick="submitRating()">Submit Review</button>
-                </div>
-
+                <div id="rating-text" class="rating-text">Select a rating</div>
+            </div>
+            
+            <div class="review-section">
+                <label for="review-comment" class="review-label">Your Review (Optional)</label>
+                <textarea 
+                    id="review-comment" 
+                    class="review-comment" 
+                    placeholder="Share your experience with this dish..."
+                    maxlength="500"
+                    rows="4"
+                    aria-label="Review comments"
+                ></textarea>
+                <div class="char-count" id="char-count">0/500</div>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeRatingModal()">
+                    Cancel
+                </button>
+                <button class="btn btn-primary" onclick="submitRating()">
+                    Submit Rating
+                </button>
             </div>
         </div>
     </div>
@@ -188,6 +227,5 @@
     <script src="js/utils.js"></script>
     <script src="js/menu.js"></script>
     <script src="js/navbar.js"></script>
-
 </body>
 </html>

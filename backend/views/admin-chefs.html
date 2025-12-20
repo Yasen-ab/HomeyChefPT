@@ -5,21 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Chefs Management | HomeyChef</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar">
+    <nav class="navbar" aria-label="Main navigation">
         <div class="container">
-            <div class="nav-brand">
-                <a href="index.html"><h1>🍽️ HomeyChef</h1></a>
-            </div>
-            <div class="nav-links">
-                <a href="dashboard-admin.html">Dashboard</a>
-                <a href="admin-users.html">Users</a>
-                <a href="admin-chefs.html" class="active">Chefs</a>
-                <a href="admin-dishes.html">Dishes</a>
-                <a href="orders.html">Orders</a>
-                <a href="#" id="logout-btn">Logout</a>
+            <a href="index.html" class="nav-brand" aria-label="HomeyChef - Go to homepage">
+                <div class="brand-logo" aria-hidden="true">🍽️</div>
+                <h1 class="brand-name">HomeyChef</h1>
+            </a>
+
+            <button class="nav-toggle" id="menu-toggle" aria-expanded="false" aria-controls="navLinks" aria-label="Toggle navigation menu">
+                <span class="toggle-line" aria-hidden="true"></span>
+                <span class="toggle-line" aria-hidden="true"></span>
+                <span class="toggle-line" aria-hidden="true"></span>
+            </button>
+
+            <div class="nav-menu" id="navMenu">
+                <ul class="nav-links" id="navLinks" role="menubar">
+                    <li class="nav-item" role="none"><a href="dashboard-admin.html" class="nav-link" role="menuitem">Dashboard</a></li>
+                    <li class="nav-item" role="none"><a href="admin-users.html" class="nav-link" role="menuitem">Users</a></li>
+                    <li class="nav-item" role="none"><a href="admin-chefs.html" class="nav-link active" role="menuitem" aria-current="page">Chefs</a></li>
+                    <li class="nav-item" role="none"><a href="admin-dishes.html" class="nav-link" role="menuitem">Dishes</a></li>
+                    <li class="nav-item" role="none"><a href="orders.html" class="nav-link" role="menuitem">Orders</a></li>
+                    <li class="nav-item" role="none"><a href="#" id="logout-btn" class="nav-link" role="menuitem">Logout</a></li>
+
+                    <!-- Legacy guest auth links (fallback) -->
+                    <div class="auth-links" id="authLinks" style="display: none;">
+                        <li class="nav-link-item" role="none"><a href="login.html" class="nav-link btn-login" role="menuitem"><i class="fas fa-sign-in-alt" aria-hidden="true"></i> Login</a></li>
+                        <li class="nav-link-item" role="none"><a href="register.html" class="nav-link btn-register" role="menuitem"><i class="fas fa-user-plus" aria-hidden="true"></i> Register</a></li>
+                    </div>
+
+                    <!-- Unified auth container -->
+                    <li class="nav-link-item" id="nav-auth" role="none"></li>
+                </ul>
             </div>
         </div>
     </nav>
@@ -118,6 +138,8 @@
             </div>
         </div>
     </section>
+
+    <script src="js/navbar.js"></script>
 
     <!-- Chef Details Modal -->
     <div id="chef-modal" class="modal">

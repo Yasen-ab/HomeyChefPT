@@ -3,37 +3,232 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orders - HomeyChef</title>
+    <title>My Orders - HomeyChef</title>
+    
+    <!-- Styles & Fonts -->
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍽️</text></svg>">
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
+
+    <!-- ========================= NAVBAR ========================= -->
+   <nav class="navbar">
         <div class="container">
             <div class="nav-brand">
                 <a href="index.html"><h1>🍽️ HomeyChef</h1></a>
             </div>
             <div class="nav-links">
-                <a href="dashboard-user.html">Dashboard</a>
+                 <a href="menu.html">Menu</a>
+               
                 <a href="orders.html" class="active">Orders</a>
-                <a href="#" id="logout-btn">Logout</a>
+                <span id="nav-auth">
+  <a href="login.html">Login</a>
+  <a href="register.html" class="btn-primary">Sign Up</a>
+</span>
+
             </div>
         </div>
     </nav>
 
-    <!-- Orders Section -->
-    <section class="orders-section">
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <!-- ========================= ORDERS SECTION ========================= -->
+    <section class="orders-section" aria-label="Orders section">
         <div class="container">
-            <h1 class="page-title">Orders</h1>
+            <!-- Orders Header -->
+            <div class="orders-header">
+                <div class="orders-hero">
+                    <h1 class="orders-title" id="orders-title">My Orders</h1>
+                    <p class="orders-subtitle" id="orders-subtitle">Loading your orders...</p>
+                </div>
+                
+                <!-- Stats Overview - سيتم ملؤها ديناميكياً -->
+                <div class="orders-stats" id="orders-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #00BCD4, #00838F);">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="pending-count">0</h3>
+                            <p>Pending Orders</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #4CAF50, #2E7D32);">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="completed-count">0</h3>
+                            <p>Completed Orders</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #FF9800, #F57C00);">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="delivery-count">0</h3>
+                            <p>In Delivery</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #9C27B0, #7B1FA2);">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="total-spent">$0.00</h3>
+                            <p>Total Spent</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
             
-            <div id="orders-container" class="orders-list">
-                <!-- Orders will be loaded here -->
+            <!-- Orders Controls -->
+            <div class="orders-controls">
+                <div class="tabs-container">
+                    <div class="tabs">
+                        <button class="tab-btn active" data-tab="all">All Orders</button>
+                        <button class="tab-btn" data-tab="pending">Pending</button>
+                        <button class="tab-btn" data-tab="processing">Processing</button>
+                        <button class="tab-btn" data-tab="delivered">Delivered</button>
+                        <button class="tab-btn" data-tab="cancelled">Cancelled</button>
+                    </div>
+                </div>
+                
+                <div class="orders-actions">
+                    <div class="search-orders">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" 
+                               id="search-orders" 
+                               placeholder="Search orders by ID, dish, or chef...">
+                    </div>
+                    
+                    <div class="filter-sort">
+                        <select id="sort-orders" class="filter-select">
+                            <option value="newest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                            <option value="price-high">Highest Price</option>
+                            <option value="price-low">Lowest Price</option>
+                        </select>
+                        
+                        <button class="btn btn-secondary" id="export-orders">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Orders Timeline -->
+            <div class="orders-timeline">
+                <div class="timeline-header">
+                    <h3>Order Timeline</h3>
+                    <div class="timeline-filters">
+                        <span class="filter-label">Show:</span>
+                        <select id="timeline-filter" class="filter-select-small">
+                            <option value="last-week">Last Week</option>
+                            <option value="last-month">Last Month</option>
+                            <option value="last-3-months">Last 3 Months</option>
+                            <option value="all-time">All Time</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="timeline-container" id="orders-container">
+                    <!-- Orders will be loaded dynamically here -->
+                    <div class="loading-container" id="loading-orders">
+                        <div class="loading-spinner"></div>
+                        <p>Loading your orders...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Empty State -->
+            <div class="empty-state" id="empty-orders" style="display: none;">
+                <div class="empty-state-icon">📦</div>
+                <div class="empty-state-content">
+                    <h3>No Orders Yet</h3>
+                    <p>You haven't placed any orders yet. Browse our menu and discover delicious home-cooked meals!</p>
+                    <a href="menu.html" class="btn btn-primary">
+                        <i class="fas fa-utensils"></i> Explore Menu
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Load More -->
+            <div class="load-more-container" id="load-more-orders" style="display: none;">
+                <button class="btn btn-outline" id="load-more-btn">
+                    <i class="fas fa-redo"></i> Load More Orders
+                </button>
             </div>
         </div>
     </section>
 
+    <!-- Order Details Modal -->
+    <div id="order-details-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Order Details</h3>
+                <button class="close-modal" onclick="closeOrderModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="order-details-content">
+                <!-- Order details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================= FOOTER ========================= -->
+    <footer class="footer" aria-label="Footer section">
+        <div class="container">
+            <div class="footer-content">
+                <!-- Brand Info -->
+                <div class="footer-section">
+                    <div class="footer-brand">
+                        <div class="brand-logo">🍽️</div>
+                        <h3>HomeyChef</h3>
+                    </div>
+                    <p class="footer-description">
+                        Thank you for choosing HomeyChef! We're cooking up something special for you.
+                    </p>
+                </div>
+                
+                <!-- Order Support -->
+                <div class="footer-section">
+                    <h4 class="footer-title">Order Support</h4>
+                    <ul class="footer-links">
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> Track Order</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> Order History</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> Cancel Order</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> Refund Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="footer-bottom-content">
+                    <p>&copy; <span id="current-year">2024</span> HomeyChef. All rights reserved. <i class="fas fa-heart" style="color: #e74c3c;"></i></p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========================= SCRIPTS ========================= -->
     <script src="js/utils.js"></script>
     <script src="js/orders.js"></script>
+    <script src="js/navbar.js"></script>
+    
+    <script>
+        // Set current year in footer
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
 </body>
 </html>
-

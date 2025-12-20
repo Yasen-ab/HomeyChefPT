@@ -44,10 +44,26 @@ function renderNavAuthArea() {
     const displayName = (user && user.name) ? escapeHtml(user.name.split(' ')[0]) : 'Account';
 
     navAuthContainer.innerHTML = `
-      <a href="${dashboardUrl}" id="nav-dashboard">Dashboard</a>
-      <a href="#" id="nav-username" class="nav-username">Hi, ${displayName}</a>
-      <a href="#" id="nav-logout">Logout</a>
-    `;
+  <div class="nav-user-wrapper">
+    <a href="${dashboardUrl}" class="nav-link nav-dashboard active">
+      <i class="fas fa-tachometer-alt"></i> Dashboard
+    </a>
+    
+    <div class="nav-user-dropdown">
+      <button class="nav-user-btn">
+        <img src="${user.picture || 'https://via.placeholder.com/32'}" 
+             alt="${displayName}" class="nav-user-avatar">
+        <span class="nav-username-text">Hi, ${displayName}</span>
+        <i class="fas fa-caret-down"></i>
+      </button>
+      <div class="nav-user-menu">
+        <a href="${dashboardUrl}"><i class="fas fa-user"></i> Profile</a>
+        <a href="#" id="nav-logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+      </div>
+    </div>
+  </div>
+`;
+
 
   } else {
     // Not authenticated: show Login / Register

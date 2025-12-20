@@ -58,3 +58,13 @@ function createOrderCard(order) {
     `;
 }
 
+// Initialize logout button
+function initLogoutButton() {
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            logout();
+            window.location.href = 'login.html';
+        });
+    }
+}

@@ -1,141 +1,3 @@
-// // Menu page logic
-// document.addEventListener('DOMContentLoaded', () => {
-//     loadDishes();
-//     initFilters();
-//     initLogoutButton();
-// });
-
-// let allDishes = [];
-
-// // Load all dishes
-// async function loadDishes() {
-//     try {
-//         const dishes = await apiRequest('/dishes');
-//         allDishes = dishes;
-//         displayDishes(dishes);
-//     } catch (error) {
-//         console.error('Error loading dishes:', error);
-//     }
-// }
-
-// // Display dishes
-// function displayDishes(dishes) {
-//     const container = document.getElementById('dishes-container');
-//     if (!container) return;
-    
-//     if (dishes.length === 0) {
-//         container.innerHTML = '<p class="text-center">No dishes found</p>';
-//         return;
-//     }
-    
-//     container.innerHTML = dishes.map(dish => createDishCard(dish)).join('');
-// }
-
-// // Create dish card HTML
-// function createDishCard(dish) {
-//     const imageUrl = dish.image
-//         ? (dish.image.startsWith('/uploads') ? `${API_URL.replace('/api','')}${dish.image}` : dish.image)
-//         : 'https://via.placeholder.com/300';
-//     return `
-//         <div class="dish-card">
-//             <img src="${imageUrl}" alt="${dish.name}" class="dish-image">
-//             <div class="dish-content">
-//                 <div class="dish-header">
-//                     <h3 class="dish-title">${dish.name}</h3>
-//                     <span class="dish-price">$${parseFloat(dish.price).toFixed(2)}</span>
-//                 </div>
-//                 <p class="dish-description">${dish.description}</p>
-//                 <div class="dish-meta">
-//                     <span>${dish.category}</span>
-//                     <span>${dish.Chef ? `👨‍🍳 ${dish.Chef.name}` : 'Chef'}</span>
-//                 </div>
-//                 <div class="dish-meta">
-//                     <span>⏱️ ${dish.preparationTime || 30} min</span>
-//                     <span>⭐ 4.5</span>
-//                 </div>
-//                 ${isAuthenticated() && isUser() ? `<button class="btn btn-primary btn-order" onclick="orderNow(${dish.id}, '${dish.name.replace(/'/g, "&#39;")}', ${dish.price})">Order Now</button>` : ''}
-//             </div>
-//         </div>
-//     `;
-// }
-
-// // Initialize filters
-// function initFilters() {
-//     const searchInput = document.getElementById('search-input');
-//     const categoryFilter = document.getElementById('category-filter');
-//     const maxPriceFilter = document.getElementById('max-price');
-    
-//     if (searchInput) {
-//         searchInput.addEventListener('input', filterDishes);
-//     }
-    
-//     if (categoryFilter) {
-//         categoryFilter.addEventListener('change', filterDishes);
-//     }
-    
-//     if (maxPriceFilter) {
-//         maxPriceFilter.addEventListener('input', filterDishes);
-//     }
-// }
-
-// // Filter dishes
-// function filterDishes() {
-//     const searchTerm = document.getElementById('search-input').value.toLowerCase();
-//     const category = document.getElementById('category-filter').value;
-//     const maxPrice = parseFloat(document.getElementById('max-price').value) || Infinity;
-    
-//     let filtered = allDishes.filter(dish => {
-//         const matchesSearch = !searchTerm || 
-//             dish.name.toLowerCase().includes(searchTerm) ||
-//             dish.description.toLowerCase().includes(searchTerm) ||
-//             (dish.ingredients && dish.ingredients.toLowerCase().includes(searchTerm));
-        
-//         const matchesCategory = !category || dish.category === category;
-//         const matchesPrice = parseFloat(dish.price) <= maxPrice;
-        
-//         return matchesSearch && matchesCategory && matchesPrice;
-//     });
-    
-//     displayDishes(filtered);
-// }
-
-// // Add to cart (placeholder)
-// async function orderNow(dishId, dishName, price) {
-//     try {
-//         if (!isAuthenticated()) {
-//             window.location.href = 'login.html';
-//             return;
-//         }
-//         if (!isUser()) {
-//             showNotification('Only users can place orders.', 'error');
-//             return;
-//         }
-
-//         const deliveryAddress = prompt(`Enter delivery address for ${dishName}:`);
-//         if (!deliveryAddress) return;
-
-//         const token = getAuthToken();
-//         const response = await fetch(`${API_URL}/orders`, {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json',
-//                 'Authorization': `Bearer ${token}`
-//             },
-//             body: JSON.stringify({
-//                 items: [{ dishId, quantity: 1 }],
-//                 deliveryAddress
-//             })
-//         });
-//         const data = await response.json();
-//         if (!response.ok) throw new Error(data.error || 'Failed to place order');
-
-//         showNotification('Order placed successfully!');
-//     } catch (e) {
-//         showNotification(e.message, 'error');
-//     }
-// }
-
-// Menu page logic with rating system
 document.addEventListener('DOMContentLoaded', () => {
     loadDishes();
     initFilters();
@@ -151,7 +13,7 @@ let currentPage = 1;
 let hasMoreDishes = false;
 
 // Load all dishes
-async function loadDishes() {
+async function loadDishes() {   
     showLoading();
     try {
         const dishes = await apiRequest('/dishes'); // بدل ratings
@@ -194,6 +56,20 @@ function displayDishes() {
     // Show container
     container.style.display = 'grid';
     document.getElementById('empty-state').style.display = 'none';
+    
+  setTimeout(() => {
+        const cards = container.querySelectorAll('.dish-card');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 50);
+        });
+    }, 100);
 }
 
 // Create dish card HTML with ratings
@@ -668,4 +544,321 @@ window.onclick = function(event) {
     if (event.target === modal) {
         closeRatingModal();
     }
+}
+
+// تحديث عرض الفلاتر النشطة
+function updateActiveFiltersDisplay() {
+    const activeFiltersContainer = document.getElementById('active-filters');
+    const summaryContainer = document.getElementById('filters-summary');
+    
+    if (!activeFiltersContainer) return;
+    
+    const activeFilters = [];
+    
+    // جمع الفلاتر النشطة
+    const categoryFilter = document.getElementById('category-filter');
+    const chefFilter = document.getElementById('chef-filter');
+    const ratingFilter = document.getElementById('rating-filter');
+    const maxPrice = document.getElementById('max-price');
+    const searchInput = document.getElementById('search-input');
+    
+    if (categoryFilter && categoryFilter.value) {
+        activeFilters.push({
+            type: 'category',
+            value: categoryFilter.value,
+            text: categoryFilter.options[categoryFilter.selectedIndex].text
+        });
+    }
+    
+    if (chefFilter && chefFilter.value) {
+        activeFilters.push({
+            type: 'chef',
+            value: chefFilter.value,
+            text: `Chef: ${chefFilter.options[chefFilter.selectedIndex].text}`
+        });
+    }
+    
+    if (ratingFilter && ratingFilter.value) {
+        activeFilters.push({
+            type: 'rating',
+            value: ratingFilter.value,
+            text: `Rating: ${ratingFilter.options[ratingFilter.selectedIndex].text}`
+        });
+    }
+    
+    if (maxPrice && maxPrice.value) {
+        activeFilters.push({
+            type: 'price',
+            value: maxPrice.value,
+            text: `Max Price: $${maxPrice.value}`
+        });
+    }
+    
+    if (searchInput && searchInput.value) {
+        activeFilters.push({
+            type: 'search',
+            value: searchInput.value,
+            text: `Search: "${searchInput.value}"`
+        });
+    }
+    
+    // عرض الفلاتر النشطة
+    if (activeFilters.length > 0) {
+        activeFiltersContainer.innerHTML = activeFilters.map(filter => `
+            <div class="filter-tag" data-type="${filter.type}">
+                <span>${filter.text}</span>
+                <button class="remove-filter" onclick="removeFilter('${filter.type}')">×</button>
+            </div>
+        `).join('');
+        
+        summaryContainer.style.display = 'block';
+    } else {
+        activeFiltersContainer.innerHTML = `
+            <div class="no-filters-message">
+                No active filters. Showing all dishes.
+            </div>
+        `;
+    }
+}
+
+// دالة إزالة فلتر محدد
+function removeFilter(filterType) {
+    switch(filterType) {
+        case 'category':
+            document.getElementById('category-filter').value = '';
+            break;
+        case 'chef':
+            document.getElementById('chef-filter').value = '';
+            break;
+        case 'rating':
+            document.getElementById('rating-filter').value = '';
+            break;
+        case 'price':
+            document.getElementById('max-price').value = '';
+            break;
+        case 'search':
+            document.getElementById('search-input').value = '';
+            break;
+    }
+    
+    // تحديث الفلاتر
+    updateActiveFiltersDisplay();
+    
+    // إعادة تحميل الأطباق مع الفلاتر المحدثة
+    if (typeof filterDishes === 'function') {
+        filterDishes();
+    }
+}
+
+// دالة لتبديل العرض بين الشبكة والقائمة
+function setupViewToggle() {
+    const viewToggleBtn = document.getElementById('viewToggle');
+    const gridViewIcon = viewToggleBtn.querySelector('.grid-view');
+    const listViewIcon = viewToggleBtn.querySelector('.list-view');
+    const dishesContainer = document.getElementById('dishes-container');
+    
+    if (!viewToggleBtn || !dishesContainer) return;
+    
+    viewToggleBtn.addEventListener('click', function() {
+        const isGridView = gridViewIcon.style.display !== 'none';
+        
+        if (isGridView) {
+            // التبديل إلى عرض القائمة
+            gridViewIcon.style.display = 'none';
+            listViewIcon.style.display = 'inline';
+            dishesContainer.classList.add('list-view');
+            dishesContainer.classList.remove('grid-view');
+            viewToggleBtn.title = 'Switch to Grid View';
+        } else {
+            // التبديل إلى عرض الشبكة
+            gridViewIcon.style.display = 'inline';
+            listViewIcon.style.display = 'none';
+            dishesContainer.classList.add('grid-view');
+            dishesContainer.classList.remove('list-view');
+            viewToggleBtn.title = 'Switch to List View';
+        }
+    });
+}
+
+// دالة لتحديث عدد النتائج بشكل متحرك
+function animateCountUpdate(newCount) {
+    const countElement = document.getElementById('results-count');
+    if (!countElement) return;
+    
+    const currentCount = parseInt(countElement.textContent.match(/\d+/)?.[0]) || 0;
+    const targetCount = parseInt(newCount) || 0;
+    
+    if (currentCount === targetCount) return;
+    
+    const duration = 1000; // مدة الحركة بالمللي ثانية
+    const startTime = Date.now();
+    const increment = targetCount > currentCount ? 1 : -1;
+    
+    function update() {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // استخدام دالة توقيعية للحركة
+        const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+        const currentValue = Math.round(currentCount + (targetCount - currentCount) * easeOutQuart);
+        
+        countElement.textContent = `${currentValue} delicious dishes`;
+        
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        } else {
+            countElement.textContent = `${targetCount} delicious dishes`;
+        }
+    }
+    
+    update();
+}
+
+// تهيئة أزرار الإجراءات السريعة
+function setupQuickActions() {
+    const exportBtn = document.getElementById('exportBtn');
+    const shareBtn = document.getElementById('shareBtn');
+    
+    if (exportBtn) {
+        exportBtn.addEventListener('click', function() {
+            // محاكاة تصدير النتائج
+            showNotification('📤 Exporting menu results...', 'info');
+            
+            // يمكنك هنا إضافة منطق التصدير الحقيقي
+            setTimeout(() => {
+                showNotification('✅ Results exported successfully!', 'success');
+            }, 1500);
+        });
+    }
+    
+    if (shareBtn) {
+        shareBtn.addEventListener('click', function() {
+            // مشاركة القائمة
+            if (navigator.share) {
+                navigator.share({
+                    title: 'HomeyChef Menu',
+                    text: 'Check out these amazing dishes on HomeyChef!',
+                    url: window.location.href
+                });
+            } else {
+                // نسخ الرابط
+                navigator.clipboard.writeText(window.location.href);
+                showNotification('🔗 Link copied to clipboard!', 'success');
+            }
+        });
+    }
+}
+
+// إضافة أنماط CSS لعرض القائمة
+const listViewStyles = `
+<style>
+    .dishes-container.list-view .dishes-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .dishes-container.list-view .dish-card {
+        display: grid;
+        grid-template-columns: 200px 1fr auto;
+        gap: 25px;
+        padding: 25px;
+    }
+    
+    .dishes-container.list-view .dish-image-container {
+        height: 150px;
+        border-radius: 15px;
+    }
+    
+    .dishes-container.list-view .dish-content {
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
+    .dishes-container.list-view .dish-footer {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-width: 180px;
+    }
+    
+    .dishes-container.list-view .dish-description {
+        -webkit-line-clamp: 3;
+    }
+    
+    @media (max-width: 768px) {
+        .dishes-container.list-view .dish-card {
+            grid-template-columns: 1fr;
+            text-align: center;
+        }
+        
+        .dishes-container.list-view .dish-image-container {
+            height: 200px;
+        }
+    }
+</style>
+`;
+
+document.head.insertAdjacentHTML('beforeend', listViewStyles);
+
+// تهيئة كل شيء عند تحميل الصفحة
+document.addEventListener('DOMContentLoaded', function() {
+    updateActiveFiltersDisplay();
+    setupViewToggle();
+    setupQuickActions();
+    
+    // تحديث الفلاتر عند التغيير
+    const filterElements = [
+        'category-filter',
+        'chef-filter',
+        'rating-filter',
+        'max-price',
+        'search-input'
+    ];
+    
+    filterElements.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.addEventListener('change', updateActiveFiltersDisplay);
+            element.addEventListener('input', updateActiveFiltersDisplay);
+        }
+    });
+});
+
+// دالة مساعدة لعرض الإشعارات
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    
+    notification.style.cssText = `
+        position: fixed;
+        top: 100px;
+        right: 20px;
+        background: white;
+        color: #2C3E50;
+        padding: 20px 30px;
+        border-radius: 15px;
+        box-shadow: 0 15px 50px rgba(0, 188, 212, 0.3);
+        z-index: 10000;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        animation: slideIn 0.5s ease;
+        border-left: 5px solid ${type === 'success' ? '#4CAF50' : '#00BCD4'};
+        transform: translateX(400px);
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.transform = 'translateX(0)';
+    }, 10);
+    
+    setTimeout(() => {
+        notification.style.transform = 'translateX(400px)';
+        setTimeout(() => notification.remove(), 500);
+    }, 3000);
 }

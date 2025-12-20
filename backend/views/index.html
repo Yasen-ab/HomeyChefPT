@@ -3,117 +3,480 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HomeyChef - Home Cooked Meal Delivery</title>
+    <title>HomeyChef - Taste the Love in Every Bite</title>
+    <meta name="description" content="Order delicious home-cooked meals from local chefs. Fresh ingredients, authentic flavors, delivered to your door.">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍽️</text></svg>">
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar">
+<!-- Navigation -->
+<!-- ========================= NAVBAR ========================= -->
+ <nav class="navbar">
         <div class="container">
             <div class="nav-brand">
                 <a href="index.html"><h1>🍽️ HomeyChef</h1></a>
             </div>
 
             <!-- مهم جداً: إضافة nav-auth ليستطيع الـ JS تحديث الروابط -->
-            <div class="nav-links" id="nav-auth">
+            <div class="nav-links" id="main-nav-links">
                 <a href="index.html" class="active">Home</a>
                 <a href="menu.html">Menu</a>
-                <a href="login.html">Login</a>
-                <a href="register.html" class="btn-primary">Sign Up</a>
+                <span id="nav-auth">
+           <a href="login.html">Login</a>
+           <a href="register.html" class="btn-primary">Sign Up</a>
+           </span>
             </div>
+           
 
-            <div class="nav-mobile">
+
+            <!-- <div class="nav-mobile">
                 <span id="menu-toggle">☰</span>
-            </div>
+            </div> -->
         </div>
     </nav>
 
+<!-- ///////////////////////////////////////////////////////////////// -->
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
     <!-- Hero Section -->
-    <section class="hero">
-        <div class="container">
+<section class="hero hero-animated" aria-label="Hero section">
+    <div class="hero-background"></div>
+
+    <div class="container">
+        <div class="hero-layout">
+
+            <!-- LEFT CONTENT -->
             <div class="hero-content">
-                <h1 class="hero-title">Delicious Home-Cooked Meals</h1>
-                <p class="hero-subtitle">
-                    Order from talented local chefs and enjoy authentic flavors delivered to your door
+
+                <div class="hero-tagline reveal">
+                    <span class="tagline-badge">
+                        <i class="fas fa-bolt"></i> #1 Home-Cooked Meals Platform
+                    </span>
+                </div>
+
+                <h1 class="hero-title reveal delay-1">
+                    Real Food.<br>
+                    Real Chefs.<br>
+                    <span class="gradient-text">Delivered.</span>
+                </h1>
+
+                <p class="hero-subtitle reveal delay-2">
+                    Skip restaurants. Eat like a local — fresh, authentic,
+                    and cooked with love by trusted home chefs.
                 </p>
-                <div class="hero-buttons">
-                    <a href="register.html" class="btn btn-primary btn-large">Get Started</a>
-                    <a href="menu.html" class="btn btn-secondary btn-large">Browse Menu</a>
+
+                <div class="hero-buttons reveal delay-3">
+                    <a href="register.html" class="btn btn-primary btn-large pulse">
+                        <i class="fas fa-fire"></i> Order Your First Meal
+                    </a>
+                </div>
+
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <span class="stat-number" data-target="200">0</span>
+                        <span class="stat-label">Local Chefs</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" data-target="1500">0</span>
+                        <span class="stat-label">Meals Delivered</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" data-target="98">0</span>
+                        <span class="stat-label">Satisfaction %</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" data-target="30">0</span>
+                        <span class="stat-label">Avg Delivery (min)</span>
+                    </div>
+                </div>
+
+                <div class="trust-indicators reveal delay-4">
+                    <div class="trust-item"><i class="fas fa-shield-alt"></i> Secure Payment</div>
+                    <div class="trust-item"><i class="fas fa-leaf"></i> Fresh Ingredients</div>
+                    <div class="trust-item"><i class="fas fa-clock"></i> On-time Delivery</div>
+                </div>
+
+            </div>
+
+            <!-- RIGHT PHONE MOCKUP -->
+            <div class="hero-visual">
+                <div class="phone-mockup floating-phone">
+                    <div class="phone-notch"></div>
+
+                    <div class="phone-screen">
+
+                        <div class="app-header">
+                            <span>📍 Nearby Chefs</span>
+                            <span>👩‍🍳</span>
+                        </div>
+
+                        <div class="app-featured">
+                            <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&h=400&fit=crop">
+                            <div class="app-featured-info">
+                                <h4>Homemade Lasagna</h4>
+                                <span>⭐ 4.9 · 25 min</span>
+                            </div>
+                        </div>
+
+                        <div class="app-list">
+                            <div class="app-item">
+                                <img src="https://images.unsplash.com/photo-1600891964599-f61ba0e24092?w=200&h=200&fit=crop">
+                                <div>
+                                    <strong>Grilled Chicken</strong>
+                                    <span>⭐ 4.8</span>
+                                </div>
+                                <span class="price">$12</span>
+                            </div>
+
+                            <div class="app-item">
+                                <img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=200&h=200&fit=crop">
+                                <div>
+                                    <strong>Beef Burger</strong>
+                                    <span>⭐ 5.0</span>
+                                </div>
+                                <span class="price">$10</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="scroll-indicator">
+        <i class="fas fa-chevron-down"></i>
+    </div>
+</section>
+
+
+
+    <!-- How It Works -->
+    <section class="how-it-works" aria-label="How it works section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">How It Works</h2>
+                <p class="section-subtitle">Get delicious home-cooked meals in 3 easy steps</p>
+            </div>
+            
+            <div class="steps-container">
+                <div class="step-card animate-fade-in delay-1">
+                    <div class="step-number">01</div>
+                    <div class="step-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3 class="step-title">Browse & Choose</h3>
+                    <p class="step-description">
+                        Explore our diverse menu of authentic dishes prepared by local chefs.
+                    </p>
+                </div>
+                
+                <div class="step-card animate-fade-in delay-2">
+                    <div class="step-number">02</div>
+                    <div class="step-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <h3 class="step-title">Place Your Order</h3>
+                    <p class="step-description">
+                        Select your favorite dishes and customize your order with special requests.
+                    </p>
+                </div>
+                
+                <div class="step-card animate-fade-in delay-3">
+                    <div class="step-number">03</div>
+                    <div class="step-icon">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <h3 class="step-title">Enjoy Fresh Delivery</h3>
+                    <p class="step-description">
+                        Get your meal delivered hot and fresh to your doorstep.
+                    </p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Features Section -->
-    <section class="features">
+    <section class="features" aria-label="Features section">
         <div class="container">
-            <h2 class="section-title">Why Choose HomeyChef?</h2>
+            <div class="section-header">
+                <h2 class="section-title">Why Choose HomeyChef?</h2>
+                <p class="section-subtitle">Experience the difference of home-cooked perfection</p>
+            </div>
+            
             <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">👨‍🍳</div>
-                    <h3>Local Chefs</h3>
-                    <p>Hand-picked talented chefs from your community</p>
+                <div class="feature-card animate-scale">
+                    <div class="feature-icon">
+                        <i class="fas fa-user-chef"></i>
+                    </div>
+                    <h3>Passionate Local Chefs</h3>
+                    <p>Each dish is prepared with love by certified home chefs who specialize in authentic cuisine.</p>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🍛</div>
+                
+                <div class="feature-card animate-scale">
+                    <div class="feature-icon">
+                        <i class="fas fa-seedling"></i>
+                    </div>
                     <h3>Fresh Ingredients</h3>
-                    <p>Only the finest, locally sourced ingredients</p>
+                    <p>We source only the finest, locally-sourced ingredients for every meal we prepare.</p>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🚚</div>
+                
+                <div class="feature-card animate-scale">
+                    <div class="feature-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
                     <h3>Fast Delivery</h3>
-                    <p>Quick and reliable delivery to your doorstep</p>
+                    <p>Average delivery time of 30 minutes with real-time tracking for your order.</p>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">⭐</div>
+                
+                <div class="feature-card animate-scale">
+                    <div class="feature-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
                     <h3>Quality Rated</h3>
-                    <p>Real reviews and ratings from satisfied customers</p>
+                    <p>Every chef and dish is rated by our community to ensure the highest standards.</p>
+                </div>
+            </div>
+            
+            <!-- Call to Action -->
+            <div class="cta-container">
+                <div class="cta-content">
+                    <h2 class="cta-title">Ready to Taste the Difference?</h2>
+                    <p class="cta-description">
+                        Join thousands of happy customers enjoying authentic home-cooked meals today.
+                    </p>
+                    <a href="register.html" class="btn btn-primary btn-large btn-shimmer">
+                        <i class="fas fa-user-plus"></i> Create Free Account
+                    </a>
+                </div>
+                <div class="cta-image">
+                    <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w-600&auto=format&fit=crop&q=60" 
+                         alt="Delicious food spread" 
+                         loading="lazy">
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Popular Dishes -->
-    <section class="popular-dishes">
+    <section class="popular-dishes" aria-label="Popular dishes section">
         <div class="container">
-            <h2 class="section-title">Popular Dishes</h2>
+            <div class="section-header">
+                <h2 class="section-title">Customer Favorites</h2>
+                <p class="section-subtitle">Most loved dishes this week</p>
+            </div>
+            
             <div id="popular-dishes-container" class="dishes-grid">
                 <!-- Loaded dynamically -->
+                <div class="skeleton-dish-card">
+                    <div class="skeleton-image"></div>
+                    <div class="skeleton-content">
+                        <div class="skeleton-title"></div>
+                        <div class="skeleton-text"></div>
+                        <div class="skeleton-button"></div>
+                    </div>
+                </div>
+                <div class="skeleton-dish-card">
+                    <div class="skeleton-image"></div>
+                    <div class="skeleton-content">
+                        <div class="skeleton-title"></div>
+                        <div class="skeleton-text"></div>
+                        <div class="skeleton-button"></div>
+                    </div>
+                </div>
+                <div class="skeleton-dish-card">
+                    <div class="skeleton-image"></div>
+                    <div class="skeleton-content">
+                        <div class="skeleton-title"></div>
+                        <div class="skeleton-text"></div>
+                        <div class="skeleton-button"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="view-all-container">
+                <a href="menu.html" class="btn btn-secondary btn-large">
+                    <i class="fas fa-eye"></i> View Full Menu
+                </a>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- App Download -->
+    <section class="app-download" aria-label="Download our app">
+        <div class="container">
+            <div class="app-content">
+                <h2 class="app-title">Get the App</h2>
+                <p class="app-description">
+                    Order your favorite home-cooked meals on the go. Download our app for exclusive offers and faster ordering.
+                </p>
+                
+                <div class="app-buttons">
+                    <a href="#" class="app-store-btn" aria-label="Download on App Store">
+                        <i class="fab fa-apple"></i>
+                        <div class="btn-text">
+                            <span class="small-text">Download on the</span>
+                            <span class="large-text">App Store</span>
+                        </div>
+                    </a>
+                    
+                    <a href="#" class="google-play-btn" aria-label="Get it on Google Play">
+                        <i class="fab fa-google-play"></i>
+                        <div class="btn-text">
+                            <span class="small-text">Get it on</span>
+                            <span class="large-text">Google Play</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="app-image">
+                <img src="https://images.unsplash.com/photo-1485182708500-e8f1f318ba72?w=600&auto=format&fit=crop&q=60" 
+                     alt="Mobile app interface" 
+                     loading="lazy">
             </div>
         </div>
     </section>
 
     <!-- Footer -->
-<footer class="footer">
-    <div class="container">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>HomeyChef</h3>
-                <p>Delicious meals from local chefs delivered to your door.</p>
+    <footer class="footer" aria-label="Footer section">
+        <div class="container">
+            <div class="footer-content">
+                <!-- Brand Info -->
+                <div class="footer-section">
+                    <div class="footer-brand">
+                        <div class="brand-logo">🍽️</div>
+                        <h3>HomeyChef</h3>
+                    </div>
+                    <p class="footer-description">
+                        Connecting food lovers with passionate home chefs. Taste the difference of homemade cooking delivered to your door.
+                    </p>
+                    
+                    <div class="footer-social">
+                        <a href="#" class="social-link" aria-label="Follow us on Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="social-link" aria-label="Follow us on Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="social-link" aria-label="Follow us on Twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="social-link" aria-label="Follow us on Pinterest">
+                            <i class="fab fa-pinterest"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Quick Links -->
+                <div class="footer-section">
+                    <h4 class="footer-title">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.html"><i class="fas fa-chevron-right"></i> Home</a></li>
+                        <li><a href="menu.html"><i class="fas fa-chevron-right"></i> Menu</a></li>
+                        <li><a href="orders.html"><i class="fas fa-chevron-right"></i> My Orders</a></li>
+                        <li><a href="chefs.html"><i class="fas fa-chevron-right"></i> Our Chefs</a></li>
+                        <li><a href="about.html"><i class="fas fa-chevron-right"></i> About Us</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Support -->
+                <div class="footer-section">
+                    <h4 class="footer-title">Support</h4>
+                    <ul class="footer-links">
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> Help Center</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> FAQ</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> Contact Us</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> Privacy Policy</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> Terms of Service</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Contact Info -->
+                <div class="footer-section">
+                    <h4 class="footer-title">Contact Us</h4>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>115 Food Street</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-phone"></i>
+                            <span>(+963) 959-733-719</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <span>hello@homeychef.com</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-clock"></i>
+                            <span>Mon-Sun: 8 AM - 10 PM</span>
+                        </div>
+                    </div>
+                    
+                    <div class="newsletter">
+                        <h5>Stay Updated</h5>
+                        <div class="newsletter-form">
+                            <input type="email" placeholder="yasenabbas4@gmail.com" aria-label="Email for newsletter">
+                            <button type="submit" aria-label="Subscribe to newsletter">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="footer-section">
-                <h4>Quick Links</h4>
-                <a href="index.html">Home</a><br>
-                <a href="menu.html">Menu</a><br>
-                <a href="register.html">Sign Up</a>
-            </div>
-            <div class="footer-section">
-                <h4>Contact</h4>
-                <p>Email: info@homeychef.com</p>
-                <p>Phone: (555) 123-4567</p>
+            
+            <div class="footer-bottom">
+                <div class="footer-bottom-content">
+                    <p>&copy; 2024 HomeyChef. All rights reserved. Made with <i class="fas fa-heart" style="color: #e74c3c;"></i> for food lovers.</p>
+                    <div class="payment-methods">
+                        <i class="fab fa-cc-visa" title="Visa"></i>
+                        <i class="fab fa-cc-mastercard" title="Mastercard"></i>
+                        <i class="fab fa-cc-amex" title="American Express"></i>
+                        <i class="fab fa-cc-paypal" title="PayPal"></i>
+                        <i class="fab fa-apple-pay" title="Apple Pay"></i>
+                    </div>
+                </div>
             </div>
         </div>
+    </footer>
 
-        <div class="footer-bottom">
-            <p>&copy; 2024 HomeyChef. All rights reserved.</p>
-        </div>
-    </div>
-</footer>
-
-
-
+    <!-- Scripts -->
     <script src="js/utils.js"></script>
     <script src="js/index.js"></script>
     <script src="js/navbar.js"></script>
+    <script>
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".stat-number").forEach(counter => {
+        const target = +counter.dataset.target;
+        let current = 0;
+        const step = Math.ceil(target / 80);
+
+        const update = () => {
+            current += step;
+            if (current < target) {
+                counter.textContent = current;
+                requestAnimationFrame(update);
+            } else {
+                counter.textContent = target + (target < 100 ? "%" : "+");
+            }
+        };
+        update();
+    });
+});
+</script>
+
+    
+  
 </body>
 </html>

@@ -14,8 +14,8 @@ const sequelize = new Sequelize(
     pool: {
       max: 5,
       min: 0,
-      acquire: 30000,
-      idle: 10000
+      acquire: 30000, //30 seconds
+      idle: 10000    //10 seconds
       //idle: we use this to specify the maximum time, in milliseconds, that a connection can be idle before being released.
     }
   }

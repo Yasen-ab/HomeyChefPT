@@ -5,23 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - HomeyChef</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar">
+   <nav class="navbar">
         <div class="container">
             <div class="nav-brand">
                 <a href="index.html"><h1>🍽️ HomeyChef</h1></a>
             </div>
             <div class="nav-links">
                 <a href="menu.html">Menu</a>
-                <a href="dashboard-user.html" class="active">Dashboard</a>
-                <a href="orders.html">My Orders</a>
-                <a href="#" id="logout-btn">Logout</a>
+               
+                <a href="orders.html"> Orders</a>
+                <span id="nav-auth">
+  <a href="login.html">Login</a>
+  <a href="register.html" class="btn-primary">Sign Up</a>
+</span>
+
             </div>
         </div>
     </nav>
-
     <!-- Dashboard Section -->
     <section class="dashboard">
         <div class="container">
@@ -87,6 +91,7 @@
 
     <script src="js/utils.js"></script>
     <script src="js/dashboard-user.js"></script>
+    <script src="js/navbar.js"></script>
 </body>
 </html>
 

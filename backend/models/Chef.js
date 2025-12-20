@@ -22,7 +22,12 @@ const Chef = sequelize.define('Chef', {
   },
   password: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: true
+  },
+  googleId: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    unique: true
   },
   phone: {
     type: DataTypes.STRING,

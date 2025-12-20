@@ -74,29 +74,103 @@ function logout() {
 
 // Show notification
 function showNotification(message, type = 'success') {
+  const existingNotification = document.querySelector('.notification-toast');
+    if (existingNotification) {
+        existingNotification.remove();
+    }
+    
     const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.textContent = message;
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 1rem 2rem;
-        background: ${type === 'success' ? '#4CAF50' : '#f44336'};
-        color: white;
-        border-radius: 10px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-        z-index: 10000;
-        animation: slideIn 0.3s;
+    notification.className = `notification-toast notification-${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <span class="notification-icon">${type === 'success' ? '✓' : '!'}</span>
+            <span class="notification-message">${message}</span>
+        </div>
     `;
     
     document.body.appendChild(notification);
     
+    // إظهار الإشعار
     setTimeout(() => {
-        notification.style.animation = 'slideOut 0.3s';
-        setTimeout(() => notification.remove(), 300);
+        notification.classList.add('show');
+    }, 10);
+    
+    // إخفاء الإشعار بعد 3 ثواني
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 300);
     }, 3000);
 }
+
+// إضافة CSS للإشعارات
+const notificationStyles = document.createElement('style');
+notificationStyles.textContent = `
+    .notification-toast {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: white;
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-lg);
+        padding: 1rem 1.5rem;
+        z-index: 9999;
+        transform: translateX(100%);
+        opacity: 0;
+        transition: all 0.3s ease;
+        max-width: 350px;
+    }
+    
+    .notification-toast.show {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    
+    .notification-success {
+        border-left: 4px solid var(--success);
+    }
+    
+    .notification-error {
+        border-left: 4px solid var(--error);
+    }
+    
+    .notification-content {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .notification-icon {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: white;
+    }
+    
+    .notification-success .notification-icon {
+        background: var(--success);
+    }
+    
+    .notification-error .notification-icon {
+        background: var(--error);
+    }
+    
+    .notification-message {
+        color: var(--text-color);
+        font-size: 0.95rem;
+        line-height: 1.4;
+    }
+`;
+
+document.head.appendChild(notificationStyles);
+
 
 // Check if user is admin
 function isAdmin() {

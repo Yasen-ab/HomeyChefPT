@@ -39,6 +39,10 @@ DB_HOST=localhost
 
 # Server Configuration
 PORT=3000
+JWT_SECRET=your-secret-key-change-this-in-production
+
+# Google OAuth Configuration
+GOOGLE_CLIENT_ID=754854917074-mtgh741kanpq2m7v5kp6fiqb94if4e25.apps.googleusercontent.com
 "@
     Set-Content -Path .env -Value $envContent
     Write-Host "✅ .env file created!" -ForegroundColor Green

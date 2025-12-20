@@ -22,7 +22,7 @@ const storage = multer.diskStorage({
     cb(null, 'dish-' + uniqueSuffix + path.extname(file.originalname));
   }
 });
-
+ 
 const upload = multer({ storage: storage });
 
 // Get all dishes (with filters)
@@ -43,9 +43,9 @@ router.get('/', async (req, res) => {
 
     if (search) {
       where[Op.or] = [
-        { name: { [Op.like]: `%${search}%` } },
-        { description: { [Op.like]: `%${search}%` } },
-        { ingredients: { [Op.like]: `%${search}%` } }
+        { name: { [Op.like]: `%${search}%` } },          // البحث في الاسم
+        { description: { [Op.like]: `%${search}%` } },  // البحث في الوصف 
+        { ingredients: { [Op.like]: `%${search}%` } }  // البحث في المكونات
       ];
     }
 
@@ -104,7 +104,7 @@ router.get('/:id', async (req, res) => {
         'reviewCount'
       ]
     ];
-
+// Find dish by ID
     const dish = await Dish.findByPk(req.params.id, {
       attributes: { include: ratingAttributes },
       include: [
@@ -119,11 +119,11 @@ router.get('/:id', async (req, res) => {
         }
       ]
     });
-    
+    // If dish not found
     if (!dish) {
       return res.status(404).json({ error: 'Dish not found' });
     }
-    
+    // Serialize dish data mean that we format it for the response
     const data = dish.toJSON();
     data.ratings = data.reviews || [];
     data.averageRating = Number(data.averageRating || 0);

@@ -41,6 +41,11 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'HomeyChef API is running' });
 });
 
+// Favicon endpoint (to prevent 404 errors)
+app.get('/favicon.ico', (req, res) => {
+  res.status(204).end(); // No Content
+});
+
 // Serve HTML files - keep compatibility
 const htmlFiles = ['login', 'register', 'menu', 'dashboard-user', 'dashboard-chef', 'dashboard-admin', 'dishes', 'orders', 'admin-users', 'admin-chefs', 'admin-dishes'];
 
