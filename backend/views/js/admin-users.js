@@ -86,48 +86,68 @@
             currentUsers.forEach(user => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>
-                        <div class="user-info">
-                            <div class="avatar">${getInitials(user.name)}</div>
-                            <div>
-                                <strong>${user.name || 'N/A'}</strong>
-                                <small>${user.email}</small>
-                                <small>ID: ${user.id}</small>
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="role-badge ${user.role}">${user.role.toUpperCase()}</div>
-                        <span class="status-badge ${user.isActive ? 'status-active' : 'status-inactive'}">
-                            ${user.isActive ? 'Active' : 'Inactive'}
-                        </span>
-                    </td>
-                    <td>
-                        <div>${formatDate(user.createdAt)}</div>
-                        <small>${formatTimeAgo(user.createdAt)}</small>
-                    </td>
-                    <td>
-                        ${user.lastLogin ? `
-                            <div>${formatDate(user.lastLogin)}</div>
-                            <small>${formatTimeAgo(user.lastLogin)}</small>
-                        ` : '<span class="text-muted">Never</span>'}
-                    </td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="btn btn-sm btn-info" onclick="viewUser(${user.id})" title="View Details">
-                                👁️ View
-                            </button>
-                            <button class="btn btn-sm btn-warning" onclick="editUser(${user.id})" title="Edit User">
-                                ✏️ Edit
-                            </button>
-                            <button class="btn btn-sm ${user.isActive ? 'btn-danger' : 'btn-success'}" 
-                                    onclick="toggleUserStatus(${user.id}, ${!user.isActive})"
-                                    title="${user.isActive ? 'Deactivate' : 'Activate'}">
-                                ${user.isActive ? '❌ Deactivate' : '✅ Activate'}
-                            </button>
-                        </div>
-                    </td>
-                `;
+<td>
+  <div class="chef-card">
+    <div class="avatar-circle ${user.isActive ? 'active' : 'inactive'}">
+      ${getInitials(user.name)}
+    </div>
+
+    <div class="chef-meta">
+      <span class="chef-name">${user.name || 'N/A'}</span>
+      <span class="chef-id">#${user.id}</span>
+      <span class="chef-email">${user.email || 'N/A'}</span>
+    </div>
+  </div>
+</td>
+
+<td>
+  <div class="badge-stack">
+    <span class="role-pill ${user.role}">
+      ${user.role.toUpperCase()}
+    </span>
+
+    <span class="status-pill ${user.isActive ? 'active' : 'inactive'}">
+      ${user.isActive ? 'Active' : 'Inactive'}
+    </span>
+  </div>
+</td>
+
+<td>
+  <div class="time-stack">
+    <span>${formatDate(user.createdAt)}</span>
+    <small>${formatTimeAgo(user.createdAt)}</small>
+  </div>
+</td>
+
+<td>
+  ${user.lastLogin ? `
+    <div class="time-stack">
+      <span>${formatDate(user.lastLogin)}</span>
+      <small>${formatTimeAgo(user.lastLogin)}</small>
+    </div>
+  ` : `<span class="text-muted">Never</span>`}
+</td>
+
+<td>
+  <div class="action-cluster">
+    <button class="icon-btn info" onclick="viewUser(${user.id})" title="View">
+      👁️
+    </button>
+
+    <button class="icon-btn warning" onclick="editUser(${user.id})" title="Edit">
+      ✏️
+    </button>
+
+    <button class="icon-btn ${user.isActive ? 'danger' : 'success'}"
+            onclick="toggleUserStatus(${user.id}, ${!user.isActive})"
+            title="${user.isActive ? 'Deactivate' : 'Activate'}">
+      ${user.isActive ? '⛔' : '✅'}
+    </button>
+  </div>
+</td>
+`;
+
+
                 tbody.appendChild(tr);
             });
 

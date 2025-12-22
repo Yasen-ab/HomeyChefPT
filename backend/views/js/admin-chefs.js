@@ -80,44 +80,58 @@
             currentChefs.forEach(chef => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>
-                        <div class="user-info">
-                            <div class="avatar">${getInitials(chef.name)}</div>
-                            <div>
-                                <strong>${chef.name || 'N/A'}</strong>
-                                <small>ID: ${chef.id}</small>
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <div>📧 ${chef.email || 'N/A'}</div>
-                        <div>📞 ${chef.phone || 'N/A'}</div>
-                    </td>
-                    <td>
-                        <span class="status-badge ${getStatusClass(chef)}">
-                            ${getStatusText(chef)}
-                        </span>
-                    </td>
-                    <td>
-                        <div>${formatDate(chef.createdAt)}</div>
-                        <small>${formatTimeAgo(chef.createdAt)}</small>
-                    </td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="btn btn-sm btn-info" onclick="viewChef(${chef.id})" title="View Details">
-                                👁️ View
-                            </button>
-                            <button class="btn btn-sm btn-warning" onclick="editChef(${chef.id})" title="Edit Chef">
-                                ✏️ Edit
-                            </button>
-                            <button class="btn btn-sm ${chef.isActive ? 'btn-danger' : 'btn-success'}" 
-                                    onclick="toggleChefStatus(${chef.id}, ${!chef.isActive})"
-                                    title="${chef.isActive ? 'Deactivate' : 'Activate'}">
-                                ${chef.isActive ? '❌ Deactivate' : '✅ Activate'}
-                            </button>
-                        </div>
-                    </td>
-                `;
+<td>
+  <div class="chef-card">
+    <div class="avatar-circle ${chef.isActive ? 'active' : 'inactive'}">
+      ${getInitials(chef.name)}
+    </div>
+
+    <div class="chef-meta">
+      <span class="chef-name">${chef.name || 'N/A'}</span>
+      <span class="chef-id">#${chef.id}</span>
+    </div>
+  </div>
+</td>
+
+<td>
+  <div class="contact-stack">
+    <span>📧 ${chef.email || 'N/A'}</span>
+    <span>📞 ${chef.phone || 'N/A'}</span>
+  </div>
+</td>
+
+<td>
+  <span class="status-pill ${getStatusClass(chef)}">
+    ${getStatusText(chef)}
+  </span>
+</td>
+
+<td>
+  <div class="time-stack">
+    <span>${formatDate(chef.createdAt)}</span>
+    <small>${formatTimeAgo(chef.createdAt)}</small>
+  </div>
+</td>
+
+<td>
+  <div class="action-cluster">
+    <button class="icon-btn info" onclick="viewChef(${chef.id})" title="View">
+      👁️
+    </button>
+
+    <button class="icon-btn warning" onclick="editChef(${chef.id})" title="Edit">
+      ✏️
+    </button>
+
+    <button class="icon-btn ${chef.isActive ? 'danger' : 'success'}"
+            onclick="toggleChefStatus(${chef.id}, ${!chef.isActive})"
+            title="${chef.isActive ? 'Deactivate' : 'Activate'}">
+      ${chef.isActive ? '⛔' : '✅'}
+    </button>
+  </div>
+</td>
+`;
+
                 tbody.appendChild(tr);
             });
 
@@ -140,47 +154,58 @@
             const details = document.getElementById('chef-details');
             
             details.innerHTML = `
-                <div class="chef-profile">
-                    <div class="profile-header">
-                        <div class="avatar large">${getInitials(chef.name)}</div>
-                        <div>
-                            <h4>${chef.name}</h4>
-                            <p>👨‍🍳 Professional Chef</p>
-                        </div>
-                    </div>
-                    
-                    <div class="profile-details">
-                        <div class="detail-group">
-                            <label>Email:</label>
-                            <span>${chef.email || 'N/A'}</span>
-                        </div>
-                        <div class="detail-group">
-                            <label>Phone:</label>
-                            <span>${chef.phone || 'N/A'}</span>
-                        </div>
-                        <div class="detail-group">
-                            <label>Address:</label>
-                            <span>${chef.address || 'N/A'}</span>
-                        </div>
-                        <div class="detail-group">
-                            <label>Status:</label>
-                            <span class="status-badge ${getStatusClass(chef)}">
-                                ${getStatusText(chef)}
-                            </span>
-                        </div>
-                        <div class="detail-group">
-                            <label>Registration Date:</label>
-                            <span>${formatDate(chef.createdAt)}</span>
-                        </div>
-                        ${chef.bio ? `
-                        <div class="detail-group">
-                            <label>Bio:</label>
-                            <p class="bio">${chef.bio}</p>
-                        </div>
-                        ` : ''}
-                    </div>
-                </div>
-            `;
+<div class="chef-profile-card">
+
+  <!-- ===== HEADER ===== -->
+  <div class="chef-header">
+    <div class="avatar-xl ${chef.isActive ? 'active' : 'inactive'}">
+      ${getInitials(chef.name)}
+    </div>
+
+    <div class="chef-header-info">
+      <h2 class="chef-name">${chef.name}</h2>
+      <span class="chef-role">👨‍🍳 Professional Chef</span>
+
+      <span class="status-pill ${getStatusClass(chef)}">
+        ${getStatusText(chef)}
+      </span>
+    </div>
+  </div>
+
+  <!-- ===== DETAILS GRID ===== -->
+  <div class="chef-info-grid">
+    <div class="info-item">
+      <label>Email</label>
+      <span>${chef.email || 'N/A'}</span>
+    </div>
+
+    <div class="info-item">
+      <label>Phone</label>
+      <span>${chef.phone || 'N/A'}</span>
+    </div>
+
+    <div class="info-item">
+      <label>Address</label>
+      <span>${chef.address || 'N/A'}</span>
+    </div>
+
+    <div class="info-item">
+      <label>Registered</label>
+      <span>${formatDate(chef.createdAt)}</span>
+    </div>
+  </div>
+
+  <!-- ===== BIO ===== -->
+  ${chef.bio ? `
+  <div class="chef-bio-section">
+    <h4>📝 Bio</h4>
+    <p>${chef.bio}</p>
+  </div>
+  ` : ''}
+
+</div>
+`;
+
             
             modal.style.display = 'block';
         }

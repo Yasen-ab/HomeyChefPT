@@ -23,6 +23,7 @@
         function setupEventListeners() {
             // Search with debounce
             let searchTimeout;
+            // فلتر البحث مع تأخير
             document.getElementById('dishes-search').addEventListener('input', (e) => {
                 clearTimeout(searchTimeout);
                 searchTimeout = setTimeout(() => {
@@ -79,7 +80,7 @@
                 const availabilityFilter = document.getElementById('availability-filter').value;
                 const chefFilter = document.getElementById('chef-filter').value;
                 const sortBy = document.getElementById('sort-by').value;
-
+// إعداد معلمات الاستعلام و طلب البيانات من API 
                 const params = new URLSearchParams();
                 if (searchQuery) params.append('search', searchQuery);
                 if (categoryFilter) params.append('category', categoryFilter);
@@ -127,53 +128,70 @@
             currentDishes.forEach(dish => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>
-                        <div class="dish-info">
-                            <div class="dish-image">
-                                ${dish.imageUrl ? 
-                                    `<img src="${dish.imageUrl}" alt="${dish.name}" onerror="this.style.display='none'">` : 
-                                    `<div class="image-placeholder">🍽️</div>`
-                                }
-                            </div>
-                            <div>
-                                <strong>${dish.name || 'N/A'}</strong>
-                                ${dish.description ? `<p class="dish-description">${dish.description}</p>` : ''}
-                                <small>ID: ${dish.id}</small>
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="chef-info">
-                            <strong>${dish.Chef?.name || 'Unknown Chef'}</strong>
-                            <div class="category-badge">${dish.category || 'Uncategorized'}</div>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="price">${formatCurrency(dish.price)}</div>
-                        <span class="availability-badge ${dish.isAvailable ? 'available' : 'unavailable'}">
-                            ${dish.isAvailable ? 'Available' : 'Unavailable'}
-                        </span>
-                    </td>
-                    <td>
-                        <div>${formatDate(dish.createdAt)}</div>
-                        <small>${formatTimeAgo(dish.createdAt)}</small>
-                    </td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="btn btn-sm btn-info" onclick="viewDish(${dish.id})" title="View Details">
-                                👁️ View
-                            </button>
-                            <button class="btn btn-sm btn-warning" onclick="editDish(${dish.id})" title="Edit Dish">
-                                ✏️ Edit
-                            </button>
-                            <button class="btn btn-sm ${dish.isAvailable ? 'btn-danger' : 'btn-success'}" 
-                                    onclick="toggleDishAvailability(${dish.id}, ${!dish.isAvailable})"
-                                    title="${dish.isAvailable ? 'Make Unavailable' : 'Make Available'}">
-                                ${dish.isAvailable ? '❌ Unavailable' : '✅ Available'}
-                            </button>
-                        </div>
-                    </td>
-                `;
+<td>
+  <div class="dish-card">
+    <div class="dish-thumb">
+      ${dish.imageUrl 
+        ? `<img src="${dish.imageUrl}" alt="${dish.name}" onerror="this.replaceWith(createPlaceholder())">`
+        : `<div class="image-placeholder">🍽️</div>`
+      }
+    </div>
+
+    <div class="dish-meta">
+      <div class="dish-header">
+        <h4 class="dish-name">${dish.name || 'N/A'}</h4>
+        <span class="dish-id">#${dish.id}</span>
+      </div>
+
+      ${dish.description 
+        ? `<p class="dish-description">${dish.description}</p>` 
+        : ''
+      }
+    </div>
+  </div>
+</td>
+
+<td>
+  <div class="chef-box">
+    <span class="chef-name">👨‍🍳 ${dish.Chef?.name || 'Unknown Chef'}</span>
+    <span class="category-badge">${dish.category || 'Uncategorized'}</span>
+  </div>
+</td>
+
+<td>
+  <div class="price-box">
+    <div class="price">${formatCurrency(dish.price)}</div>
+    <span class="status-badge ${dish.isAvailable ? 'available' : 'unavailable'}">
+      ${dish.isAvailable ? '● Available' : '● Unavailable'}
+    </span>
+  </div>
+</td>
+
+<td>
+  <div class="time-box">
+    <span>${formatDate(dish.createdAt)}</span>
+    <small>${formatTimeAgo(dish.createdAt)}</small>
+  </div>
+</td>
+
+<td>
+  <div class="action-group">
+    <button class="icon-btn info" onclick="viewDish(${dish.id})" title="View">
+      👁️
+    </button>
+
+    <button class="icon-btn warning" onclick="editDish(${dish.id})" title="Edit">
+      ✏️
+    </button>
+
+    <button class="icon-btn ${dish.isAvailable ? 'danger' : 'success'}"
+            onclick="toggleDishAvailability(${dish.id}, ${!dish.isAvailable})"
+            title="${dish.isAvailable ? 'Disable' : 'Enable'}">
+      ${dish.isAvailable ? '⛔' : '✅'}
+    </button>
+  </div>
+</td>
+`;
                 tbody.appendChild(tr);
             });
 
@@ -196,64 +214,73 @@
             const details = document.getElementById('dish-details');
             
             details.innerHTML = `
-                <div class="dish-profile">
-                    <div class="profile-header">
-                        <div class="dish-image large">
-                            ${dish.imageUrl ? 
-                                `<img src="${dish.imageUrl}" alt="${dish.name}">` : 
-                                `<div class="image-placeholder large">🍽️</div>`
-                            }
-                        </div>
-                        <div>
-                            <h4>${dish.name}</h4>
-                            <p class="price-large">${formatCurrency(dish.price)}</p>
-                        </div>
-                    </div>
-                    
-                    <div class="profile-details">
-                        <div class="detail-group">
-                            <label>Dish ID:</label>
-                            <span>${dish.id}</span>
-                        </div>
-                        <div class="detail-group">
-                            <label>Chef:</label>
-                            <span>${dish.Chef?.name || 'Unknown Chef'}</span>
-                        </div>
-                        <div class="detail-group">
-                            <label>Category:</label>
-                            <span class="category-badge">${dish.category || 'Uncategorized'}</span>
-                        </div>
-                        <div class="detail-group">
-                            <label>Availability:</label>
-                            <span class="availability-badge ${dish.isAvailable ? 'available' : 'unavailable'}">
-                                ${dish.isAvailable ? 'Available' : 'Unavailable'}
-                            </span>
-                        </div>
-                        <div class="detail-group">
-                            <label>Created Date:</label>
-                            <span>${formatDate(dish.createdAt)}</span>
-                        </div>
-                        ${dish.description ? `
-                        <div class="detail-group full-width">
-                            <label>Description:</label>
-                            <p class="dish-description">${dish.description}</p>
-                        </div>
-                        ` : ''}
-                        ${dish.ingredients ? `
-                        <div class="detail-group full-width">
-                            <label>Ingredients:</label>
-                            <p>${dish.ingredients}</p>
-                        </div>
-                        ` : ''}
-                        ${dish.allergens ? `
-                        <div class="detail-group full-width">
-                            <label>Allergens:</label>
-                            <p>${dish.allergens}</p>
-                        </div>
-                        ` : ''}
-                    </div>
-                </div>
-            `;
+<div class="dish-profile-card">
+
+  <!-- ===== HEADER ===== -->
+  <div class="dish-hero">
+    <div class="dish-image-xl">
+      ${dish.imageUrl 
+        ? `<img src="${dish.imageUrl}" alt="${dish.name}" onerror="this.replaceWith(createPlaceholder())">`
+        : `<div class="image-placeholder xl">🍽️</div>`
+      }
+    </div>
+
+    <div class="dish-hero-info">
+      <h2 class="dish-title">${dish.name}</h2>
+      <span class="dish-price">${formatCurrency(dish.price)}</span>
+
+      <div class="hero-badges">
+        <span class="category-badge">${dish.category || 'Uncategorized'}</span>
+        <span class="availability-badge ${dish.isAvailable ? 'available' : 'unavailable'}">
+          ${dish.isAvailable ? '● Available' : '● Unavailable'}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== DETAILS GRID ===== -->
+  <div class="dish-info-grid">
+    <div class="info-item">
+      <label>Dish ID</label>
+      <span>#${dish.id}</span>
+    </div>
+
+    <div class="info-item">
+      <label>Chef</label>
+      <span>👨‍🍳 ${dish.Chef?.name || 'Unknown Chef'}</span>
+    </div>
+
+    <div class="info-item">
+      <label>Created</label>
+      <span>${formatDate(dish.createdAt)}</span>
+    </div>
+  </div>
+
+  <!-- ===== CONTENT SECTIONS ===== -->
+  ${dish.description ? `
+  <div class="content-section">
+    <h4>📝 Description</h4>
+    <p>${dish.description}</p>
+  </div>
+  ` : ''}
+
+  ${dish.ingredients ? `
+  <div class="content-section">
+    <h4>🥕 Ingredients</h4>
+    <p>${dish.ingredients}</p>
+  </div>
+  ` : ''}
+
+  ${dish.allergens ? `
+  <div class="content-section alert">
+    <h4>⚠️ Allergens</h4>
+    <p>${dish.allergens}</p>
+  </div>
+  ` : ''}
+
+</div>
+`;
+
             
             modal.style.display = 'block';
         }
