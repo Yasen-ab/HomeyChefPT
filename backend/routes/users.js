@@ -45,15 +45,42 @@ router.put('/:id', authenticate, async (req, res) => {
       return res.status(403).json({ error: 'Access denied' });
     }
 
-    const { name, phone, address } = req.body;
+    const { name, phone, address, email, role, isActive } = req.body;
     const user = await User.findByPk(req.params.id);
-    
+
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    await user.update({ name, phone, address });
+    // Build update payload. Admins can update email/role/isActive, regular users only their own basic fields.
+    const updateData = { name, phone, address };
+    if (req.role === 'admin') {
+      if (typeof email !== 'undefined') updateData.email = email;
+      if (typeof role !== 'undefined') updateData.role = role;
+      if (typeof isActive !== 'undefined') updateData.isActive = isActive;
+    }
+
+    await user.update(updateData);
     res.json({ message: 'User updated successfully', user });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Patch user status (activate/deactivate) - Admin only
+router.patch('/:id/status', authenticate, isAdmin, async (req, res) => {
+  try {
+    const { isActive } = req.body;
+    const user = await User.findByPk(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    user.isActive = !!isActive;
+    await user.save();
+
+    res.json({ message: 'User status updated', user });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

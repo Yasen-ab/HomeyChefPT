@@ -143,6 +143,12 @@
             title="${user.isActive ? 'Deactivate' : 'Activate'}">
       ${user.isActive ? '⛔' : '✅'}
     </button>
+        ${isAdmin() ? `
+
+        <button class="icon-btn danger" onclick="deleteUser(${user.id})" title="Delete">
+            🗑️
+        </button>
+        ` : ''}
   </div>
 </td>
 `;
@@ -224,13 +230,8 @@
         }
 
         async function editUser(id) {
-            try {
-                const user = await apiRequest(`/users/${id}`);
-                showEditModal(user);
-            } catch (error) {
-                console.error('Failed to load user for editing:', error);
-                showNotification('Failed to load user data', 'error');
-            }
+                // Edit feature disabled for now — show coming soon message
+                showNotification('Edit users feature coming soon!', 'info');
         }
 
         function showEditModal(user) {
@@ -298,6 +299,22 @@
             } catch (error) {
                 console.error('Failed to update user status:', error);
                 showNotification('Failed to update user status', 'error');
+            }
+        }
+
+        async function deleteUser(id) {
+            if (!confirm('Are you sure you want to permanently delete this user?')) return;
+
+            try {
+                await apiRequest(`/users/${id}`, {
+                    method: 'DELETE'
+                });
+
+                showNotification('User deleted successfully', 'success');
+                await loadUsers();
+            } catch (error) {
+                console.error('Failed to delete user:', error);
+                showNotification('Failed to delete user', 'error');
             }
         }
 

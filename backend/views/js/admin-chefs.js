@@ -128,6 +128,12 @@
             title="${chef.isActive ? 'Deactivate' : 'Activate'}">
       ${chef.isActive ? '⛔' : '✅'}
     </button>
+    ${isAdmin() ? `
+
+    <button class="icon-btn danger" onclick="deleteChef(${chef.id})" title="Delete">
+      🗑️
+    </button>
+    ` : ''}
   </div>
 </td>
 `;
@@ -227,6 +233,22 @@
                 showNotification('Failed to update chef status', 'error');
             }
         }
+
+            async function deleteChef(id) {
+              if (!confirm('Are you sure you want to permanently delete this chef?')) return;
+
+              try {
+                await apiRequest(`/chefs/${id}`, {
+                  method: 'DELETE'
+                });
+
+                showNotification('Chef deleted successfully', 'success');
+                await loadChefs();
+              } catch (error) {
+                console.error('Failed to delete chef:', error);
+                showNotification('Failed to delete chef', 'error');
+              }
+            }
 
         function changePage(direction) {
             const newPage = currentPage + direction;
