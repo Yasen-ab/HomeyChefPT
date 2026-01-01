@@ -32,7 +32,7 @@ function renderNavAuthArea() {
   const navAuthContainer = document.getElementById('nav-auth');
   if (!navAuthContainer) {
     // For backward compat: try querySelector by class or fallback
-    console.warn('nav-auth container not found. Make sure <span id="nav-auth"> exists in the navbar.');
+    
     return;
   }
 

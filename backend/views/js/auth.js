@@ -74,7 +74,7 @@ async function handleLogin(e) {
 
     try {
         // Send only email & password. Server will detect whether account is chef or user/admin.
-        const response = await apiRequest('/auth/login', {
+        const response = await apiRequest('api/auth/login', {
             method: 'POST',
             body: JSON.stringify({
                 email,
@@ -99,37 +99,41 @@ async function handleLogin(e) {
 // Handle registration
 async function handleRegister(e) {
     e.preventDefault();
-    
+
     const errorDiv = document.getElementById('register-error');
-    errorDiv.classList.remove('show');
-    errorDiv.textContent = '';
-    
-    const name = document.getElementById('name').value;
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
+
+    // Defensive reset (no phantom red boxes)
+    if (errorDiv) {
+        errorDiv.classList.remove('show');
+        errorDiv.textContent = '';
+    }
+
+    const name = document.getElementById('name')?.value || '';
+    const email = document.getElementById('email')?.value || '';
+    const password = document.getElementById('password')?.value || '';
     const phone = document.getElementById('phone')?.value || '';
     const address = document.getElementById('address')?.value || '';
-    
+
     try {
         let response;
-        
-       if (currentUserType === 'chef') {
-    const specialties = document.getElementById('specialties')?.value || '';
-    const bio = document.getElementById('bio')?.value || '';
 
-    response = await apiRequest('/auth/register/chef', {
-        method: 'POST',
-        body: JSON.stringify({
-            name,
-            email,
-            password,
-            phone,
-            address,
-            specialties,
-            bio
-        })
-    });
-} else {
+        if (currentUserType === 'chef') {
+            const specialties = document.getElementById('specialties')?.value || '';
+            const bio = document.getElementById('bio')?.value || '';
+
+            response = await apiRequest('/auth/register/chef', {
+                method: 'POST',
+                body: JSON.stringify({
+                    name,
+                    email,
+                    password,
+                    phone,
+                    address,
+                    specialties,
+                    bio
+                })
+            });
+        } else {
             response = await apiRequest('/auth/register', {
                 method: 'POST',
                 body: JSON.stringify({
@@ -140,18 +144,26 @@ async function handleRegister(e) {
                 })
             });
         }
-        
+
+        // Auth success path
         setAuthToken(response.token);
         setUserData(response.user || response.chef);
-        
-        showNotification('Registration successful!');
-        
+
+        showNotification('Registration successful! 🚀');
+
         setTimeout(() => {
             redirectToDashboard();
-        }, 1000);
+        }, 800);
+
     } catch (error) {
-        errorDiv.textContent = error.message;
-        errorDiv.classList.add('show');
+        console.error('Register error:', error);
+
+        if (errorDiv && error?.message) {
+            errorDiv.textContent = error.message;
+            errorDiv.classList.add('show');
+        }
+        // else: silent fail, no red box of shame 😄
     }
 }
+
 
