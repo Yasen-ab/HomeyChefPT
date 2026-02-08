@@ -4,6 +4,9 @@
         const itemsPerPage = 10;
         let totalPages = 1;
         let editingUserId = null;
+       
+
+
 
         document.addEventListener('DOMContentLoaded', () => {
             checkAuth();
@@ -11,6 +14,11 @@
             initializePage();
         });
 
+           function checkAuth() {
+    if (!isAuthenticated()) {
+        window.location.href = 'login.html';
+    }
+}
         async function initializePage() {
             await loadUsers();
             setupEventListeners();
@@ -31,38 +39,63 @@
             document.getElementById('edit-user-form').addEventListener('submit', handleEditUser);
         }
 
-        async function loadUsers() {
-            showLoading();
-            
-            try {
-                const searchQuery = document.getElementById('users-search').value;
-                const roleFilter = document.getElementById('role-filter').value;
-                const statusFilter = document.getElementById('status-filter').value;
-                const sortBy = document.getElementById('sort-by').value;
+       async function loadUsers() {
+    showLoading();
 
-                const params = new URLSearchParams();
-                if (searchQuery) params.append('search', searchQuery);
-                if (roleFilter) params.append('role', roleFilter);
-                if (statusFilter) params.append('status', statusFilter);
-                if (sortBy) params.append('sort', sortBy);
-                params.append('page', currentPage);
-                params.append('limit', itemsPerPage);
+    try {
+        // كل المتغيرات معرّفة هون من أول سطر
+        const searchInput = document.getElementById('users-search');
+        const roleSelect  = document.getElementById('role-filter');
+        const statusSelect = document.getElementById('status-filter');
+        const sortSelect  = document.getElementById('sort-by');
 
-                const response = await apiRequest(`/users?${params}`);
-                currentUsers = response.users || response;
-                
-                updateStatistics();
-                renderUsersTable();
-                updatePagination(response.totalCount || currentUsers.length);
-                
-            } catch (error) {
-                console.error('Failed to load users:', error);
-                showNotification('Failed to load users data', 'error');
-                showEmptyState();
-            } finally {
-                hideLoading();
-            }
+        const searchQuery   = searchInput ? searchInput.value.trim() : '';
+        const roleFilter    = roleSelect  ? roleSelect.value  : '';
+        const statusFilter  = statusSelect? statusSelect.value: '';
+        const sortBy        = sortSelect  ? sortSelect.value  : 'newest';
+
+        const params = new URLSearchParams();
+
+        if (searchQuery)           params.append('search', searchQuery);
+        if (roleFilter && roleFilter !== '' && roleFilter.toLowerCase() !== 'all') {
+            params.append('role', roleFilter);
         }
+        if (statusFilter && statusFilter !== '' && statusFilter.toLowerCase() !== 'all') {
+            params.append('status', statusFilter);
+        }
+        if (sortBy)                params.append('sort', sortBy);
+
+        params.append('page', currentPage);
+        params.append('limit', itemsPerPage);
+
+        // للتصحيح (شيلها بعد ما تتأكد)
+        console.log("Sending request:", `/users?${params.toString()}`);
+
+        const response = await apiRequest(`/users?${params}`);
+
+        currentUsers = Array.isArray(response.users) ? response.users : response || [];
+
+        updateStatistics();
+        renderUsersTable();
+        updatePagination(response.totalCount || currentUsers.length || 0);
+    } 
+    catch (error) {
+        console.error("Load users failed:", error);
+        showNotification("Unable to load users. Please check your connection.", 'error');
+        showEmptyState();
+    } 
+    finally {
+        hideLoading();
+    }
+}
+console.log("الفلاتر المرسلة:", {
+  search: searchQuery,
+  role: roleFilter,
+  status: statusFilter,
+  sort: sortBy
+});
+
+console.log("الرابط الكامل:", `/users?${params.toString()}`);
 
         function updateStatistics() {
             const total = currentUsers.length;
@@ -302,21 +335,59 @@
             }
         }
 
-        async function deleteUser(id) {
-            if (!confirm('Are you sure you want to permanently delete this user?')) return;
+async function deleteUser(id) {
+    if (!confirm('Are you sure you want to permanently delete this user?')) {
+        return;
+    }
 
-            try {
-                await apiRequest(`/users/${id}`, {
-                    method: 'DELETE'
-                });
+    try {
+        await apiRequest(`/users/${id}`, {
+            method: 'DELETE'
+        });
 
-                showNotification('User deleted successfully', 'success');
-                await loadUsers();
-            } catch (error) {
-                console.error('Failed to delete user:', error);
-                showNotification('Failed to delete user', 'error');
-            }
+        showNotification('User has been successfully deleted', 'success');
+        await loadUsers(); // تحديث القائمة بعد الحذف
+
+    } catch (error) {
+        console.error('Delete error details:', error);
+
+        let message = 'An error occurred while trying to delete the user';
+        let type = 'error';
+
+        // 1. ممنوع حذف حسابك الخاص
+        if (error.message?.toLowerCase().includes('own account') ||
+            error.message?.toLowerCase().includes('cannot delete self') ||
+            error.message?.toLowerCase().includes('self')) {
+            message = 'You cannot delete your own admin account';
         }
+        // 2. المستخدم لديه طلبات (السبب الأكثر شيوعاً حالياً)
+        else if (
+            error.status === 409 ||
+            error.message?.includes('foreign key') ||
+            error.message?.includes('constraint') ||
+            error.message?.includes('orders') ||
+            error.message?.includes('ORDER')
+        ) {
+            message = 'Cannot delete this user because they have existing orders';
+            type = 'warning'; // أقل حدة من error، لأنه ليس خطأ تقني بل قيد منطقي
+        }
+        // 3. عدم وجود صلاحية
+        else if (error.status === 403) {
+            message = "You don't have permission to delete this user";
+        }
+        // 4. المستخدم غير موجود
+        else if (error.status === 404) {
+            message = 'The user does not exist or has already been deleted';
+            type = 'info';
+        }
+        // 5. أي خطأ آخر (شبكة، سيرفر، إلخ)
+        else if (error.message) {
+            message = error.message; // إذا الـ backend بعث رسالة واضحة
+        }
+
+        showNotification(message, type);
+    }
+}
 
         function changePage(direction) {
             const newPage = currentPage + direction;

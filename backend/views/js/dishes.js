@@ -346,27 +346,67 @@ async function confirmDelete() {
 
     try {
         const token = getAuthToken();
+
         const response = await fetch(`${API_URL}/dishes/${dishToDelete}`, {
             method: 'DELETE',
             headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
+                'Authorization': `Bearer ${token}`
             }
         });
 
-        if (!response.ok) {
-            throw new Error('Failed to delete dish');
+        // ✅ حذف طبيعي
+        if (response.ok) {
+            showNotification('Dish deleted successfully!', 'success');
+            closeDeleteModal();
+            await loadChefDishes();
+            return;
         }
 
-        showNotification('Dish deleted successfully!', 'success');
+        // 🟡 مرتبط بطلبات → تعطيل تلقائي
+        if (response.status === 409) {
+            await disableDishInstead();
+            return;
+        }
+
+        throw new Error('Unexpected server error');
+
+    } catch (error) {
+        console.error('Error deleting dish:', error);
+        showNotification('Operation failed. Please try again.', 'error');
+    }
+}
+async function disableDishInstead() {
+    try {
+        const token = getAuthToken();
+
+        const response = await fetch(`${API_URL}/dishes/${dishToDelete}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ isAvailable: false })
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to disable dish');
+        }
+
+        showNotification(
+            'This dish has existing orders and cannot be deleted. It was marked as unavailable instead.',
+            'info'
+        );
+
         closeDeleteModal();
         await loadChefDishes();
 
     } catch (error) {
-        console.error('Error deleting dish:', error);
-        showNotification('Failed to delete dish', 'error');
+        console.error('Error disabling dish:', error);
+        showNotification('Failed to update dish status.', 'error');
     }
 }
+
+
 
 function filterDishes() {
     const searchTerm = document.getElementById('dishes-search').value.toLowerCase();
@@ -487,12 +527,12 @@ function formatDate(dateString) {
 }
 
 // Initialize delete confirmation
-document.addEventListener('DOMContentLoaded', () => {
-    const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
-    if (confirmDeleteBtn) {
-        confirmDeleteBtn.addEventListener('click', confirmDelete);
-    }
-});
+// document.addEventListener('DOMContentLoaded', () => {
+//     const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+//     if (confirmDeleteBtn) {
+//         confirmDeleteBtn.addEventListener('click', confirmDelete);
+//     }
+// });
 
 // Close modal when clicking outside
 window.onclick = function(event) {

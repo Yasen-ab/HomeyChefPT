@@ -4,11 +4,18 @@
         const itemsPerPage = 10;
         let totalPages = 1;
 
+      
+
         document.addEventListener('DOMContentLoaded', () => {
             checkAuth();
             initLogoutButton();
             initializePage();
         });
+        function checkAuth() {
+    if (!isAuthenticated()) {
+        window.location.href = 'login.html';
+    }
+}
 
         async function initializePage() {
             await loadChefs();
@@ -28,35 +35,51 @@
         }
 
         async function loadChefs() {
-            showLoading();
-            
-            try {
-                const searchQuery = document.getElementById('chefs-search').value;
-                const statusFilter = document.getElementById('status-filter').value;
-                const sortBy = document.getElementById('sort-by').value;
+    showLoading();
+    
+    try {
+        const searchQuery = document.getElementById('chefs-search')?.value?.trim() || '';
+        const statusFilter = document.getElementById('status-filter')?.value || '';
+        const sortBy = document.getElementById('sort-by')?.value || 'newest';
 
-                const params = new URLSearchParams();
-                if (searchQuery) params.append('search', searchQuery);
-                if (statusFilter) params.append('status', statusFilter);
-                if (sortBy) params.append('sort', sortBy);
-                params.append('page', currentPage);
-                params.append('limit', itemsPerPage);
+        const params = new URLSearchParams();
 
-                const response = await apiRequest(`/chefs?${params}`);
-                currentChefs = response.chefs || response;
-                
-                updateStatistics();
-                renderChefsTable();
-                updatePagination(response.totalCount || currentChefs.length);
-                
-            } catch (error) {
-                console.error('Failed to load chefs:', error);
-                showNotification('Failed to load chefs data', 'error');
-                showEmptyState();
-            } finally {
-                hideLoading();
-            }
+        // البحث
+        if (searchQuery) {
+            params.append('search', searchQuery);
         }
+
+        // ← التعديل الأهم هنا: ما بنرسل status إلا إذا كانت قيمة حقيقية (مش all أو فارغ)
+        if (statusFilter && statusFilter !== '' && statusFilter.toLowerCase() !== 'all') {
+            params.append('status', statusFilter.toLowerCase());
+        }
+
+        // الترتيب
+        if (sortBy) {
+            params.append('sort', sortBy);
+        }
+
+        params.append('page', currentPage);
+        params.append('limit', itemsPerPage);
+
+        // للتصحيح (ممكن تشيله بعد التأكد)
+        console.log("الرابط اللي بنرسله:", `/chefs?${params.toString()}`);
+
+        const response = await apiRequest(`/chefs?${params}`);
+        currentChefs = response.chefs || response || [];
+        
+        updateStatistics();
+        renderChefsTable();
+        updatePagination(response.totalCount || currentChefs.length || 0);
+        
+    } catch (error) {
+        console.error('Failed to load chefs:', error);
+        showNotification('تعذر تحميل بيانات الشيفات، حاول مرة أخرى', 'error');
+        showEmptyState();
+    } finally {
+        hideLoading();
+    }
+}
 
         function updateStatistics() {
             const total = currentChefs.length;

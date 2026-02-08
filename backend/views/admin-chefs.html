@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+
     <!-- Navigation -->
     <nav class="navbar" aria-label="Main navigation">
         <div class="container">
@@ -17,9 +18,9 @@
             </a>
 
             <button class="nav-toggle" id="menu-toggle" aria-expanded="false" aria-controls="navLinks" aria-label="Toggle navigation menu">
-                <span class="toggle-line" aria-hidden="true"></span>
-                <span class="toggle-line" aria-hidden="true"></span>
-                <span class="toggle-line" aria-hidden="true"></span>
+                <span class="toggle-line"></span>
+                <span class="toggle-line"></span>
+                <span class="toggle-line"></span>
             </button>
 
             <div class="nav-menu" id="navMenu">
@@ -29,12 +30,11 @@
                     <li class="nav-item" role="none"><a href="admin-chefs.html" class="nav-link active" role="menuitem" aria-current="page">Chefs</a></li>
                     <li class="nav-item" role="none"><a href="admin-dishes.html" class="nav-link" role="menuitem">Dishes</a></li>
                     <li class="nav-item" role="none"><a href="orders.html" class="nav-link" role="menuitem">Orders</a></li>
-                   
 
                     <!-- Legacy guest auth links (fallback) -->
                     <div class="auth-links" id="authLinks" style="display: none;">
-                        <li class="nav-link-item" role="none"><a href="login.html" class="nav-link btn-login" role="menuitem"><i class="fas fa-sign-in-alt" aria-hidden="true"></i> Login</a></li>
-                        <li class="nav-link-item" role="none"><a href="register.html" class="nav-link btn-register" role="menuitem"><i class="fas fa-user-plus" aria-hidden="true"></i> Register</a></li>
+                        <li class="nav-link-item" role="none"><a href="login.html" class="nav-link btn-login" role="menuitem"><i class="fas fa-sign-in-alt"></i> Login</a></li>
+                        <li class="nav-link-item" role="none"><a href="register.html" class="nav-link btn-register" role="menuitem"><i class="fas fa-user-plus"></i> Register</a></li>
                     </div>
 
                     <!-- Unified auth container -->
@@ -44,14 +44,15 @@
         </div>
     </nav>
 
-    <section class="admin-section">
+    <main class="admin-section">
         <div class="container">
+            <!-- Header -->
             <div class="page-header">
                 <h1>Chefs Management</h1>
                 <p>Manage all registered chefs in the system</p>
             </div>
 
-            <!-- Statistics Cards -->
+            <!-- Statistics -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <h3>Total Chefs</h3>
@@ -67,45 +68,47 @@
                 </div>
             </div>
 
-            <!-- Actions Bar -->
+            <!-- Controls Bar -->
             <div class="actions-bar">
                 <div class="search-box">
-                    <input type="search" id="chefs-search" placeholder="Search chefs by name, email, or phone..." />
-                    <span class="search-icon">🔍</span>
+                    <input type="search" id="chefs-search" placeholder="Search by name, email, phone..." aria-label="Search chefs">
+                    <span class="search-icon"><i class="fas fa-search"></i></span>
                 </div>
+
                 <div class="action-buttons">
                     <button class="btn btn-primary" onclick="exportChefs()">
-                        📊 Export
+                        <i class="fas fa-download"></i> Export
                     </button>
                     <button class="btn btn-secondary" onclick="showAddChefModal()">
-                        👨‍🍳 Add New Chef
+                        <i class="fas fa-user-plus"></i> Add New Chef
                     </button>
                 </div>
             </div>
 
             <!-- Filters -->
             <div class="filters">
-                <select id="status-filter" onchange="loadChefs()">
+                <select id="status-filter" aria-label="Filter by status">
                     <option value="">All Status</option>
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
                     <option value="pending">Pending</option>
                 </select>
-                <select id="sort-by" onchange="loadChefs()">
+
+                <select id="sort-by" aria-label="Sort by">
                     <option value="newest">Newest First</option>
                     <option value="oldest">Oldest First</option>
                     <option value="name">Name A-Z</option>
                 </select>
             </div>
 
-            <!-- Loading State -->
+            <!-- Loading -->
             <div id="loading-state" class="loading-state">
                 <div class="loading-spinner"></div>
                 <p>Loading chefs data...</p>
             </div>
 
-            <!-- Chefs Table -->
-            <div class="table-responsive" id="table-container" style="display: none;">
+            <!-- Table Container -->
+            <div class="table-responsive" id="table-container">
                 <table class="table" id="chefs-table">
                     <thead>
                         <tr>
@@ -116,45 +119,49 @@
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="chefs-tbody">
-                        <!-- Dynamic content -->
-                    </tbody>
+                    <tbody id="chefs-tbody"></tbody>
                 </table>
             </div>
 
             <!-- Empty State -->
-            <div id="empty-state" class="empty-state" style="display: none;">
+            <div id="empty-state" class="empty-state">
                 <div class="empty-icon">👨‍🍳</div>
                 <h3>No Chefs Found</h3>
-                <p>No chefs match your search criteria.</p>
-                <button class="btn btn-primary" onclick="clearFilters()">Clear Filters</button>
+                <p>No chefs match your current filters or search criteria.</p>
+                <button class="btn btn-primary" onclick="clearFilters()">
+                    <i class="fas fa-sync-alt"></i> Clear Filters
+                </button>
             </div>
 
             <!-- Pagination -->
-            <div class="pagination" id="pagination" style="display: none;">
-                <button id="prev-btn" class="pagination-btn" onclick="changePage(-1)">Previous</button>
+            <div class="pagination" id="pagination">
+                <button id="prev-btn" class="pagination-btn" onclick="changePage(-1)">
+                    <i class="fas fa-chevron-left"></i> Previous
+                </button>
                 <span id="page-info">Page 1 of 1</span>
-                <button id="next-btn" class="pagination-btn" onclick="changePage(1)">Next</button>
+                <button id="next-btn" class="pagination-btn" onclick="changePage(1)">
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
             </div>
         </div>
-    </section>
-
-    <script src="js/navbar.js"></script>
+    </main>
 
     <!-- Chef Details Modal -->
     <div id="chef-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Chef Details</h3>
-                <span class="close" onclick="closeModal()">&times;</span>
+                <span class="close" onclick="closeModal()" aria-label="Close modal">&times;</span>
             </div>
-            <div class="modal-body" id="chef-details">
-                <!-- Dynamic content -->
-            </div>
+            <div class="modal-body" id="chef-details"></div>
         </div>
     </div>
 
+    <!-- Scripts - الترتيب مهم جدًا -->
     <script src="js/utils.js"></script>
-    <script src="js/admin-chefs.js"> </script>
+    <script src="js/auth.js"></script>      <!-- إذا كان موجودًا -->
+    <script src="js/navbar.js"></script>
+    <script src="js/admin-chefs.js"></script>
+
 </body>
 </html>

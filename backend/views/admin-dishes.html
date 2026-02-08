@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+
     <!-- Navigation -->
     <nav class="navbar" aria-label="Main navigation">
         <div class="container">
@@ -17,9 +18,9 @@
             </a>
 
             <button class="nav-toggle" id="menu-toggle" aria-expanded="false" aria-controls="navLinks" aria-label="Toggle navigation menu">
-                <span class="toggle-line" aria-hidden="true"></span>
-                <span class="toggle-line" aria-hidden="true"></span>
-                <span class="toggle-line" aria-hidden="true"></span>
+                <span class="toggle-line"></span>
+                <span class="toggle-line"></span>
+                <span class="toggle-line"></span>
             </button>
 
             <div class="nav-menu" id="navMenu">
@@ -29,11 +30,10 @@
                     <li class="nav-item" role="none"><a href="admin-chefs.html" class="nav-link" role="menuitem">Chefs</a></li>
                     <li class="nav-item" role="none"><a href="admin-dishes.html" class="nav-link active" role="menuitem" aria-current="page">Dishes</a></li>
                     <li class="nav-item" role="none"><a href="orders.html" class="nav-link" role="menuitem">Orders</a></li>
-                   
 
                     <div class="auth-links" id="authLinks" style="display: none;">
-                        <li class="nav-link-item" role="none"><a href="login.html" class="nav-link btn-login" role="menuitem"><i class="fas fa-sign-in-alt" aria-hidden="true"></i> Login</a></li>
-                        <li class="nav-link-item" role="none"><a href="register.html" class="nav-link btn-register" role="menuitem"><i class="fas fa-user-plus" aria-hidden="true"></i> Register</a></li>
+                        <li class="nav-link-item" role="none"><a href="login.html" class="nav-link btn-login" role="menuitem"><i class="fas fa-sign-in-alt"></i> Login</a></li>
+                        <li class="nav-link-item" role="none"><a href="register.html" class="nav-link btn-register" role="menuitem"><i class="fas fa-user-plus"></i> Register</a></li>
                     </div>
 
                     <li class="nav-link-item" id="nav-auth" role="none"></li>
@@ -42,14 +42,15 @@
         </div>
     </nav>
 
-    <section class="admin-section">
+    <main class="admin-section">
         <div class="container">
+            <!-- Header -->
             <div class="page-header">
                 <h1>Dishes Management</h1>
                 <p>Manage all dishes available in the system</p>
             </div>
 
-            <!-- Statistics Cards -->
+            <!-- Statistics -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <h3>Total Dishes</h3>
@@ -65,38 +66,42 @@
                 </div>
             </div>
 
-            <!-- Actions Bar -->
+            <!-- Controls Bar -->
             <div class="actions-bar">
                 <div class="search-box">
-                    <input type="search" id="dishes-search" placeholder="Search dishes by name, category, or chef..." />
-                    <span class="search-icon">🔍</span>
+                    <input type="search" id="dishes-search" placeholder="Search by name, category, chef..." aria-label="Search dishes">
+                    <span class="search-icon"><i class="fas fa-search"></i></span>
                 </div>
+
                 <div class="action-buttons">
                     <button class="btn btn-primary" onclick="exportDishes()">
-                        📊 Export
+                        <i class="fas fa-download"></i> Export
                     </button>
                     <button class="btn btn-secondary" onclick="showAddDishModal()">
-                        🍽️ Add New Dish
+                        <i class="fas fa-utensils"></i> Add New Dish
                     </button>
                 </div>
             </div>
 
             <!-- Filters -->
             <div class="filters">
-                <select id="category-filter" onchange="loadDishes()">
+                <select id="category-filter" aria-label="Filter by category">
                     <option value="">All Categories</option>
                     <!-- Dynamic categories will be populated -->
                 </select>
-                <select id="availability-filter" onchange="loadDishes()">
+
+                <select id="availability-filter" aria-label="Filter by availability">
                     <option value="">All Availability</option>
                     <option value="available">Available</option>
                     <option value="unavailable">Unavailable</option>
                 </select>
-                <select id="chef-filter" onchange="loadDishes()">
+
+                <select id="chef-filter" aria-label="Filter by chef">
                     <option value="">All Chefs</option>
                     <!-- Dynamic chefs will be populated -->
                 </select>
-                <select id="sort-by" onchange="loadDishes()">
+
+                <select id="sort-by" aria-label="Sort by">
                     <option value="newest">Newest First</option>
                     <option value="oldest">Oldest First</option>
                     <option value="name">Name A-Z</option>
@@ -105,14 +110,14 @@
                 </select>
             </div>
 
-            <!-- Loading State -->
+            <!-- Loading -->
             <div id="loading-state" class="loading-state">
                 <div class="loading-spinner"></div>
                 <p>Loading dishes data...</p>
             </div>
 
-            <!-- Dishes Table -->
-            <div class="table-responsive" id="table-container" style="display: none;">
+            <!-- Table Container -->
+            <div class="table-responsive" id="table-container">
                 <table class="table" id="dishes-table">
                     <thead>
                         <tr>
@@ -123,41 +128,41 @@
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="dishes-tbody">
-                        <!-- Dynamic content -->
-                    </tbody>
+                    <tbody id="dishes-tbody"></tbody>
                 </table>
             </div>
 
             <!-- Empty State -->
-            <div id="empty-state" class="empty-state" style="display: none;">
+            <div id="empty-state" class="empty-state">
                 <div class="empty-icon">🍽️</div>
                 <h3>No Dishes Found</h3>
-                <p>No dishes match your search criteria.</p>
-                <button class="btn btn-primary" onclick="clearFilters()">Clear Filters</button>
+                <p>No dishes match your current filters or search criteria.</p>
+                <button class="btn btn-primary" onclick="clearFilters()">
+                    <i class="fas fa-sync-alt"></i> Clear Filters
+                </button>
             </div>
 
             <!-- Pagination -->
-            <div class="pagination" id="pagination" style="display: none;">
-                <button id="prev-btn" class="pagination-btn" onclick="changePage(-1)">Previous</button>
+            <div class="pagination" id="pagination">
+                <button id="prev-btn" class="pagination-btn" onclick="changePage(-1)">
+                    <i class="fas fa-chevron-left"></i> Previous
+                </button>
                 <span id="page-info">Page 1 of 1</span>
-                <button id="next-btn" class="pagination-btn" onclick="changePage(1)">Next</button>
+                <button id="next-btn" class="pagination-btn" onclick="changePage(1)">
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
             </div>
         </div>
-    </section>
-
-    <script src="js/navbar.js"></script>
+    </main>
 
     <!-- Dish Details Modal -->
     <div id="dish-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Dish Details</h3>
-                <span class="close" onclick="closeModal()">&times;</span>
+                <span class="close" onclick="closeModal()" aria-label="Close modal">&times;</span>
             </div>
-            <div class="modal-body" id="dish-details">
-                <!-- Dynamic content -->
-            </div>
+            <div class="modal-body" id="dish-details"></div>
         </div>
     </div>
 
@@ -166,12 +171,12 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Edit Dish</h3>
-                <span class="close" onclick="closeEditModal()">&times;</span>
+                <span class="close" onclick="closeEditModal()" aria-label="Close edit modal">&times;</span>
             </div>
             <div class="modal-body">
                 <form id="edit-dish-form" class="auth-form">
                     <div id="edit-error" class="error-message"></div>
-                    
+
                     <div class="form-group">
                         <label for="edit-name">Dish Name</label>
                         <input type="text" id="edit-name" name="name" required>
@@ -216,8 +221,11 @@
         </div>
     </div>
 
+    <!-- Scripts -->
     <script src="js/utils.js"></script>
-    <script src="js/admin-dishes.js"> </script>
+    <script src="js/auth.js"></script>      <!-- إذا كان موجود -->
+    <script src="js/navbar.js"></script>
+    <script src="js/admin-dishes.js"></script>
 
 </body>
 </html>

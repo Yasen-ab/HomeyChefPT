@@ -66,31 +66,51 @@ function displayRecentOrders(orders) {
 function createOrderCard(order) {
     const statusClass = `status-${order.status}`;
     
-    return `
-        <div class="order-card">
-            <div class="order-header">
-                <div class="order-info">
-                    <h3>Order #${order.orderNumber}</h3>
-                    <p>${formatDate(order.createdAt)}</p>
-                    ${order.User ? `<p>Customer: ${order.User.name}</p>` : ''}
-                </div>
-                <span class="order-status ${statusClass}">${order.status}</span>
+   const isFinalStatus = ['delivered', 'cancelled'].includes(order.status);
+
+return `
+    <div class="order-card" data-order-id="${order.id}">
+        <div class="order-header">
+            <div class="order-info">
+                <h3>Order #${order.orderNumber}</h3>
+                <p class="order-date">${formatDate(order.createdAt)}</p>
+                ${order.User ? `<p class="order-customer">Customer: ${order.User.name}</p>` : ''}
             </div>
-            <div class="order-details">
-                <p><strong>Total:</strong> ${formatCurrency(order.totalAmount)}</p>
-                <p><strong>Delivery Address:</strong> ${order.deliveryAddress}</p>
-            </div>
-            <div class="order-actions">
-                <select id="status-${order.id}" onchange="updateOrderStatus(${order.id}, this.value)">
-                    <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pending</option>
-                    <option value="confirmed" ${order.status === 'confirmed' ? 'selected' : ''}>Confirmed</option>
-                    <option value="preparing" ${order.status === 'preparing' ? 'selected' : ''}>Preparing</option>
-                    <option value="ready" ${order.status === 'ready' ? 'selected' : ''}>Ready</option>
-                    <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Delivered</option>
-                </select>
-            </div>
+
+            <span class="order-status ${statusClass}" aria-label="Order status">
+                ${order.status}
+            </span>
         </div>
-    `;
+
+        <div class="order-details">
+            <p><strong>Total:</strong> ${formatCurrency(order.totalAmount)}</p>
+            <p><strong>Delivery Address:</strong> ${order.deliveryAddress}</p>
+        </div>
+
+        <div class="order-actions">
+            <select 
+                id="status-${order.id}"
+                aria-label="Update order status"
+                ${isFinalStatus ? 'disabled' : ''}
+                onchange="updateOrderStatus(${order.id}, this.value)"
+            >
+                <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pending</option>
+                <option value="confirmed" ${order.status === 'confirmed' ? 'selected' : ''}>Confirmed</option>
+                <option value="preparing" ${order.status === 'preparing' ? 'selected' : ''}>Preparing</option>
+                <option value="ready" ${order.status === 'ready' ? 'selected' : ''}>Ready</option>
+                <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Delivered</option>
+                <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+            </select>
+
+            ${
+                isFinalStatus
+                    ? `<p class="order-locked">This order is finalized and cannot be updated.</p>`
+                    : ''
+            }
+        </div>
+    </div>
+`;
+
 }
 
 // Update order status

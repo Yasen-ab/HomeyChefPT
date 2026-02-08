@@ -175,18 +175,21 @@
     </section>
 
     <!-- Delete Confirmation Modal -->
-    <div id="delete-modal" class="modal">
+ <div id="delete-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Confirm Delete</h3>
             </div>
             <div class="modal-body">
                 <p>Are you sure you want to delete "<span id="delete-dish-name"></span>"?</p>
-                <p class="text-warning">This action cannot be undone.</p>
+                <p class="text-warning">
+                    If this dish has existing orders, it will be marked as unavailable instead.
+                </p>
             </div>
             <div class="modal-actions">
                 <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
-                <button type="button" class="btn btn-danger" id="confirm-delete-btn">Delete Dish</button>
+                <!-- ✅ التعديل الوحيد -->
+                <button type="button" class="btn btn-danger" onclick="confirmDelete()">Delete Dish</button>
             </div>
         </div>
     </div>

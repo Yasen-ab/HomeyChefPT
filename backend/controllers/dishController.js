@@ -5,6 +5,7 @@ const Dish = require('../models/Dish');
 const Chef = require('../models/Chef');
 const Review = require('../models/Review');
 const User = require('../models/User');
+const OrderItem = require('../models/OrderItem');
 
 // Get all dishes (with filters)
 exports.getAllDishes = async (req, res) => {
@@ -226,21 +227,45 @@ exports.updateDish = async (req, res) => {
 // Delete dish (Chef or Admin)
 exports.deleteDish = async (req, res) => {
   try {
-    const dish = await Dish.findByPk(req.params.id);
-    
+    const dishId = req.params.id;
+
+    const dish = await Dish.findByPk(dishId);
     if (!dish) {
       return res.status(404).json({ error: 'Dish not found' });
     }
 
-    // Chef can only delete their own dishes
-    if (req.userType === 'chef' && dish.chefId.toString() !== req.userId.toString()) {
+    // Chef authorization
+    if (
+      req.userType === 'chef' &&
+      dish.chefId.toString() !== req.userId.toString()
+    ) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
-    await dish.destroy();
-    res.json({ message: 'Dish deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+    const ordersCount = await OrderItem.count({
+      where: { dishId }
+    });
 
+    // 🧠 BUSINESS DECISION
+    if (ordersCount === 0) {
+      // ✅ No orders → real delete
+      await dish.destroy();
+
+      return res.status(200).json({
+        message: 'Dish deleted permanently (no orders found)'
+      });
+    } else {
+      // 🔒 Has orders → soft delete
+      dish.isAvailable = false;
+      await dish.save();
+
+      return res.status(200).json({
+        message: 'Dish has orders and was marked as unavailable'
+      });
+    }
+
+  } catch (error) {
+    console.error('Delete dish error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};  

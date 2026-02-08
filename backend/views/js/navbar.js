@@ -45,13 +45,13 @@ function renderNavAuthArea() {
 
     navAuthContainer.innerHTML = `
   <div class="nav-user-wrapper">
-    <a href="${dashboardUrl}" class="nav-link nav-dashboard active">
+    <a href="${dashboardUrl}" class="nav-link nav-dashboard">
       <i class="fas fa-tachometer-alt"></i> Dashboard
     </a>
     
     <div class="nav-user-dropdown">
       <button class="nav-user-btn">
-        <img src="${user.picture || 'https://via.placeholder.com/32'}" 
+        <img src="${user.picture || 'https://via.placeholder.com/40'}" 
              alt="${displayName}" class="nav-user-avatar">
         <span class="nav-username-text">Hi, ${displayName}</span>
         <i class="fas fa-caret-down"></i>

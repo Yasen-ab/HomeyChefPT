@@ -162,7 +162,7 @@ async function handleRegister(e) {
             errorDiv.textContent = error.message;
             errorDiv.classList.add('show');
         }
-        // else: silent fail, no red box of shame 😄
+        
     }
 }
 

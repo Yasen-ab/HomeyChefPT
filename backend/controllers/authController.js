@@ -17,7 +17,7 @@ exports.register = async (req, res) => {
     // Check if user exists
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
-      return res.status(400).json({ error: 'Email already registered' });
+      return res.status(400).json({ error: 'Registration failed' });
     }
 
     // Hash password
@@ -61,7 +61,7 @@ exports.registerChef = async (req, res) => {
     // Check if chef exists
     const existingChef = await Chef.findOne({ where: { email } });
     if (existingChef) {
-      return res.status(400).json({ error: 'Email already registered' });
+      return res.status(400).json({ error: 'Registration failed' });
     }
 
     // Hash password

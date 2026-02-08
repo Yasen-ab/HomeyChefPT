@@ -1,4 +1,5 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
+
     const passwordToggle = document.getElementById('passwordToggle');
     const passwordInput = document.getElementById('password');
     const loginForm = document.getElementById('login-form');
@@ -7,18 +8,32 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnLoading = submitBtn.querySelector('.btn-loading');
     const errorDiv = document.getElementById('login-error');
 
+    // ===== Login Attempts Control (E1) =====
+    let attempts = 0;
+    const MAX_ATTEMPTS = 3;
+
     // Toggle password visibility
     if (passwordToggle && passwordInput) {
-        passwordToggle.addEventListener('click', function() {
+        passwordToggle.addEventListener('click', function () {
             const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
             passwordInput.setAttribute('type', type);
-            this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+            this.innerHTML =
+                type === 'password'
+                    ? '<i class="fas fa-eye"></i>'
+                    : '<i class="fas fa-eye-slash"></i>';
         });
     }
 
     // Form submission
-    loginForm.addEventListener('submit', async function(e) {
+    loginForm.addEventListener('submit', async function (e) {
         e.preventDefault();
+
+        // If max attempts reached, block submission
+        if (attempts >= MAX_ATTEMPTS) {
+            errorDiv.textContent = 'Login failed after 3 unsuccessful attempts.';
+            errorDiv.style.display = 'block';
+            return;
+        }
 
         // Clear previous errors
         errorDiv.style.display = 'none';
@@ -33,7 +48,6 @@ document.addEventListener('DOMContentLoaded', function() {
         submitBtn.disabled = true;
 
         try {
-            // Call actual API
             const response = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -43,9 +57,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
 
             if (!response.ok) {
-                // Show server error
-                throw new Error(data.message || 'Login failed');
+                throw new Error(data.message || 'Invalid email or password');
             }
+
+            // Reset attempts on success
+            attempts = 0;
 
             // Save token and user data
             localStorage.setItem('authToken', data.token);
@@ -62,24 +78,33 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 1500);
 
         } catch (err) {
-            errorDiv.textContent = err.message;
+            attempts++;
+
+            if (attempts >= MAX_ATTEMPTS) {
+                errorDiv.textContent = 'Login failed after 3 unsuccessful attempts.';
+                submitBtn.disabled = true;
+            } else {
+                errorDiv.textContent = err.message;
+            }
+
             errorDiv.style.display = 'block';
+
         } finally {
-            // Hide loading
             submitBtn.classList.remove('loading');
             btnLoading.style.display = 'none';
-            submitBtn.disabled = false;
+            submitBtn.disabled = attempts >= MAX_ATTEMPTS;
         }
     });
 
     // Input focus effect
     const inputs = document.querySelectorAll('.input-with-icon input');
     inputs.forEach(input => {
-        input.addEventListener('focus', function() {
+        input.addEventListener('focus', function () {
             this.parentElement.style.transform = 'translateY(-2px)';
         });
-        input.addEventListener('blur', function() {
+        input.addEventListener('blur', function () {
             this.parentElement.style.transform = 'translateY(0)';
         });
     });
+
 });

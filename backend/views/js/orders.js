@@ -48,18 +48,28 @@ async function loadOrders() {
 // Stats
 // =========================
 function updateStats(orders) {
-    const pending = orders.filter(o => o.status === 'pending').length;
-    const completed = orders.filter(o => o.status === 'completed').length;
-    const delivery = orders.filter(o => o.status === 'processing').length;
+    const s = status => (status || '').toLowerCase().trim(); // للتعامل مع أي اختلاف في الكتابة
 
-    const totalSpent = orders.reduce((sum, o) => sum + o.totalAmount, 0);
+    // Pending: حالة pending
+    const pending = orders.filter(o => s(o.status) === 'pending').length;
 
-    document.getElementById('pending-count').textContent = pending;
+    // Completed: حالة delivered (لأن delivered هي اللي تعني مكتمل عندك)
+    const completed = orders.filter(o => s(o.status) === 'delivered').length;
+
+    // In Delivery: حالة ready (لأن ready غالبًا تعني جاهز للتوصيل / في الطريق)
+    const delivery = orders.filter(o => s(o.status) === 'ready').length;
+
+    // Total Spent: فقط الطلبات المكتملة (delivered)
+    const totalSpent = orders
+        .filter(o => s(o.status) === 'delivered')
+        .reduce((sum, o) => sum + Number(o.totalAmount || 0), 0);
+
+    // تحديث العدادات في الصفحة
+    document.getElementById('pending-count').textContent   = pending;
     document.getElementById('completed-count').textContent = completed;
-    document.getElementById('delivery-count').textContent = delivery;
-    document.getElementById('total-spent').textContent = formatCurrency(totalSpent);
+    document.getElementById('delivery-count').textContent  = delivery;
+    document.getElementById('total-spent').textContent     = formatCurrency(totalSpent);
 }
-
 // =========================
 // Filters / Search / Sort
 // =========================

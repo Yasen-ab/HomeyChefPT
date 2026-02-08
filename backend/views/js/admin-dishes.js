@@ -12,6 +12,11 @@
             initLogoutButton();
             initializePage();
         });
+           function checkAuth() {
+    if (!isAuthenticated()) {
+        window.location.href = 'login.html';
+    }
+}
 
         async function initializePage() {
             await loadCategories();

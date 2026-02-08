@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+
     <!-- Navigation -->
     <nav class="navbar" aria-label="Main navigation">
         <div class="container">
@@ -17,9 +18,9 @@
             </a>
 
             <button class="nav-toggle" id="menu-toggle" aria-expanded="false" aria-controls="navLinks" aria-label="Toggle navigation menu">
-                <span class="toggle-line" aria-hidden="true"></span>
-                <span class="toggle-line" aria-hidden="true"></span>
-                <span class="toggle-line" aria-hidden="true"></span>
+                <span class="toggle-line"></span>
+                <span class="toggle-line"></span>
+                <span class="toggle-line"></span>
             </button>
 
             <div class="nav-menu" id="navMenu">
@@ -29,10 +30,10 @@
                     <li class="nav-item" role="none"><a href="admin-chefs.html" class="nav-link" role="menuitem">Chefs</a></li>
                     <li class="nav-item" role="none"><a href="admin-dishes.html" class="nav-link" role="menuitem">Dishes</a></li>
                     <li class="nav-item" role="none"><a href="orders.html" class="nav-link" role="menuitem">Orders</a></li>
-                  
+
                     <div class="auth-links" id="authLinks" style="display: none;">
-                        <li class="nav-link-item" role="none"><a href="login.html" class="nav-link btn-login" role="menuitem"><i class="fas fa-sign-in-alt" aria-hidden="true"></i> Login</a></li>
-                        <li class="nav-link-item" role="none"><a href="register.html" class="nav-link btn-register" role="menuitem"><i class="fas fa-user-plus" aria-hidden="true"></i> Register</a></li>
+                        <li class="nav-link-item" role="none"><a href="login.html" class="nav-link btn-login" role="menuitem"><i class="fas fa-sign-in-alt"></i> Login</a></li>
+                        <li class="nav-link-item" role="none"><a href="register.html" class="nav-link btn-register" role="menuitem"><i class="fas fa-user-plus"></i> Register</a></li>
                     </div>
 
                     <li class="nav-link-item" id="nav-auth" role="none"></li>
@@ -41,14 +42,15 @@
         </div>
     </nav>
 
-    <section class="admin-section">
+    <main class="admin-section">
         <div class="container">
+            <!-- Header -->
             <div class="page-header">
                 <h1>Users Management</h1>
                 <p>Manage all registered users in the system</p>
             </div>
 
-            <!-- Statistics Cards -->
+            <!-- Statistics -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <h3>Total Users</h3>
@@ -64,49 +66,52 @@
                 </div>
             </div>
 
-            <!-- Actions Bar -->
+            <!-- Controls Bar -->
             <div class="actions-bar">
                 <div class="search-box">
-                    <input type="search" id="users-search" placeholder="Search users by name, email, or role..." />
-                    <span class="search-icon">🔍</span>
+                    <input type="search" id="users-search" placeholder="Search by name, email..." aria-label="Search users">
+                    <span class="search-icon"><i class="fas fa-search"></i></span>
                 </div>
+
                 <div class="action-buttons">
                     <button class="btn btn-primary" onclick="exportUsers()">
-                        📊 Export
+                        <i class="fas fa-download"></i> Export
                     </button>
                     <button class="btn btn-secondary" onclick="showAddUserModal()">
-                        👤 Add New User
+                        <i class="fas fa-user-plus"></i> Add New User
                     </button>
                 </div>
             </div>
 
             <!-- Filters -->
             <div class="filters">
-                <select id="role-filter" onchange="loadUsers()">
+                <select id="role-filter" aria-label="Filter by role">
                     <option value="">All Roles</option>
                     <option value="user">User</option>
                     <option value="admin">Admin</option>
                 </select>
-                <select id="status-filter" onchange="loadUsers()">
+
+                <select id="status-filter" aria-label="Filter by status">
                     <option value="">All Status</option>
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
                 </select>
-                <select id="sort-by" onchange="loadUsers()">
+
+                <select id="sort-by" aria-label="Sort by">
                     <option value="newest">Newest First</option>
                     <option value="oldest">Oldest First</option>
                     <option value="name">Name A-Z</option>
                 </select>
             </div>
 
-            <!-- Loading State -->
+            <!-- Loading -->
             <div id="loading-state" class="loading-state">
                 <div class="loading-spinner"></div>
                 <p>Loading users data...</p>
             </div>
 
-            <!-- Users Table -->
-            <div class="table-responsive" id="table-container" style="display: none;">
+            <!-- Table Container -->
+            <div class="table-responsive" id="table-container">
                 <table class="table" id="users-table">
                     <thead>
                         <tr>
@@ -117,41 +122,41 @@
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="users-tbody">
-                        <!-- Dynamic content -->
-                    </tbody>
+                    <tbody id="users-tbody"></tbody>
                 </table>
             </div>
 
             <!-- Empty State -->
-            <div id="empty-state" class="empty-state" style="display: none;">
+            <div id="empty-state" class="empty-state">
                 <div class="empty-icon">👥</div>
                 <h3>No Users Found</h3>
-                <p>No users match your search criteria.</p>
-                <button class="btn btn-primary" onclick="clearFilters()">Clear Filters</button>
+                <p>No users match your current filters or search.</p>
+                <button class="btn btn-primary" onclick="clearFilters()">
+                    <i class="fas fa-sync-alt"></i> Clear Filters
+                </button>
             </div>
 
             <!-- Pagination -->
-            <div class="pagination" id="pagination" style="display: none;">
-                <button id="prev-btn" class="pagination-btn" onclick="changePage(-1)">Previous</button>
+            <div class="pagination" id="pagination">
+                <button id="prev-btn" class="pagination-btn" onclick="changePage(-1)">
+                    <i class="fas fa-chevron-left"></i> Previous
+                </button>
                 <span id="page-info">Page 1 of 1</span>
-                <button id="next-btn" class="pagination-btn" onclick="changePage(1)">Next</button>
+                <button id="next-btn" class="pagination-btn" onclick="changePage(1)">
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
             </div>
         </div>
-    </section>
-
-    <script src="js/navbar.js"></script>
+    </main>
 
     <!-- User Details Modal -->
     <div id="user-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h3>User Details</h3>
-                <span class="close" onclick="closeModal()">&times;</span>
+                <span class="close" onclick="closeModal()" aria-label="Close modal">&times;</span>
             </div>
-            <div class="modal-body" id="user-details">
-                <!-- Dynamic content -->
-            </div>
+            <div class="modal-body" id="user-details"></div>
         </div>
     </div>
 
@@ -160,12 +165,12 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Edit User</h3>
-                <span class="close" onclick="closeEditModal()">&times;</span>
+                <span class="close" onclick="closeEditModal()" aria-label="Close edit modal">&times;</span>
             </div>
             <div class="modal-body">
                 <form id="edit-user-form" class="auth-form">
                     <div id="edit-error" class="error-message"></div>
-                    
+
                     <div class="form-group">
                         <label for="edit-name">Name</label>
                         <input type="text" id="edit-name" name="name" required>
@@ -201,9 +206,11 @@
         </div>
     </div>
 
+    <!-- Scripts - ترتيب مهم جداً -->
     <script src="js/utils.js"></script>
-    <script src="js/admin-users.js"> </script>
-
+    <script src="js/auth.js"></script>
+    <script src="js/navbar.js"></script>
+    <script src="js/admin-users.js"></script>
 
 </body>
 </html>
