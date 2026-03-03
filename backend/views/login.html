@@ -6,11 +6,11 @@
     <title>Login - HomeyChef</title>
     
     <!-- Styles & Fonts -->
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/login.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700;800&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍽️</text></svg>">
     
     <!-- Google Identity Services -->
@@ -19,19 +19,29 @@
 <body>
 
     <!-- ========================= NAVIGATION ========================= -->
-    <nav class="navbar">
-        <div class="container">
-            <div class="nav-brand">
-                <a href="index.html"><h1>🍽️ HomeyChef</h1></a>
-            </div>
-            <div class="nav-links">
-                <a href="index.html">Home</a>
-                <a href="menu.html">Menu</a>
-                <a href="login.html" class="active">Login</a>
-                <a href="register.html">Sign Up</a>
-            </div>
+        <!-- Navigation -->
+    <nav class="site-nav" aria-label="Main">
+    <div class="container nav-shell">
+        <a href="index.html" class="nav-brand" aria-label="HomeyChef Home">
+            <span class="brand-mark" aria-hidden="true">HC</span>
+            <span class="brand-text">HomeyChef</span>
+        </a>
+
+        <button class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-menu" aria-label="Toggle menu">
+            <span class="nav-toggle-bar"></span>
+            <span class="nav-toggle-bar"></span>
+            <span class="nav-toggle-bar"></span>
+        </button>
+
+        <div class="nav-menu" id="nav-menu">
+            <ul class="nav-list" id="nav-list">
+                <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="menu.html">Menu</a></li>
+            </ul>
+            <ul class="nav-list nav-auth-list" id="nav-auth"></ul>
         </div>
-    </nav>
+    </div>
+</nav>
     <!-- Back to Top Button -->
     <button class="back-to-top" id="backToTop" aria-label="Back to top">
         <i class="fas fa-chevron-up"></i>
@@ -43,9 +53,9 @@
             <div class="auth-container animate-fade-in">
                 <!-- Decorative Background Elements -->
                 <div class="auth-decoration">
-                    <div class="decoration-item" style="top: 20%; left: 10%;">🍽️</div>
-                    <div class="decoration-item" style="top: 60%; right: 15%;">👨‍🍳</div>
-                    <div class="decoration-item" style="bottom: 20%; left: 20%;">🍲</div>
+                    <div class="decoration-item item-1">🍽️</div>
+                    <div class="decoration-item item-2">👨‍🍳</div>
+                    <div class="decoration-item item-3">🍲</div>
                 </div>
                 
                 <!-- Auth Header -->
@@ -62,7 +72,7 @@
                 <!-- Login Form -->
                 <form id="login-form" class="auth-form">
                     <!-- Error Display -->
-                    <div id="login-error" class="error-message" style="display: none;"></div>
+                    <div id="login-error" class="error-message"></div>
                     
                     <!-- Email Input -->
                     <div class="form-group">
@@ -111,7 +121,7 @@
                     <button type="submit" class="btn btn-primary btn-full btn-auth">
                         <i class="fas fa-sign-in-alt"></i>
                         <span class="btn-text">Sign In</span>
-                        <div class="btn-loading" style="display: none;">
+                        <div class="btn-loading is-hidden">
                             <div class="loading-spinner-small"></div>
                         </div>
                     </button>
@@ -130,7 +140,7 @@
                             </button>
                         </div>
                         <!-- Google Sign-In Button Container (will be populated by JavaScript) -->
-                        <div id="google-signin-button-container" style="margin-top: 15px; display: none;"></div>
+                        <div id="google-signin-button-container" class="google-signin-container"></div>
                     </div>
 
                     <!-- Sign Up Link -->
@@ -193,7 +203,7 @@
             
             <div class="footer-bottom">
                 <div class="footer-bottom-content">
-                    <p>&copy; 2024 HomeyChef. All rights reserved. Made with <i class="fas fa-heart" style="color: #e74c3c;"></i> for food lovers.</p>
+                    <p>&copy; 2024 HomeyChef. All rights reserved. Made with <i class="fas fa-heart heart-icon"></i> for food lovers.</p>
                 </div>
             </div>
         </div>
@@ -208,3 +218,6 @@
     
 </body>
 </html>
+
+
+

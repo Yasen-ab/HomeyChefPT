@@ -6,6 +6,7 @@ const Chef = require('../models/Chef');
 const Review = require('../models/Review');
 const User = require('../models/User');
 const OrderItem = require('../models/OrderItem');
+const Order = require('../models/Order');
 
 // Get all dishes (with filters)
 exports.getAllDishes = async (req, res) => {
@@ -139,6 +140,23 @@ exports.rateDish = async (req, res) => {
     const r = parseInt(rating, 10);
     if (!r || r < 1 || r > 5) {
       return res.status(400).json({ error: 'Rating must be an integer between 1 and 5' });
+    }
+
+    const deliveredOrderItem = await OrderItem.findOne({
+      where: { dishId },
+      include: [
+        {
+          model: Order,
+          where: { userId: req.userId, status: 'delivered' },
+          attributes: []
+        }
+      ]
+    });
+
+    if (!deliveredOrderItem) {
+      return res.status(403).json({
+        error: 'You can only rate dishes from delivered orders'
+      });
     }
 
     // Check if review exists -> update, else create

@@ -1,0 +1,254 @@
+:root {
+  color-scheme: light;
+  --bg: #f8f2e9;
+  --surface: #ffffff;
+  --ink: #1f1a17;
+  --muted: #6f625a;
+  --accent: #d35400;
+  --accent-2: #1a936f;
+  --border: #e6ded5;
+  --shadow-md: 0 16px 40px rgba(31, 26, 23, 0.12);
+  --radius-lg: 24px;
+  --radius-md: 16px;
+  --radius-sm: 12px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Sora", "Segoe UI", sans-serif;
+  color: var(--ink);
+  background: radial-gradient(circle at top, #fff6ea 0%, var(--bg) 55%, #f1e3d2 100%);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.container {
+  width: min(1200px, 92vw);
+  margin: 0 auto;
+}
+
+.site-nav {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: rgba(248, 242, 233, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-shell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 0;
+}
+
+.nav-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: "Fraunces", "Times New Roman", serif;
+  font-weight: 700;
+}
+
+.brand-text {
+  font-size: 1.2rem;
+}
+
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0.4rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #fff;
+  cursor: pointer;
+}
+
+.nav-toggle-bar {
+  width: 22px;
+  height: 2px;
+  background: var(--ink);
+}
+
+.nav-menu {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.nav-list {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-auth-list {
+  margin-left: auto;
+}
+
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.95rem;
+  border-radius: 999px;
+  font-weight: 600;
+  color: inherit;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+.favorites-main {
+  width: min(1200px, 92vw);
+  margin: 0 auto;
+  padding: 3rem 0 4rem;
+}
+
+.favorites-header {
+  margin-bottom: 1.6rem;
+}
+
+.favorites-title {
+  margin: 0;
+  font-family: "Fraunces", "Times New Roman", serif;
+  font-size: clamp(2rem, 2.8vw, 2.8rem);
+}
+
+.favorites-subtitle {
+  margin: 0.6rem 0 0;
+  color: var(--muted);
+}
+
+.favorites-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+}
+
+.dish-card {
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+.dish-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+.dish-content {
+  padding: 1.1rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.dish-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dish-meta strong {
+  font-size: 1rem;
+}
+
+.dish-meta span {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.dish-content small {
+  color: var(--muted);
+}
+
+.dish-actions {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.dish-actions button {
+  flex: 1;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 0.62rem 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-chef {
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn-remove {
+  background: transparent;
+  border-color: #e7b4aa;
+  color: #bc3f2d;
+}
+
+.btn-remove:hover {
+  background: #fff2ef;
+}
+
+.favorites-empty {
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: 2rem;
+  text-align: center;
+  color: var(--muted);
+}
+
+@media (max-width: 900px) {
+  .nav-toggle {
+    display: flex;
+  }
+
+  .nav-menu {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem 0;
+  }
+
+  .nav-menu.is-open {
+    display: flex;
+  }
+
+  .nav-list,
+  .nav-auth-list {
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

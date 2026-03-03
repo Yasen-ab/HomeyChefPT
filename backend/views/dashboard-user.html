@@ -4,28 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - HomeyChef</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard-user.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700;800&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <!-- Navigation -->
-   <nav class="navbar">
-        <div class="container">
-            <div class="nav-brand">
-                <a href="index.html"><h1>🍽️ HomeyChef</h1></a>
-            </div>
-            <div class="nav-links">
-                <a href="menu.html">Menu</a>
-               
-                <a href="orders.html"> Orders</a>
-                <span id="nav-auth">
-  <a href="login.html">Login</a>
-  <a href="register.html" class="btn-primary">Sign Up</a>
-</span>
+    <nav class="site-nav" aria-label="Main">
+    <div class="container nav-shell">
+        <a href="index.html" class="nav-brand" aria-label="HomeyChef Home">
+            <span class="brand-mark" aria-hidden="true">HC</span>
+            <span class="brand-text">HomeyChef</span>
+        </a>
 
-            </div>
+        <button class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-menu" aria-label="Toggle menu">
+            <span class="nav-toggle-bar"></span>
+            <span class="nav-toggle-bar"></span>
+            <span class="nav-toggle-bar"></span>
+        </button>
+
+        <div class="nav-menu" id="nav-menu">
+            <ul class="nav-list" id="nav-list">
+                <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="menu.html">Menu</a></li>
+            </ul>
+            <ul class="nav-list nav-auth-list" id="nav-auth"></ul>
         </div>
-    </nav>
+    </div>
+</nav>
     <!-- Dashboard Section -->
     <section class="dashboard">
         <div class="container">
@@ -56,12 +64,12 @@
             </div>
 
             <!-- Recent Orders -->
-            <div class="dashboard-section">
+            <!-- <div class="dashboard-section">
                 <h2>Recent Orders</h2>
                 <div id="recent-orders-container" class="orders-list">
-                    <!-- Orders will be loaded here -->
+                    Orders will be loaded here
                 </div>
-            </div>
+            </div> -->
 
             <!-- Profile Section -->
             <div class="dashboard-section">
@@ -90,8 +98,13 @@
     </section>
 
     <script src="js/utils.js"></script>
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+    <script src="js/notification-client.js"></script>
     <script src="js/dashboard-user.js"></script>
     <script src="js/navbar.js"></script>
 </body>
 </html>
+
+
+
 

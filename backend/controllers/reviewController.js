@@ -2,6 +2,8 @@
 const Review = require('../models/Review');
 const User = require('../models/User');
 const Dish = require('../models/Dish');
+const Order = require('../models/Order');
+const OrderItem = require('../models/OrderItem');
 
 // Get reviews for a dish
 exports.getDishReviews = async (req, res) => {
@@ -31,6 +33,31 @@ exports.createReview = async (req, res) => {
     }
 
     const { dishId, rating, comment } = req.body;
+    if (!dishId) {
+      return res.status(400).json({ error: 'Dish ID is required' });
+    }
+
+    const dish = await Dish.findByPk(dishId);
+    if (!dish) {
+      return res.status(404).json({ error: 'Dish not found' });
+    }
+
+    const deliveredOrderItem = await OrderItem.findOne({
+      where: { dishId },
+      include: [
+        {
+          model: Order,
+          where: { userId: req.userId, status: 'delivered' },
+          attributes: []
+        }
+      ]
+    });
+
+    if (!deliveredOrderItem) {
+      return res.status(403).json({
+        error: 'You can only review dishes from delivered orders'
+      });
+    }
 
     // Check if user already reviewed this dish
     const existingReview = await Review.findOne({

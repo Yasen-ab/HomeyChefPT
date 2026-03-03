@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Favorites - HomeyChef</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700;800&family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/favorites.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <nav class="site-nav" aria-label="Main">
+    <div class="container nav-shell">
+      <a href="/index.html" class="nav-brand"><span class="brand-mark">HC</span><span class="brand-text">HomeyChef</span></a>
+      <button class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-menu" aria-label="Toggle menu">
+        <span class="nav-toggle-bar"></span><span class="nav-toggle-bar"></span><span class="nav-toggle-bar"></span>
+      </button>
+      <div class="nav-menu" id="nav-menu">
+        <ul class="nav-list" id="nav-list">
+          <li class="nav-item"><a class="nav-link" href="/index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="/menu.html">Menu</a></li>
+        </ul>
+        <ul class="nav-list nav-auth-list" id="nav-auth"></ul>
+      </div>
+    </div>
+  </nav>
+
+  <main class="favorites-main">
+    <header class="favorites-header">
+      <h1 class="favorites-title">My Favorites</h1>
+      <p class="favorites-subtitle">Dishes you loved, saved for quick access.</p>
+    </header>
+    <div id="favorites-grid" class="favorites-grid"></div>
+  </main>
+
+  <script src="/js/utils.js"></script>
+  <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+  <script src="/js/notification-client.js"></script>
+  <script src="/js/navbar.js"></script>
+  <script src="/js/favorites.js"></script>
+</body>
+</html>

@@ -5,163 +5,235 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HomeyChef - Taste the Love in Every Bite</title>
     <meta name="description" content="Order delicious home-cooked meals from local chefs. Fresh ingredients, authentic flavors, delivered to your door.">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/index.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700;800&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍽️</text></svg>">
 </head>
 <body>
     <!-- Navigation -->
-<!-- Navigation -->
-<!-- ========================= NAVBAR ========================= -->
- <nav class="navbar">
-        <div class="container">
-            <div class="nav-brand">
-                <a href="index.html"><h1>🍽️ HomeyChef</h1></a>
-            </div>
+    <nav class="site-nav" aria-label="Main">
+    <div class="container nav-shell">
+        <a href="index.html" class="nav-brand" aria-label="HomeyChef Home">
+            <span class="brand-mark" aria-hidden="true">HC</span>
+            <span class="brand-text">HomeyChef</span>
+        </a>
 
-            <!-- مهم جداً: إضافة nav-auth ليستطيع الـ JS تحديث الروابط -->
-            <div class="nav-links" id="main-nav-links">
-                <a href="index.html" class="active">Home</a>
-                <a href="menu.html">Menu</a>
-                <span id="nav-auth">
-           <a href="login.html">Login</a>
-           <a href="register.html" class="btn-primary">Sign Up</a>
-           </span>
-            </div>
-           
+        <button class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-menu" aria-label="Toggle menu">
+            <span class="nav-toggle-bar"></span>
+            <span class="nav-toggle-bar"></span>
+            <span class="nav-toggle-bar"></span>
+        </button>
 
-
-            <!-- <div class="nav-mobile">
-                <span id="menu-toggle">☰</span>
-            </div> -->
+        <div class="nav-menu" id="nav-menu">
+            <ul class="nav-list" id="nav-list">
+                <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="menu.html">Menu</a></li>
+            </ul>
+            <ul class="nav-list nav-auth-list" id="nav-auth"></ul>
         </div>
-    </nav>
-
-<!-- ///////////////////////////////////////////////////////////////// -->
-    <!-- Back to Top Button -->
-    <button class="back-to-top" id="backToTop" aria-label="Back to top">
-        <i class="fas fa-chevron-up"></i>
-    </button>
+    </div>
+</nav>
 
     <!-- Hero Section -->
-<section class="hero hero-animated" aria-label="Hero section">
-    <div class="hero-background"></div>
-
-    <div class="container">
-        <div class="hero-layout">
-
-            <!-- LEFT CONTENT -->
-            <div class="hero-content">
-
-                <div class="hero-tagline reveal">
-                    <span class="tagline-badge">
-                        <i class="fas fa-bolt"></i> #1 Home-Cooked Meals Platform
-                    </span>
-                </div>
-
-                <h1 class="hero-title reveal delay-1">
-                    Real Food.<br>
-                    Real Chefs.<br>
-                    <span class="gradient-text">Delivered.</span>
-                </h1>
-
-                <p class="hero-subtitle reveal delay-2">
-                    Skip restaurants. Eat like a local — fresh, authentic,
-                    and cooked with love by trusted home chefs.
-                </p>
-
-                <div class="hero-buttons reveal delay-3">
-                    <a href="register.html" class="btn btn-primary btn-large pulse">
-                        <i class="fas fa-fire"></i> Order Your First Meal
-                    </a>
-                </div>
-
-                <div class="hero-stats">
-                    <div class="stat-item">
-                        <span class="stat-number" data-target="200">0</span>
-                        <span class="stat-label">Local Chefs</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number" data-target="1500">0</span>
-                        <span class="stat-label">Meals Delivered</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number" data-target="98">0</span>
-                        <span class="stat-label">Satisfaction %</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number" data-target="30">0</span>
-                        <span class="stat-label">Avg Delivery (min)</span>
-                    </div>
-                </div>
-
-                <div class="trust-indicators reveal delay-4">
-                    <div class="trust-item"><i class="fas fa-shield-alt"></i> Secure Payment</div>
-                    <div class="trust-item"><i class="fas fa-leaf"></i> Fresh Ingredients</div>
-                    <div class="trust-item"><i class="fas fa-clock"></i> On-time Delivery</div>
-                </div>
-
+    <section class="hero hero-animated" aria-label="Hero section">
+        <div class="hero-background">
+            <div class="hero-bg-shapes">
+                <div class="shape shape-1"></div>
+                <div class="shape shape-2"></div>
+                <div class="shape shape-3"></div>
             </div>
-
-            <!-- RIGHT PHONE MOCKUP -->
-            <div class="hero-visual">
-                <div class="phone-mockup floating-phone">
-                    <div class="phone-notch"></div>
-
-                    <div class="phone-screen">
-
-                        <div class="app-header">
-                            <span>📍 Nearby Chefs</span>
-                            <span>👩‍🍳</span>
-                        </div>
-
-                        <div class="app-featured">
-                            <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&h=400&fit=crop">
-                            <div class="app-featured-info">
-                                <h4>Homemade Lasagna</h4>
-                                <span>⭐ 4.9 · 25 min</span>
-                            </div>
-                        </div>
-
-                        <div class="app-list">
-                            <div class="app-item">
-                                <img src="https://images.unsplash.com/photo-1600891964599-f61ba0e24092?w=200&h=200&fit=crop">
-                                <div>
-                                    <strong>Grilled Chicken</strong>
-                                    <span>⭐ 4.8</span>
-                                </div>
-                                <span class="price">$12</span>
-                            </div>
-
-                            <div class="app-item">
-                                <img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=200&h=200&fit=crop">
-                                <div>
-                                    <strong>Beef Burger</strong>
-                                    <span>⭐ 5.0</span>
-                                </div>
-                                <span class="price">$10</span>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
         </div>
-    </div>
 
-    <div class="scroll-indicator">
-        <i class="fas fa-chevron-down"></i>
-    </div>
-</section>
+        <div class="container">
+            <div class="hero-layout">
+                <!-- LEFT CONTENT -->
+                <div class="hero-content">
+                    <div class="hero-tagline reveal">
+                        <span class="tagline-badge">
+                            <i class="fas fa-bolt"></i> #1 Home-Cooked Meals Platform
+                        </span>
+                    </div>
 
+                    <h1 class="hero-title reveal delay-1">
+                        Taste the <span class="gradient-text">Love</span><br>
+                        in Every Bite
+                    </h1>
 
+                    <p class="hero-subtitle reveal delay-2">
+                        Skip restaurants. Eat like a local — fresh, authentic,
+                        and cooked with love by trusted home chefs. 
+                        <span class="highlight">Delivered in 30 minutes or less!</span>
+                    </p>
+
+                    <div class="hero-buttons reveal delay-3">
+                        <a href="register.html" class="btn btn-primary btn-large pulse">
+                            <i class="fas fa-fire"></i> Order Your First Meal
+                        </a>
+                        <a href="#how-it-works" class="btn btn-secondary btn-large">
+                            <i class="fas fa-play-circle"></i> How It Works
+                        </a>
+                    </div>
+
+                    <div class="hero-stats reveal delay-4">
+                        <div class="stat-item">
+                            <span class="stat-number" data-target="200">0</span>
+                            <span class="stat-label">Local Chefs</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" data-target="1500">0</span>
+                            <span class="stat-label">Meals Delivered</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" data-target="98">0</span>
+                            <span class="stat-label">Satisfaction %</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" data-target="30">0</span>
+                            <span class="stat-label">Avg Delivery (min)</span>
+                        </div>
+                    </div>
+
+                    <div class="trust-indicators reveal delay-5">
+                        <div class="trust-item">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Secure Payment</span>
+                        </div>
+                        <div class="trust-item">
+                            <i class="fas fa-leaf"></i>
+                            <span>Fresh Ingredients</span>
+                        </div>
+                        <div class="trust-item">
+                            <i class="fas fa-clock"></i>
+                            <span>On-time Delivery</span>
+                        </div>
+                        <div class="trust-item">
+                            <i class="fas fa-star"></i>
+                            <span>Quality Rated</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT PHONE MOCKUP -->
+                <div class="hero-visual">
+                    <div class="phone-mockup floating-phone">
+                        <div class="phone-notch"></div>
+                        <div class="phone-screen">
+                            <div class="app-header">
+                                <span><i class="fas fa-map-marker-alt"></i> Nearby Chefs</span>
+                                <span class="app-avatar">👩‍🍳</span>
+                            </div>
+
+                            <div class="app-featured">
+                                <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&h=400&fit=crop" 
+                                     alt="Homemade Lasagna" 
+                                     loading="lazy">
+                                <div class="app-featured-info">
+                                    <div class="featured-badge">🔥 Popular</div>
+                                    <h4>Homemade Lasagna</h4>
+                                    <div class="featured-rating">
+                                        <i class="fas fa-star"></i>
+                                        <span>4.9 · 25 min · $18</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="app-list">
+                                <div class="app-item">
+                                    <div class="app-item-img">
+                                        <img src="https://images.unsplash.com/photo-1600891964599-f61ba0e24092?w=200&h=200&fit=crop" 
+                                             alt="Grilled Chicken" 
+                                             loading="lazy">
+                                    </div>
+                                    <div class="app-item-info">
+                                        <strong>Grilled Chicken</strong>
+                                        <span class="app-item-meta">
+                                            <i class="fas fa-star"></i> 4.8 · <i class="fas fa-clock"></i> 20 min
+                                        </span>
+                                    </div>
+                                    <span class="app-item-price">$12</span>
+                                </div>
+
+                                <div class="app-item">
+                                    <div class="app-item-img">
+                                        <img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=200&h=200&fit=crop" 
+                                             alt="Beef Burger" 
+                                             loading="lazy">
+                                    </div>
+                                    <div class="app-item-info">
+                                        <strong>Beef Burger</strong>
+                                        <span class="app-item-meta">
+                                            <i class="fas fa-star"></i> 5.0 · <i class="fas fa-clock"></i> 15 min
+                                        </span>
+                                    </div>
+                                    <span class="app-item-price">$10</span>
+                                </div>
+
+                                <div class="app-item">
+                                    <div class="app-item-img">
+                                        <img src="https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=200&h=200&fit=crop" 
+                                             alt="Vegetable Salad" 
+                                             loading="lazy">
+                                    </div>
+                                    <div class="app-item-info">
+                                        <strong>Vegetable Salad</strong>
+                                        <span class="app-item-meta">
+                                            <i class="fas fa-star"></i> 4.7 · <i class="fas fa-clock"></i> 10 min
+                                        </span>
+                                    </div>
+                                    <span class="app-item-price">$8</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Floating badges around phone -->
+                    <div class="floating-badge badge-1">
+                        <i class="fas fa-award"></i> Chef's Choice
+                    </div>
+                    <div class="floating-badge badge-2">
+                        <i class="fas fa-bolt"></i> Fast Delivery
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="scroll-indicator">
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </section>
+
+    <!-- Service Strip -->
+    <section class="service-strip" aria-label="Service highlights">
+        <div class="container strip-grid">
+            <div class="strip-card">
+                <i class="fas fa-utensils"></i>
+                <div>
+                    <h3>Curated Daily Menus</h3>
+                    <p>Chef-made dishes updated every day for fresh variety.</p>
+                </div>
+            </div>
+            <div class="strip-card">
+                <i class="fas fa-shield-alt"></i>
+                <div>
+                    <h3>Verified Chefs</h3>
+                    <p>Background-checked and community-rated home chefs.</p>
+                </div>
+            </div>
+            <div class="strip-card">
+                <i class="fas fa-bolt"></i>
+                <div>
+                    <h3>Fast Delivery</h3>
+                    <p>Real-time updates from kitchen to doorstep.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <!-- How It Works -->
-    <section class="how-it-works" aria-label="How it works section">
+    <section id="how-it-works" class="how-it-works" aria-label="How it works section">
         <div class="container">
             <div class="section-header">
                 <h2 class="section-title">How It Works</h2>
@@ -177,7 +249,11 @@
                     <h3 class="step-title">Browse & Choose</h3>
                     <p class="step-description">
                         Explore our diverse menu of authentic dishes prepared by local chefs.
+                        Filter by cuisine, dietary needs, or chef rating.
                     </p>
+                    <a href="menu.html" class="step-link">
+                        View Menu <i class="fas fa-arrow-right"></i>
+                    </a>
                 </div>
                 
                 <div class="step-card animate-fade-in delay-2">
@@ -188,7 +264,11 @@
                     <h3 class="step-title">Place Your Order</h3>
                     <p class="step-description">
                         Select your favorite dishes and customize your order with special requests.
+                        Pay securely online.
                     </p>
+                    <a href="register.html" class="step-link">
+                        Start Ordering <i class="fas fa-arrow-right"></i>
+                    </a>
                 </div>
                 
                 <div class="step-card animate-fade-in delay-3">
@@ -199,7 +279,11 @@
                     <h3 class="step-title">Enjoy Fresh Delivery</h3>
                     <p class="step-description">
                         Get your meal delivered hot and fresh to your doorstep.
+                        Track your order in real-time.
                     </p>
+                    <a href="#" class="step-link">
+                        Track Order <i class="fas fa-arrow-right"></i>
+                    </a>
                 </div>
             </div>
         </div>
@@ -220,6 +304,7 @@
                     </div>
                     <h3>Passionate Local Chefs</h3>
                     <p>Each dish is prepared with love by certified home chefs who specialize in authentic cuisine.</p>
+                    <div class="feature-tag">Verified Chefs</div>
                 </div>
                 
                 <div class="feature-card animate-scale">
@@ -228,6 +313,7 @@
                     </div>
                     <h3>Fresh Ingredients</h3>
                     <p>We source only the finest, locally-sourced ingredients for every meal we prepare.</p>
+                    <div class="feature-tag">Farm to Table</div>
                 </div>
                 
                 <div class="feature-card animate-scale">
@@ -236,6 +322,7 @@
                     </div>
                     <h3>Fast Delivery</h3>
                     <p>Average delivery time of 30 minutes with real-time tracking for your order.</p>
+                    <div class="feature-tag">30-min Guarantee</div>
                 </div>
                 
                 <div class="feature-card animate-scale">
@@ -244,6 +331,7 @@
                     </div>
                     <h3>Quality Rated</h3>
                     <p>Every chef and dish is rated by our community to ensure the highest standards.</p>
+                    <div class="feature-tag">Community Rated</div>
                 </div>
             </div>
             
@@ -253,15 +341,24 @@
                     <h2 class="cta-title">Ready to Taste the Difference?</h2>
                     <p class="cta-description">
                         Join thousands of happy customers enjoying authentic home-cooked meals today.
+                        Your first order gets <span class="highlight">20% OFF</span>!
                     </p>
-                    <a href="register.html" class="btn btn-primary btn-large btn-shimmer">
-                        <i class="fas fa-user-plus"></i> Create Free Account
-                    </a>
+                    <div class="cta-buttons">
+                        <a href="register.html" class="btn btn-primary btn-large btn-shimmer">
+                            <i class="fas fa-user-plus"></i> Create Free Account
+                        </a>
+                        <a href="menu.html" class="btn btn-secondary btn-large">
+                            <i class="fas fa-eye"></i> Browse Menu
+                        </a>
+                    </div>
                 </div>
                 <div class="cta-image">
-                    <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w-600&auto=format&fit=crop&q=60" 
+                    <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&auto=format&fit=crop&q=60" 
                          alt="Delicious food spread" 
                          loading="lazy">
+                    <div class="cta-badge">
+                        <i class="fas fa-tag"></i> 20% OFF First Order
+                    </div>
                 </div>
             </div>
         </div>
@@ -272,45 +369,50 @@
         <div class="container">
             <div class="section-header">
                 <h2 class="section-title">Customer Favorites</h2>
-                <p class="section-subtitle">Most loved dishes this week</p>
+                <p class="section-subtitle">Top-rated dishes right now</p>
             </div>
             
             <div id="popular-dishes-container" class="dishes-grid">
-                <!-- Loaded dynamically -->
-                <div class="skeleton-dish-card">
-                    <div class="skeleton-image"></div>
-                    <div class="skeleton-content">
-                        <div class="skeleton-title"></div>
-                        <div class="skeleton-text"></div>
-                        <div class="skeleton-button"></div>
+                <!-- Dishes will be loaded dynamically -->
+                <div class="dish-skeleton">
+                    <div class="dish-skeleton-img"></div>
+                    <div class="dish-skeleton-content">
+                        <div class="dish-skeleton-title"></div>
+                        <div class="dish-skeleton-text"></div>
+                        <div class="dish-skeleton-rating"></div>
+                        <div class="dish-skeleton-button"></div>
                     </div>
                 </div>
-                <div class="skeleton-dish-card">
-                    <div class="skeleton-image"></div>
-                    <div class="skeleton-content">
-                        <div class="skeleton-title"></div>
-                        <div class="skeleton-text"></div>
-                        <div class="skeleton-button"></div>
+                <div class="dish-skeleton">
+                    <div class="dish-skeleton-img"></div>
+                    <div class="dish-skeleton-content">
+                        <div class="dish-skeleton-title"></div>
+                        <div class="dish-skeleton-text"></div>
+                        <div class="dish-skeleton-rating"></div>
+                        <div class="dish-skeleton-button"></div>
                     </div>
                 </div>
-                <div class="skeleton-dish-card">
-                    <div class="skeleton-image"></div>
-                    <div class="skeleton-content">
-                        <div class="skeleton-title"></div>
-                        <div class="skeleton-text"></div>
-                        <div class="skeleton-button"></div>
+                <div class="dish-skeleton">
+                    <div class="dish-skeleton-img"></div>
+                    <div class="dish-skeleton-content">
+                        <div class="dish-skeleton-title"></div>
+                        <div class="dish-skeleton-text"></div>
+                        <div class="dish-skeleton-rating"></div>
+                        <div class="dish-skeleton-button"></div>
                     </div>
                 </div>
             </div>
             
             <div class="view-all-container">
                 <a href="menu.html" class="btn btn-secondary btn-large">
-                    <i class="fas fa-eye"></i> View Full Menu
+                    <i class="fas fa-utensils"></i> View Full Menu
+                </a>
+                <a href="chefs.html" class="btn btn-primary btn-large">
+                    <i class="fas fa-user-chef"></i> Meet Our Chefs
                 </a>
             </div>
         </div>
     </section>
-
 
     <!-- App Download -->
     <section class="app-download" aria-label="Download our app">
@@ -320,6 +422,21 @@
                 <p class="app-description">
                     Order your favorite home-cooked meals on the go. Download our app for exclusive offers and faster ordering.
                 </p>
+                
+                <div class="app-features">
+                    <div class="app-feature">
+                        <i class="fas fa-bolt"></i>
+                        <span>Faster ordering</span>
+                    </div>
+                    <div class="app-feature">
+                        <i class="fas fa-gift"></i>
+                        <span>Exclusive offers</span>
+                    </div>
+                    <div class="app-feature">
+                        <i class="fas fa-bell"></i>
+                        <span>Real-time updates</span>
+                    </div>
+                </div>
                 
                 <div class="app-buttons">
                     <a href="#" class="app-store-btn" aria-label="Download on App Store">
@@ -344,6 +461,70 @@
                 <img src="https://images.unsplash.com/photo-1485182708500-e8f1f318ba72?w=600&auto=format&fit=crop&q=60" 
                      alt="Mobile app interface" 
                      loading="lazy">
+                <div class="app-qr">
+                    <div class="qr-code">📱</div>
+                    <p>Scan to download</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="testimonials" aria-label="Customer testimonials">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">What Our Customers Say</h2>
+                <p class="section-subtitle">Real stories from our food-loving community</p>
+            </div>
+            
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-header">
+                        <img src="https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop" 
+                             alt="Sarah Johnson" 
+                             class="testimonial-avatar">
+                        <div class="testimonial-info">
+                            <h4>Sarah Johnson</h4>
+                            <div class="testimonial-rating">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="testimonial-text">
+                        "The best home-cooked meals I've ever had delivered! Every dish tastes like it was made by my own grandmother."
+                    </p>
+                    <div class="testimonial-dish">
+                        <i class="fas fa-utensils"></i> Ordered: Homemade Lasagna
+                    </div>
+                </div>
+                
+                <div class="testimonial-card">
+                    <div class="testimonial-header">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop" 
+                             alt="Michael Chen" 
+                             class="testimonial-avatar">
+                        <div class="testimonial-info">
+                            <h4>Michael Chen</h4>
+                            <div class="testimonial-rating">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="testimonial-text">
+                        "As a busy professional, HomeyChef has been a lifesaver. Fresh, healthy meals delivered right when I need them."
+                    </p>
+                    <div class="testimonial-dish">
+                        <i class="fas fa-utensils"></i> Ordered: Grilled Chicken & Salad
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -372,8 +553,8 @@
                         <a href="#" class="social-link" aria-label="Follow us on Twitter">
                             <i class="fab fa-twitter"></i>
                         </a>
-                        <a href="#" class="social-link" aria-label="Follow us on Pinterest">
-                            <i class="fab fa-pinterest"></i>
+                        <a href="#" class="social-link" aria-label="Follow us on TikTok">
+                            <i class="fab fa-tiktok"></i>
                         </a>
                     </div>
                 </div>
@@ -384,8 +565,8 @@
                     <ul class="footer-links">
                         <li><a href="index.html"><i class="fas fa-chevron-right"></i> Home</a></li>
                         <li><a href="menu.html"><i class="fas fa-chevron-right"></i> Menu</a></li>
-                        <li><a href="orders.html"><i class="fas fa-chevron-right"></i> My Orders</a></li>
                         <li><a href="chefs.html"><i class="fas fa-chevron-right"></i> Our Chefs</a></li>
+                        <li><a href="orders.html"><i class="fas fa-chevron-right"></i> My Orders</a></li>
                         <li><a href="about.html"><i class="fas fa-chevron-right"></i> About Us</a></li>
                     </ul>
                 </div>
@@ -394,11 +575,11 @@
                 <div class="footer-section">
                     <h4 class="footer-title">Support</h4>
                     <ul class="footer-links">
-                        <li><a href="#"><i class="fas fa-chevron-right"></i> Help Center</a></li>
-                        <li><a href="#"><i class="fas fa-chevron-right"></i> FAQ</a></li>
-                        <li><a href="#"><i class="fas fa-chevron-right"></i> Contact Us</a></li>
-                        <li><a href="#"><i class="fas fa-chevron-right"></i> Privacy Policy</a></li>
-                        <li><a href="#"><i class="fas fa-chevron-right"></i> Terms of Service</a></li>
+                        <li><a href="help.html"><i class="fas fa-chevron-right"></i> Help Center</a></li>
+                        <li><a href="faq.html"><i class="fas fa-chevron-right"></i> FAQ</a></li>
+                        <li><a href="contact.html"><i class="fas fa-chevron-right"></i> Contact Us</a></li>
+                        <li><a href="privacy.html"><i class="fas fa-chevron-right"></i> Privacy Policy</a></li>
+                        <li><a href="terms.html"><i class="fas fa-chevron-right"></i> Terms of Service</a></li>
                     </ul>
                 </div>
                 
@@ -408,7 +589,7 @@
                     <div class="contact-info">
                         <div class="contact-item">
                             <i class="fas fa-map-marker-alt"></i>
-                            <span>115 Food Street</span>
+                            <span>115 Food Street<br>Damascus, Syria</span>
                         </div>
                         <div class="contact-item">
                             <i class="fas fa-phone"></i>
@@ -426,10 +607,11 @@
                     
                     <div class="newsletter">
                         <h5>Stay Updated</h5>
+                        <p class="newsletter-subtitle">Get exclusive offers and updates</p>
                         <div class="newsletter-form">
-                            <input type="email" placeholder="yasenabbas4@gmail.com" aria-label="Email for newsletter">
+                            <input type="email" placeholder="your@email.com" aria-label="Email for newsletter">
                             <button type="submit" aria-label="Subscribe to newsletter">
-                                <i class="fas fa-paper-plane"></i>
+                                <i class="fas fa-paper-plane"></i> Subscribe
                             </button>
                         </div>
                     </div>
@@ -438,43 +620,100 @@
             
             <div class="footer-bottom">
                 <div class="footer-bottom-content">
-                    <p>&copy; 2024 HomeyChef. All rights reserved. Made with <i class="fas fa-heart" style="color: #e74c3c;"></i> for food lovers.</p>
+                    <p>&copy; 2024 HomeyChef. All rights reserved. Made with <i class="fas fa-heart heart-icon"></i> for food lovers.</p>
                     <div class="payment-methods">
                         <i class="fab fa-cc-visa" title="Visa"></i>
                         <i class="fab fa-cc-mastercard" title="Mastercard"></i>
                         <i class="fab fa-cc-amex" title="American Express"></i>
                         <i class="fab fa-cc-paypal" title="PayPal"></i>
-                        <i class="fab fa-apple-pay" title="Apple Pay"></i>
+                        <i class="fab fa-cc-apple-pay" title="Apple Pay"></i>
                     </div>
                 </div>
             </div>
         </div>
     </footer>
-
-    <!-- Scripts -->
-    <script src="js/utils.js"></script>
+   <script src="js/utils.js"></script>
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+    <script src="js/notification-client.js"></script>
     <script src="js/index.js"></script>
     <script src="js/navbar.js"></script>
+    <!-- Scripts -->
     <script>
-document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll(".stat-number").forEach(counter => {
-        const target = +counter.dataset.target;
-        let current = 0;
-        const step = Math.ceil(target / 80);
+        document.addEventListener("DOMContentLoaded", () => {
+            // Counter animation for stats
+            const counters = document.querySelectorAll('.stat-number');
+            counters.forEach(counter => {
+                const target = +counter.dataset.target;
+                let current = 0;
+                const increment = target / 100;
+                const updateCounter = () => {
+                    if (current < target) {
+                        current += increment;
+                        counter.textContent = Math.floor(current);
+                        setTimeout(updateCounter, 20);
+                    } else {
+                        counter.textContent = target + (target === 98 ? "%" : "+");
+                    }
+                };
+                updateCounter();
+            });
 
-        const update = () => {
-            current += step;
-            if (current < target) {
-                counter.textContent = current;
-                requestAnimationFrame(update);
-            } else {
-                counter.textContent = target + (target < 100 ? "%" : "+");
+            // Back to top button (optional)
+            const backToTopBtn = document.getElementById('backToTop');
+            if (backToTopBtn) {
+                window.addEventListener('scroll', () => {
+                    if (window.pageYOffset > 300) {
+                        backToTopBtn.classList.add('visible');
+                    } else {
+                        backToTopBtn.classList.remove('visible');
+                    }
+                });
+
+                backToTopBtn.addEventListener('click', () => {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
             }
-        };
-        update();
-    });
-});
-</script>
-  
+
+            // Navbar scroll effect
+            const navbar = document.querySelector('.site-nav');
+            if (navbar) {
+                window.addEventListener('scroll', () => {
+                    if (window.scrollY > 50) {
+                        navbar.classList.add('scrolled');
+                    } else {
+                        navbar.classList.remove('scrolled');
+                    }
+                });
+            }
+
+            // Scroll reveal animations
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('animated');
+                        }
+                    });
+                }, observerOptions);
+
+                // Observe all animatable elements
+                document.querySelectorAll('.reveal, .animate-fade-in, .animate-scale').forEach(el => {
+                    observer.observe(el);
+                });
+            } else {
+                document.querySelectorAll('.reveal, .animate-fade-in, .animate-scale').forEach(el => {
+                    el.classList.add('animated');
+                });
+            }
+        });
+    </script>
 </body>
 </html>
+
+
+

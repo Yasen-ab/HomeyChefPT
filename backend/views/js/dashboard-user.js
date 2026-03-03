@@ -42,62 +42,62 @@ async function loadUserData() {
 }
 
 // Load user's orders
-async function loadOrders() {
-    const user = getUserData();
+// async function loadOrders() {
+//     const user = getUserData();
     
-    try {
-        const orders = await apiRequest(`/users/${user.id}/orders`);
+//     try {
+//         const orders = await apiRequest(`/users/${user.id}/orders`);
         
-        // Update stats
-        const totalOrders = orders.length;
-        const pendingOrders = orders.filter(o => o.status === 'pending').length;
-        const completedOrders = orders.filter(o => o.status === 'delivered').length;
+//         // Update stats
+//         const totalOrders = orders.length;
+//         const pendingOrders = orders.filter(o => o.status === 'pending').length;
+//         const completedOrders = orders.filter(o => o.status === 'delivered').length;
         
-        document.getElementById('total-orders').textContent = totalOrders;
-        document.getElementById('pending-orders').textContent = pendingOrders;
-        document.getElementById('completed-orders').textContent = completedOrders;
+//         document.getElementById('total-orders').textContent = totalOrders;
+//         document.getElementById('pending-orders').textContent = pendingOrders;
+//         document.getElementById('completed-orders').textContent = completedOrders;
         
-        // Display recent orders
-        const recentOrders = orders.slice(0, 5);
-        displayRecentOrders(recentOrders);
-    } catch (error) {
-        console.error('Error loading orders:', error);
-    }
-}
+//         // Display recent orders
+//         const recentOrders = orders.slice(0, 5);
+//         displayRecentOrders(recentOrders);
+//     } catch (error) {
+//         console.error('Error loading orders:', error);
+//     }
+// }
 
 // Display recent orders
-function displayRecentOrders(orders) {
-    const container = document.getElementById('recent-orders-container');
-    if (!container) return;
+// function displayRecentOrders(orders) {
+//     const container = document.getElementById('recent-orders-container');
+//     if (!container) return;
     
-    if (orders.length === 0) {
-        container.innerHTML = '<p>No orders yet</p>';
-        return;
-    }
+//     if (orders.length === 0) {
+//         container.innerHTML = '<p>No orders yet</p>';
+//         return;
+//     }
     
-    container.innerHTML = orders.map(order => createOrderCard(order)).join('');
-}
+//     container.innerHTML = orders.map(order => createOrderCard(order)).join('');
+// }
 
 // Create order card HTML
-function createOrderCard(order) {
-    const statusClass = `status-${order.status}`;
+// function createOrderCard(order) {
+//     const statusClass = `status-${order.status}`;
     
-    return `
-        <div class="order-card">
-            <div class="order-header">
-                <div class="order-info">
-                    <h3>Order #${order.orderNumber}</h3>
-                    <p>${formatDate(order.createdAt)}</p>
-                </div>
-                <span class="order-status ${statusClass}">${order.status}</span>
-            </div>
-            <div class="order-details">
-                <p><strong>Total:</strong> ${formatCurrency(order.totalAmount)}</p>
-                <p><strong>Status:</strong> ${order.status}</p>
-            </div>
-        </div>
-    `;
-}
+//     return `
+//         <div class="order-card">
+//             <div class="order-header">
+//                 <div class="order-info">
+//                     <h3>Order #${order.orderNumber}</h3>
+//                     <p>${formatDate(order.createdAt)}</p>
+//                 </div>
+//                 <span class="order-status ${statusClass}">${order.status}</span>
+//             </div>
+//             <div class="order-details">
+//                 <p><strong>Total:</strong> ${formatCurrency(order.totalAmount)}</p>
+//                 <p><strong>Status:</strong> ${order.status}</p>
+//             </div>
+//         </div>
+//     `;
+// }
 
 // Initialize profile update
 function initProfileUpdate() {

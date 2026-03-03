@@ -4,24 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - HomeyChef</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/register.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700;800&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <!-- Navigation -->
- <nav class="navbar">
-        <div class="container">
-            <div class="nav-brand">
-                <a href="index.html"><h1>🍽️ HomeyChef</h1></a>
-            </div>
-            <div class="nav-links">
-                <a href="index.html">Home</a>
-                <a href="menu.html">Menu</a>
-                <a href="login.html">Login</a>
-                <a href="register.html" class="active">Sign Up</a>
-            </div>
+    <nav class="site-nav" aria-label="Main">
+    <div class="container nav-shell">
+        <a href="index.html" class="nav-brand" aria-label="HomeyChef Home">
+            <span class="brand-mark" aria-hidden="true">HC</span>
+            <span class="brand-text">HomeyChef</span>
+        </a>
+
+        <button class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-menu" aria-label="Toggle menu">
+            <span class="nav-toggle-bar"></span>
+            <span class="nav-toggle-bar"></span>
+            <span class="nav-toggle-bar"></span>
+        </button>
+
+        <div class="nav-menu" id="nav-menu">
+            <ul class="nav-list" id="nav-list">
+                <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="menu.html">Menu</a></li>
+            </ul>
+            <ul class="nav-list nav-auth-list" id="nav-auth"></ul>
         </div>
-    </nav>
+    </div>
+</nav>
 
     <!-- Register Form -->
     <section class="auth-section">
@@ -54,25 +66,25 @@
                         <input type="password" id="password" name="password" required>
                     </div>
 
-                    <div class="form-group" id="phone-group" style="display: none;">
+                    <div class="form-group" id="phone-group">
     <label for="phone">Phone</label>
     <input type="tel" id="phone" name="phone">
 </div>
 
-<div class="form-group" id="address-group" style="display: none;">
+<div class="form-group" id="address-group">
     <label for="address">Address</label>
     <textarea id="address" name="address" rows="3"></textarea>
 </div>
 
 <!-- الحقول الجديدة للشيف -->
-<div class="form-group" id="specialties-group" style="display: none;">
+<div class="form-group" id="specialties-group">
     <label for="specialties">Specialties</label>
     <input type="text" id="specialties" name="specialties" 
            placeholder="e.g., Italian, Vegan, Desserts, BBQ">
     <small class="form-hint">Separate specialties with commas</small>
 </div>
 
-<div class="form-group" id="bio-group" style="display: none;">
+<div class="form-group" id="bio-group">
     <label for="bio">Bio / About Me</label>
     <textarea id="bio" name="bio" rows="3" 
               placeholder="Tell us about your culinary background, experience, and passion for cooking..."></textarea>
@@ -95,3 +107,6 @@
     <script src="js/navbar.js"></script>
 </body>
 </html>
+
+
+

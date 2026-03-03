@@ -32,7 +32,18 @@ backend
 │   └── users.js
 ├── views
 │   ├── css
-│   │   └── style.css
+│   │   ├── admin-chefs.css
+│   │   ├── admin-dishes.css
+│   │   ├── admin-users.css
+│   │   ├── dashboard-admin.css
+│   │   ├── dashboard-chef.css
+│   │   ├── dashboard-user.css
+│   │   ├── dishes.css
+│   │   ├── index.css
+│   │   ├── login.css
+│   │   ├── menu.css
+│   │   ├── orders.css
+│   │   └── register.css
 │   ├── js
 │   │   ├── admin-chefs.js
 │   │   ├── admin-dishes.js
@@ -63,6 +74,7 @@ backend
 │   └── register.html
 ├── .env.example
 ├── .gitignore
+├── FileTree.md
 ├── package-lock.json
 ├── package.json
 └── server.js

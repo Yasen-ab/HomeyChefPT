@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
 let allDishes = [];
 let filteredDishes = [];
 let currentDishForRating = null;
+let favoriteDishIds = new Set();
 const dishesPerPage = 12;
 let currentPage = 1;
 let hasMoreDishes = false;
@@ -16,6 +17,9 @@ let hasMoreDishes = false;
 async function loadDishes() {   
     showLoading();
     try {
+        if (isAuthenticated() && isUser()) {
+            await loadFavorites();
+        }
         const dishes = await apiRequest('/dishes'); // بدل ratings
         allDishes = dishes;
         filteredDishes = [...dishes];
@@ -27,6 +31,15 @@ async function loadDishes() {
         console.error('Error loading dishes:', error);
         showEmptyState();
         hideLoading();
+    }
+}
+
+async function loadFavorites() {
+    try {   
+        const result = await apiRequest('/favorites');
+        favoriteDishIds = new Set((result.favorites || []).map((fav) => Number(fav.dishId)));
+    } catch (error) {
+        favoriteDishIds = new Set();
     }
 }
 // Display dishes with pagination
@@ -90,7 +103,9 @@ function createDishCard(dish) {
                 <img src="${imageUrl}" alt="${dish.name}" class="dish-image" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&h=200&fit=crop'">
                 ${!dish.isAvailable ? '<div class="unavailable-badge">Unavailable</div>' : ''}
                 ${dish.isAvailable && isAuthenticated() && isUser() ? `
-                    <button class="wishlist-btn" onclick="toggleWishlist(${dish.id})" title="Add to Wishlist">❤️</button>
+                    <button class="wishlist-btn ${favoriteDishIds.has(Number(dish.id)) ? 'active' : ''}" onclick="toggleWishlist(${dish.id})" title="Add to Favorites">
+                        ${favoriteDishIds.has(Number(dish.id)) ? '❤️' : '🤍'}
+                    </button>
                 ` : ''}
             </div>
             <div class="dish-content">
@@ -461,7 +476,7 @@ async function submitRating() {
         });
         
         if (!response.ok) {
-            throw new Error('Failed to submit rating');
+            throw new Error('You need to order this dish before rating it.');
         }
         
         showNotification('Rating submitted successfully!', 'success');
@@ -477,9 +492,41 @@ async function submitRating() {
     }
 }
 
-// Toggle wishlist (placeholder)
-function toggleWishlist(dishId) {
-    showNotification('Added to wishlist!', 'success');
+// Toggle wishlist/favorites with optimistic UI
+async function toggleWishlist(dishId) {
+    if (!isAuthenticated() || !isUser()) {
+        showNotification('Please login as a user first.', 'error');
+        return;
+    }
+
+    const wasFavorite = favoriteDishIds.has(Number(dishId));
+    if (wasFavorite) {
+        favoriteDishIds.delete(Number(dishId));
+    } else {
+        favoriteDishIds.add(Number(dishId));
+    }
+    displayDishes();
+
+    try {
+        if (wasFavorite) {
+            await apiRequest(`/favorites/${dishId}`, { method: 'DELETE' });
+            showNotification('Removed from favorites', 'success');
+        } else {
+            await apiRequest('/favorites', {
+                method: 'POST',
+                body: JSON.stringify({ dishId })
+            });
+            showNotification('Added to favorites', 'success');
+        }
+    } catch (error) {
+        if (wasFavorite) {
+            favoriteDishIds.add(Number(dishId));
+        } else {
+            favoriteDishIds.delete(Number(dishId));
+        }
+        displayDishes();
+        showNotification(error.message || 'Failed to update favorites', 'error');
+    }
 }
 
 // Show loading state

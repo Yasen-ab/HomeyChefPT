@@ -6,6 +6,8 @@ const Dish = require('../models/Dish');
 const Order = require('../models/Order');
 const OrderItem = require('../models/OrderItem');
 const Review = require('../models/Review');
+const Favorite = require('../models/Favorite');
+const Notification = require('../models/Notification');
 const bcrypt = require('bcryptjs');
 
 // Define relationships
@@ -13,20 +15,25 @@ const setupRelationships = () => {
   // User relationships
   User.hasMany(Order, { foreignKey: 'userId', onDelete: 'CASCADE' });
   User.hasMany(Review, { foreignKey: 'userId', onDelete: 'CASCADE', as: 'reviews' });
+  User.hasMany(Favorite, { foreignKey: 'userId', onDelete: 'CASCADE' });
+  User.hasMany(Notification, { foreignKey: 'userId', onDelete: 'CASCADE' });
 
   // Chef relationships
   Chef.hasMany(Dish, { foreignKey: 'chefId', onDelete: 'CASCADE', as: 'dishes' });
   Chef.hasMany(Order, { foreignKey: 'chefId', onDelete: 'SET NULL' });
+  Chef.hasMany(Notification, { foreignKey: 'chefId', onDelete: 'CASCADE' });
 
   // Dish relationships
   Dish.belongsTo(Chef, { foreignKey: 'chefId', as: 'Chef' });
   Dish.hasMany(OrderItem, { foreignKey: 'dishId', onDelete: 'CASCADE' });
   Dish.hasMany(Review, { foreignKey: 'dishId', onDelete: 'CASCADE', as: 'reviews' });
+  Dish.hasMany(Favorite, { foreignKey: 'dishId', onDelete: 'CASCADE' });
 
   // Order relationships
   Order.belongsTo(User, { foreignKey: 'userId' });
   Order.belongsTo(Chef, { foreignKey: 'chefId' });
   Order.hasMany(OrderItem, { foreignKey: 'orderId', onDelete: 'CASCADE' });
+  Order.hasMany(Notification, { foreignKey: 'orderId', onDelete: 'CASCADE' });
 
   // OrderItem relationships
   OrderItem.belongsTo(Order, { foreignKey: 'orderId' });
@@ -35,6 +42,15 @@ const setupRelationships = () => {
   // Review relationships
   Review.belongsTo(User, { foreignKey: 'userId', as: 'user' });
   Review.belongsTo(Dish, { foreignKey: 'dishId', as: 'dish' });
+
+  // Favorite relationships
+  Favorite.belongsTo(User, { foreignKey: 'userId' });
+  Favorite.belongsTo(Dish, { foreignKey: 'dishId' });
+
+  // Notification relationships
+  Notification.belongsTo(User, { foreignKey: 'userId' });
+  Notification.belongsTo(Chef, { foreignKey: 'chefId' });
+  Notification.belongsTo(Order, { foreignKey: 'orderId' });
 };
 
 // Sync database and create default admin

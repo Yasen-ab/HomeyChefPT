@@ -1,76 +1,76 @@
 // navbar.js — unify navbar behaviour across pages
 document.addEventListener('DOMContentLoaded', () => {
   initNavbarToggle();
-  renderNavAuthArea();   // update nav links based on auth
-  initGlobalListeners(); // attach logout listener if rendered later
+  renderNavAuthArea();
+  setActiveNavLink();
+  initGlobalListeners();
 });
 
 function initNavbarToggle() {
-  const toggle = document.getElementById('menu-toggle');
-  const navLinks = document.querySelector('.nav-links');
+  const toggle = document.getElementById('nav-toggle');
+  const navMenu = document.getElementById('nav-menu');
 
-  if (!toggle || !navLinks) return;
+  if (!toggle || !navMenu) return;
 
   toggle.addEventListener('click', () => {
-    navLinks.classList.toggle('active');
+    const isOpen = navMenu.classList.toggle('is-open');
     toggle.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
   });
 
   // close nav when clicking outside (on mobile)
   document.addEventListener('click', (e) => {
-    if (!navLinks.contains(e.target) && !toggle.contains(e.target)) {
-      if (navLinks.classList.contains('active')) {
-        navLinks.classList.remove('active');
+    if (!navMenu.contains(e.target) && !toggle.contains(e.target)) {
+      if (navMenu.classList.contains('is-open')) {
+        navMenu.classList.remove('is-open');
         toggle.classList.remove('open');
+        toggle.setAttribute('aria-expanded', 'false');
       }
     }
   });
 }
 
 function renderNavAuthArea() {
-  // Find the container where we inject auth links (must exist in HTML)
   const navAuthContainer = document.getElementById('nav-auth');
-  if (!navAuthContainer) {
-    // For backward compat: try querySelector by class or fallback
-    
-    return;
-  }
+  if (!navAuthContainer) return;
 
   if (isAuthenticated()) {
     const user = getUserData() || tryDecodeTokenUser();
-
-    // Always render Dashboard + Logout + optional greeting
     const dashboardUrl = getDashboardUrl(user);
-    const displayName = (user && user.name) ? escapeHtml(user.name.split(' ')[0]) : 'Account';
-
-    navAuthContainer.innerHTML = `
-  <div class="nav-user-wrapper">
-    <a href="${dashboardUrl}" class="nav-link nav-dashboard">
-      <i class="fas fa-tachometer-alt"></i> Dashboard
-    </a>
-    
-    <div class="nav-user-dropdown">
-      <button class="nav-user-btn">
-        <img src="${user.picture || 'https://via.placeholder.com/40'}" 
-             alt="${displayName}" class="nav-user-avatar">
-        <span class="nav-username-text">Hi, ${displayName}</span>
-        <i class="fas fa-caret-down"></i>
-      </button>
-      <div class="nav-user-menu">
-        <a href="${dashboardUrl}"><i class="fas fa-user"></i> Profile</a>
-        <a href="#" id="nav-logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
-      </div>
-    </div>
-  </div>
-`;
-
-
+    if (user && user.role === 'admin') {
+      navAuthContainer.innerHTML = `
+        <li class="nav-item"><a class="nav-link" href="admin-users.html">Users</a></li>
+        <li class="nav-item"><a class="nav-link" href="admin-chefs.html">Chefs</a></li>
+        <li class="nav-item"><a class="nav-link" href="admin-dishes.html">Dishes</a></li>
+        <li class="nav-item"><button class="nav-link nav-button" id="nav-logout" type="button">Logout</button></li>
+      `;
+    } else if (user && user.role === 'chef') {
+      navAuthContainer.innerHTML = `
+        <li class="nav-item"><a class="nav-link" href="dishes.html">My Dishes</a></li>
+        <li class="nav-item"><a class="nav-link" href="orders.html">Orders</a></li>
+        <li class="nav-item"><a class="nav-link" href="notifications">Notifications <span data-notification-badge></span></a></li>
+        <li class="nav-item"><a class="nav-link" href="${dashboardUrl}">Profile</a></li>
+        <li class="nav-item"><button class="nav-link nav-button" id="nav-logout" type="button">Logout</button></li>
+      `;
+    } else {
+      navAuthContainer.innerHTML = `
+        <li class="nav-item"><a class="nav-link" href="orders.html">Orders</a></li>
+        <li class="nav-item"><a class="nav-link" href="favorites">Favorites</a></li>
+        <li class="nav-item"><a class="nav-link" href="notifications">Notifications <span data-notification-badge></span></a></li>
+        <li class="nav-item"><a class="nav-link" href="${dashboardUrl}">Profile</a></li>
+        <li class="nav-item"><button class="nav-link nav-button" id="nav-logout" type="button">Logout</button></li>
+      `;
+    }
   } else {
-    // Not authenticated: show Login / Register
     navAuthContainer.innerHTML = `
-      <a href="login.html">Login</a>
-      <a href="register.html" class="btn-primary">Sign Up</a>
+      <li class="nav-item"><a class="nav-link" href="login.html">Login</a></li>
+      <li class="nav-item"><a class="nav-link nav-cta" href="register.html">Register</a></li>
     `;
+  }
+  setActiveNavLink();
+
+  if (window.HomeyChefNotifications && typeof window.HomeyChefNotifications.init === 'function') {
+    window.HomeyChefNotifications.init();
   }
 }
 
@@ -82,6 +82,24 @@ function initGlobalListeners() {
       logout();
       // re-render nav to show login/register
       renderNavAuthArea();
+    }
+  });
+}
+
+function setActiveNavLink() {
+  const navMenu = document.getElementById('nav-menu');
+  if (!navMenu) return;
+
+  const current = window.location.pathname.split('/').pop() || 'index.html';
+  const links = navMenu.querySelectorAll('a.nav-link');
+  links.forEach((link) => {
+    const href = link.getAttribute('href');
+    if (href && href === current) {
+      link.classList.add('active');
+      link.setAttribute('aria-current', 'page');
+    } else {
+      link.classList.remove('active');
+      link.removeAttribute('aria-current');
     }
   });
 }

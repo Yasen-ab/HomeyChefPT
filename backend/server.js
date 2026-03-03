@@ -1,5 +1,6 @@
 // Main server file
 const express = require('express');
+const http = require('http');
 const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
@@ -18,6 +19,10 @@ const chefRoutes = require('./routes/chefs');
 const dishRoutes = require('./routes/dishes');
 const orderRoutes = require('./routes/orders');
 const reviewRoutes = require('./routes/reviews');
+const favoriteRoutes = require('./routes/favorites');
+const notificationRoutes = require('./routes/notifications');
+const cartRoutes = require('./routes/cart');
+const { initNotificationSocket } = require('./socket/notificationSocket');
 
 // Middleware
 app.use(cors());
@@ -35,6 +40,9 @@ app.use('/api/chefs', chefRoutes);
 app.use('/api/dishes', dishRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/favorites', favoriteRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/cart', cartRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -43,27 +51,51 @@ app.get('/api/health', (req, res) => {
 
 // Favicon endpoint (to prevent 404 errors)
 app.get('/favicon.ico', (req, res) => {
-  res.status(204).end(); // No Content
+  res.status(204).end();
 });
 
 // Serve HTML files - keep compatibility
-const htmlFiles = ['login', 'register', 'menu', 'dashboard-user', 'dashboard-chef', 'dashboard-admin', 'dishes', 'orders', 'admin-users', 'admin-chefs', 'admin-dishes'];
+const htmlFiles = [
+  'login',
+  'register',
+  'menu',
+  'dashboard-user',
+  'dashboard-chef',
+  'dashboard-admin',
+  'dishes',
+  'orders',
+  'admin-users',
+  'admin-chefs',
+  'admin-dishes'
+];
 
-htmlFiles.forEach(file => {
+htmlFiles.forEach((file) => {
   app.get(`/${file}`, (req, res) => {
     res.sendFile(path.join(__dirname, 'views', `${file}.html`));
   });
-  
+
   app.get(`/${file}.html`, (req, res) => {
     res.sendFile(path.join(__dirname, 'views', `${file}.html`));
   });
 });
 
-
-
-// Start server
-app.listen(PORT, () => {
-  console.log(`🚀 HomeyChef Server running on port ${PORT}`);
-  console.log(`📍 API available at http://localhost:${PORT}/`);
+app.get('/chefs/:chefId', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'chef-profile.html'));
 });
 
+app.get('/favorites', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'favorites.html'));
+});
+
+app.get('/notifications', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'notifications.html'));
+});
+
+const server = http.createServer(app);
+initNotificationSocket(server);
+
+// Start server
+server.listen(PORT, () => {
+  console.log(`HomeyChef Server running on port ${PORT}`);
+  console.log(`API available at http://localhost:${PORT}/`);
+});

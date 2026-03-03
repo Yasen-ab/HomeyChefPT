@@ -5,6 +5,7 @@ const OrderItem = require('../models/OrderItem');
 const Dish = require('../models/Dish');
 const User = require('../models/User');
 const Chef = require('../models/Chef');
+const { createNotification } = require('../services/notificationService');
 
 // Get all orders (Admin or Chef can see their orders)
 exports.getAllOrders = async (req, res) => {
@@ -21,6 +22,17 @@ exports.getAllOrders = async (req, res) => {
       where.userId = req.userId;
     }
 
+    if (req.query.status) {
+      if (req.query.status === 'in-progress') {
+        where.status = { [Op.in]: ['preparing', 'on_the_way'] };
+      } else {
+        const values = req.query.status.split(',').map((value) => value.trim()).filter(Boolean);
+        if (values.length > 0) {
+          where.status = values.length === 1 ? values[0] : { [Op.in]: values };
+        }
+      }
+    }
+
     const orders = await Order.findAll({
       where,
       include: [
@@ -28,13 +40,27 @@ exports.getAllOrders = async (req, res) => {
         { model: Chef, attributes: ['name', 'id'] },
         { 
           model: OrderItem, 
-          include: [{ model: Dish, attributes: ['name', 'price'] }] 
+          include: [{ model: Dish, attributes: ['name', 'price', 'image'] }] 
         }
       ],
       order: [['createdAt', 'DESC']]
     });
 
-    res.json(orders);
+    const payload = orders.map((order) => {
+      const data = order.toJSON();
+      const items = data.OrderItems || data.orderItems || [];
+      const dishNames = items
+        .map((item) => item.Dish?.name)
+        .filter(Boolean);
+      const dishImage = items.find((item) => item.Dish?.image)?.Dish?.image || null;
+      return {
+        ...data,
+        dishName: dishNames.join(', '),
+        dishImage
+      };
+    });
+
+    res.json(payload);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -67,7 +93,18 @@ exports.getOrderById = async (req, res) => {
       return res.status(403).json({ error: 'Access denied' });
     }
 
-    res.json(order);
+    const data = order.toJSON();
+    const items = data.OrderItems || data.orderItems || [];
+    const dishNames = items
+      .map((item) => item.Dish?.name)
+      .filter(Boolean);
+    const dishImage = items.find((item) => item.Dish?.image)?.Dish?.image || null;
+
+    res.json({
+      ...data,
+      dishName: dishNames.join(', '),
+      dishImage
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -148,6 +185,22 @@ exports.createOrder = async (req, res) => {
       }
 
       createdOrders.push(order);
+
+      await createNotification({
+        userId: req.userId,
+        orderId: order.id,
+        type: 'order_confirmed',
+        title: 'Order confirmed',
+        body: `Your order #${order.orderNumber} has been placed successfully.`
+      });
+
+      await createNotification({
+        chefId: order.chefId,
+        orderId: order.id,
+        type: 'new_order',
+        title: 'New order received',
+        body: `You received a new order #${order.orderNumber}.`
+      });
     }
 
     res.status(201).json({ message: 'Order created successfully', orders: createdOrders });
@@ -172,6 +225,16 @@ exports.updateOrderStatus = async (req, res) => {
     }
 
     await order.update({ status });
+
+    await createNotification({
+      userId: order.userId,
+      chefId: null,
+      orderId: order.id,
+      type: 'order_status_updated',
+      title: 'Order status updated',
+      body: `Order #${order.orderNumber} is now ${status}.`
+    });
+
     res.json({ message: 'Order status updated successfully', order });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -181,6 +244,10 @@ exports.updateOrderStatus = async (req, res) => {
 // Cancel order (User or Chef)
 exports.cancelOrder = async (req, res) => {
   try {
+    if (req.role !== 'user') {
+      return res.status(403).json({ error: 'Only users can cancel orders' });
+    }
+
     const order = await Order.findByPk(req.params.id);
 
     if (!order) {
@@ -197,7 +264,12 @@ exports.cancelOrder = async (req, res) => {
       return res.status(403).json({ error: 'Access denied' });
     }
 
-    await order.update({ status: 'cancelled' });
+    const allowedStatuses = ['pending', 'confirmed'];
+    if (!allowedStatuses.includes(order.status)) {
+      return res.status(400).json({ error: 'Order cannot be cancelled at this stage' });
+    }
+
+    await order.update({ status: 'cancelled', cancelledAt: new Date() });
     res.json({ message: 'Order cancelled successfully', order });
   } catch (error) {
     res.status(500).json({ error: error.message });

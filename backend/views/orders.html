@@ -6,31 +6,38 @@
     <title>My Orders - HomeyChef</title>
     
     <!-- Styles & Fonts -->
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/orders.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700;800&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍽️</text></svg>">
 </head>
 <body>
 
     <!-- Navigation -->
-    <nav class="navbar">
-        <div class="container">
-            <div class="nav-brand">
-                <a href="index.html"><h1>🍽️ HomeyChef</h1></a>
-            </div>
-            <div class="nav-links">
-                <a href="menu.html">Menu</a>
-                <a href="orders.html" class="active">Orders</a>
-                <span id="nav-auth">
-                    <a href="login.html">Login</a>
-                    <a href="register.html" class="btn-primary">Sign Up</a>
-                </span>
-            </div>
+    <nav class="site-nav" aria-label="Main">
+    <div class="container nav-shell">
+        <a href="index.html" class="nav-brand" aria-label="HomeyChef Home">
+            <span class="brand-mark" aria-hidden="true">HC</span>
+            <span class="brand-text">HomeyChef</span>
+        </a>
+
+        <button class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-menu" aria-label="Toggle menu">
+            <span class="nav-toggle-bar"></span>
+            <span class="nav-toggle-bar"></span>
+            <span class="nav-toggle-bar"></span>
+        </button>
+
+        <div class="nav-menu" id="nav-menu">
+            <ul class="nav-list" id="nav-list">
+                <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="menu.html">Menu</a></li>
+            </ul>
+            <ul class="nav-list nav-auth-list" id="nav-auth"></ul>
         </div>
-    </nav>
+    </div>
+</nav>
 
     <!-- Back to Top -->
     <button class="back-to-top" id="backToTop" aria-label="Back to top">
@@ -49,7 +56,7 @@
                 <!-- Stats -->
                 <div class="orders-stats" id="orders-stats">
                     <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #00BCD4, #00838F);">
+                        <div class="stat-icon stat-pending">
                             <i class="fas fa-clock"></i>
                         </div>
                         <div class="stat-info">
@@ -59,7 +66,7 @@
                     </div>
 
                     <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #4CAF50, #2E7D32);">
+                        <div class="stat-icon stat-completed">
                             <i class="fas fa-check-circle"></i>
                         </div>
                         <div class="stat-info">
@@ -69,7 +76,7 @@
                     </div>
 
                     <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #FF9800, #F57C00);">
+                        <div class="stat-icon stat-delivery">
                             <i class="fas fa-truck"></i>
                         </div>
                         <div class="stat-info">
@@ -79,7 +86,7 @@
                     </div>
 
                     <div class="stat-card">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #9C27B0, #7B1FA2);">
+                        <div class="stat-icon stat-total">
                             <i class="fas fa-star"></i>
                         </div>
                         <div class="stat-info">
@@ -180,6 +187,23 @@
         </div>
     </div>
 
+    <!-- Cancel Order Modal -->
+    <div id="cancel-order-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Cancel Order</h3>
+                <button class="close-modal" onclick="closeCancelModal()" aria-label="Close cancel order modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to cancel this order?</p>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" type="button" onclick="closeCancelModal()">No, keep it</button>
+                    <button class="btn btn-danger" type="button" id="confirm-cancel-btn">Yes, cancel order</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="footer" aria-label="Footer section">
         <div class="container">
@@ -207,7 +231,7 @@
 
             <div class="footer-bottom">
                 <div class="footer-bottom-content">
-                    <p>&copy; <span id="current-year">2026</span> HomeyChef. All rights reserved. <i class="fas fa-heart" style="color: #e74c3c;"></i></p>
+                    <p>&copy; <span id="current-year">2026</span> HomeyChef. All rights reserved. <i class="fas fa-heart heart-icon"></i></p>
                 </div>
             </div>
         </div>
@@ -215,6 +239,8 @@
 
     <!-- Scripts -->
     <script src="js/utils.js"></script>
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+    <script src="js/notification-client.js"></script>
     <script src="js/orders.js"></script>
     <script src="js/navbar.js"></script>
 
@@ -225,3 +251,6 @@
 
 </body>
 </html>
+
+
+

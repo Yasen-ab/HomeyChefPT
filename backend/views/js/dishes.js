@@ -107,57 +107,71 @@ function renderDishCard(dish) {
     
     return `
         <div class="dish-card" data-dish-id="${dish.id}">
-            <div class="dish-card-header">
-                <div class="dish-image">
-                    <img src="${imageUrl}" alt="${dish.name}" 
-                         onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop'">
-                    ${!isAvailable ? '<div class="unavailable-badge">Unavailable</div>' : ''}
-                </div>
-                <div class="dish-actions">
-                    <button class="btn-icon btn-edit" onclick="editDish(${dish.id})" title="Edit Dish">
-                        ✏️
-                    </button>
-                    <button class="btn-icon btn-delete" onclick="showDeleteModal(${dish.id}, '${dish.name.replace(/'/g, "&#39;")}')" title="Delete Dish">
-                        🗑️
-                    </button>
-                </div>
+    <div class="dish-card-header">
+        <div class="dish-image">
+            <img src="${imageUrl}" 
+                 alt="${dish.name}" 
+                 onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop&crop=entropy&auto=format'"
+                 loading="lazy">
+            ${!isAvailable ? '<span class="unavailable-badge">غير متوفر</span>' : ''}
+        </div>
+
+        <div class="dish-actions">
+            <button class="btn-icon btn-edit" 
+                    onclick="editDish(${dish.id})" 
+                    title="تعديل الطبق"
+                    aria-label="تعديل">
+                ✏️
+            </button>
+            <button class="btn-icon btn-delete" 
+                    onclick="showDeleteModal(${dish.id}, '${dish.name.replace(/'/g, "&#39;")}')" 
+                    title="حذف الطبق"
+                    aria-label="حذف">
+                🗑️
+            </button>
+        </div>
+    </div>
+
+    <div class="dish-card-content">
+        <h3 class="dish-name">${dish.name}</h3>
+        
+        <p class="dish-description">
+            ${dish.description || 'لا يوجد وصف متاح.'}
+        </p>
+
+        <div class="dish-details">
+            <div class="detail-item">
+                <span class="label">التصنيف:</span>
+                <span class="value category-tag">${dish.category || 'غير مصنف'}</span>
             </div>
             
-            <div class="dish-card-content">
-                <h3 class="dish-name">${dish.name}</h3>
-                <p class="dish-description">${dish.description || 'No description available.'}</p>
-                
-                <div class="dish-details">
-                    <div class="detail-item">
-                        <span class="label">Category:</span>
-                        <span class="value category-tag">${dish.category || 'Uncategorized'}</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="label">Price:</span>
-                        <span class="value price">${formatCurrency(dish.price)}</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="label">Prep Time:</span>
-                        <span class="value">${dish.preparationTime || 30} min</span>
-                    </div>
-                    ${dish.calories ? `
-                    <div class="detail-item">
-                        <span class="label">Calories:</span>
-                        <span class="value">${dish.calories} cal</span>
-                    </div>
-                    ` : ''}
-                </div>
-                
-                <div class="dish-meta">
-                    <span class="availability-badge ${isAvailable ? 'available' : 'unavailable'}">
-                        ${isAvailable ? 'Available' : 'Unavailable'}
-                    </span>
-                    <span class="created-date">
-                        ${formatDate(dish.createdAt)}
-                    </span>
-                </div>
+            <div class="detail-item">
+                <span class="label">السعر:</span>
+                <span class="value price">${formatCurrency(dish.price)}</span>
             </div>
+            
+            <div class="detail-item">
+                <span class="label">وقت التحضير:</span>
+                <span class="value">${dish.preparationTime || 30} دقيقة</span>
+            </div>
+            
+            ${dish.calories ? `
+            <div class="detail-item">
+                <span class="label">السعرات:</span>
+                <span class="value">${dish.calories} سعرة</span>
+            </div>` : ''}
         </div>
+
+        <div class="dish-meta">
+            <span class="availability-badge ${isAvailable ? 'available' : 'unavailable'}">
+                ${isAvailable ? 'متوفر' : 'غير متوفر'}
+            </span>
+            <span class="created-date">
+                ${formatDate(dish.createdAt)}
+            </span>
+        </div>
+    </div>
+</div>
     `;
 }
 

@@ -4,6 +4,8 @@ const Chef = require('../models/Chef');
 const Dish = require('../models/Dish');
 const Review = require('../models/Review');
 const Order = require('../models/Order');
+const { Op } = require('sequelize');
+const OrderItem = require('../models/OrderItem');
 
 // Get all chefs
 exports.getAllChefs = async (req, res) => {
@@ -21,11 +23,77 @@ exports.getAllChefs = async (req, res) => {
 // Get single chef
 exports.getChefById = async (req, res) => {
   try {
-    const chef = await Chef.findByPk(req.params.id);
+    const chefId = Number(req.params.id || req.params.chefId);
+    const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 6, 1), 50);
+    const offset = (page - 1) * limit;
+
+    const chef = await Chef.findByPk(chefId);
     if (!chef) {
       return res.status(404).json({ error: 'Chef not found' });
     }
-    res.json(chef);
+
+    const [reviewStats] = await Review.findAll({
+      attributes: [
+        [sequelize.fn('COALESCE', sequelize.fn('AVG', sequelize.col('Review.rating')), 0), 'avgRating'],
+        [sequelize.fn('COUNT', sequelize.col('Review.id')), 'reviewCount']
+      ],
+      include: [
+        {
+          model: Dish,
+          as: 'dish',
+          attributes: [],
+          where: { chefId }
+        }
+      ],
+      raw: true
+    });
+
+    const { rows: dishes, count: totalDishes } = await Dish.findAndCountAll({
+      where: { chefId },
+      attributes: ['id', 'name', 'price', 'image', 'isAvailable'],
+      order: [['createdAt', 'DESC']],
+      limit,
+      offset
+    });
+
+    const avgRatingFromReviews = Number(reviewStats?.avgRating || 0);
+    const reviewCount = Number(reviewStats?.reviewCount || 0);
+
+    const chefPayload = {
+      id: chef.id,
+      name: chef.name,
+      bio: chef.bio,
+      avatarUrl: chef.profileImage ? (chef.profileImage.startsWith('/uploads') ? chef.profileImage : `/uploads/${chef.profileImage}`) : null,
+      rating: {
+        avgRating: avgRatingFromReviews > 0 ? avgRatingFromReviews : Number(chef.rating || 0),
+        reviewCount
+      },
+      availability: {
+        isAvailable: Boolean(chef.isActive),
+        openHours: null
+      }
+    };
+
+    const payload = {
+      ...chefPayload,
+      chef: chefPayload,
+      dishes: dishes.map((dish) => ({
+        id: dish.id,
+        name: dish.name,
+        price: dish.price,
+        thumbnail: dish.image,
+        isAvailable: dish.isAvailable
+      })),
+      pagination: {
+        page,
+        limit,
+        total: totalDishes,
+        totalPages: Math.ceil(totalDishes / limit)
+      }
+    };
+
+    res.json(payload);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -114,6 +182,97 @@ exports.getChefDishes = async (req, res) => {
   }
 };
 
+// Get own chef profile (Chef only)
+exports.getChefProfile = async (req, res) => {
+  try {
+    if (req.userType !== 'chef') {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const chef = await Chef.findByPk(req.userId);
+    if (!chef) {
+      return res.status(404).json({ error: 'Chef not found' });
+    }
+
+    res.json({
+      chef: {
+        id: chef.id,
+        name: chef.name,
+        email: chef.email,
+        phone: chef.phone,
+        bio: chef.bio,
+        profileImage: chef.profileImage
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Update own chef profile (Chef only)
+exports.updateChefProfile = async (req, res) => {
+  try {
+    if (req.userType !== 'chef') {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const chef = await Chef.findByPk(req.userId);
+    if (!chef) {
+      return res.status(404).json({ error: 'Chef not found' });
+    }
+
+    const fullName = (req.body.fullName || req.body.name || '').trim();
+    const email = (req.body.email || '').trim();
+    const phone = (req.body.phone || '').trim();
+    const bio = (req.body.bio || '').trim();
+
+    if (!fullName) {
+      return res.status(400).json({ error: 'Full name is required' });
+    }
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ error: 'Valid email is required' });
+    }
+
+    const existingEmail = await Chef.findOne({
+      where: {
+        email,
+        id: { [Op.ne]: chef.id }
+      }
+    });
+    if (existingEmail) {
+      return res.status(400).json({ error: 'Email already in use' });
+    }
+
+    const updateData = {
+      name: fullName,
+      email,
+      phone,
+      bio
+    };
+
+    if (req.file) {
+      updateData.profileImage = `/uploads/${req.file.filename}`;
+    }
+
+    await chef.update(updateData);
+
+    res.json({
+      message: 'Profile updated successfully',
+      chef: {
+        id: chef.id,
+        name: chef.name,
+        email: chef.email,
+        phone: chef.phone,
+        bio: chef.bio,
+        profileImage: chef.profileImage
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Get chef's orders
 exports.getChefOrders = async (req, res) => {
   try {
@@ -128,9 +287,30 @@ exports.getChefOrders = async (req, res) => {
 
     const orders = await Order.findAll({
       where: { chefId: req.params.id },
+      include: [
+        { 
+          model: OrderItem,
+          include: [{ model: Dish, attributes: ['name', 'price', 'image'] }]
+        }
+      ],
       order: [['createdAt', 'DESC']]
     });
-    res.json(orders);
+
+    const payload = orders.map((order) => {
+      const data = order.toJSON();
+      const items = data.OrderItems || data.orderItems || [];
+      const dishNames = items
+        .map((item) => item.Dish?.name)
+        .filter(Boolean);
+      const dishImage = items.find((item) => item.Dish?.image)?.Dish?.image || null;
+      return {
+        ...data,
+        dishName: dishNames.join(', '),
+        dishImage
+      };
+    });
+
+    res.json(payload);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

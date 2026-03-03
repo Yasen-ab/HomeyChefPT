@@ -1,6 +1,8 @@
 // User management controller
 const User = require('../models/User');
 const Order = require('../models/Order');
+const OrderItem = require('../models/OrderItem');
+const Dish = require('../models/Dish');
 
 // Get all users (Admin only)
 exports.getAllUsers = async (req, res) => {
@@ -106,9 +108,30 @@ exports.getUserOrders = async (req, res) => {
 
     const orders = await Order.findAll({
       where: { userId: req.params.id },
+      include: [
+        { 
+          model: OrderItem,
+          include: [{ model: Dish, attributes: ['name', 'price', 'image'] }]
+        }
+      ],
       order: [['createdAt', 'DESC']]
     });
-    res.json(orders);
+
+    const payload = orders.map((order) => {
+      const data = order.toJSON();
+      const items = data.OrderItems || data.orderItems || [];
+      const dishNames = items
+        .map((item) => item.Dish?.name)
+        .filter(Boolean);
+      const dishImage = items.find((item) => item.Dish?.image)?.Dish?.image || null;
+      return {
+        ...data,
+        dishName: dishNames.join(', '),
+        dishImage
+      };
+    });
+
+    res.json(payload);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

@@ -30,7 +30,7 @@ const Order = sequelize.define('Order', {
     }
   },
   status: {
-    type: DataTypes.ENUM('pending', 'confirmed', 'preparing', 'ready', 'delivered', 'cancelled'),
+    type: DataTypes.ENUM('pending', 'confirmed', 'preparing', 'on_the_way', 'ready', 'delivered', 'cancelled'),
     defaultValue: 'pending'
   },
   totalAmount: {
@@ -50,6 +50,10 @@ const Order = sequelize.define('Order', {
   },
   notes: {
     type: DataTypes.TEXT,
+    allowNull: true
+  },
+  cancelledAt: {
+    type: DataTypes.DATE,
     allowNull: true
   }
 }, {

@@ -12,8 +12,14 @@ async function loadPopularDishes() {
     try {
         const dishes = await apiRequest('/dishes');
         
-        // Display only first 6 dishes
-        const popularDishes = dishes.slice(0, 6);
+        // Display top-rated 6 dishes
+        const popularDishes = [...dishes]
+            .sort((a, b) => {
+                const ratingDiff = (b.averageRating ?? 0) - (a.averageRating ?? 0);
+                if (ratingDiff !== 0) return ratingDiff;
+                return (b.reviewCount ?? b.reviews?.length ?? 0) - (a.reviewCount ?? a.reviews?.length ?? 0);
+            })
+            .slice(0, 6);
         
         const container = document.getElementById('popular-dishes-container');
         if (container) {
@@ -31,20 +37,37 @@ function createDishCard(dish) {
         : 'https://via.placeholder.com/300';
     return `
         <div class="dish-card">
-            <img src="${imageUrl}" alt="${dish.name}" class="dish-image">
-            <div class="dish-content">
-                <div class="dish-header">
-                    <h3 class="dish-title">${dish.name}</h3>
-                    <span class="dish-price">$${parseFloat(dish.price).toFixed(2)}</span>
-                </div>
-                <p class="dish-description">${dish.description.substring(0, 80)}...</p>
-                <div class="dish-meta">
-                    <span>${dish.category}</span>
-                    <span>⭐ ${(dish.averageRating ?? 0).toFixed(1)} (${dish.reviewCount ?? dish.reviews?.length ?? 0})</span>
-                </div>
-                <a href="menu.html" class="btn btn-primary btn-order">View Details</a>
-            </div>
+    <div class="dish-image-container">
+        <img src="${imageUrl}" alt="${dish.name}" class="dish-image" loading="lazy">
+        <div class="dish-badge">? Top Rated</div>
+    </div>
+    <div class="dish-content">
+        <div class="dish-header">
+            <h3 class="dish-title">${dish.name}</h3>
+            <span class="dish-price">$${parseFloat(dish.price).toFixed(2)}</span>
         </div>
+        <p class="dish-description">${dish.description.substring(0, 80)}...</p>
+        <div class="dish-meta">
+            <span class="dish-category">
+                <i class="fas fa-tag"></i> ${dish.category}
+            </span>
+            <span class="dish-rating">
+                <i class="fas fa-star"></i> ${(dish.averageRating ?? 0).toFixed(1)} (${dish.reviewCount ?? dish.reviews?.length ?? 0})
+            </span>
+            <span class="dish-time">
+                <i class="fas fa-clock"></i> ${dish.prepTime || '30'} min
+            </span>
+        </div>
+        <div class="dish-actions">
+            <a href="menu.html?dish=${dish.id}" class="btn btn-primary btn-order">
+                <i class="fas fa-eye"></i> View Details
+            </a>
+            <button class="btn-icon btn-favorite" aria-label="Add to favorites">
+                <i class="far fa-heart"></i>
+            </button>
+        </div>
+    </div>
+</div>
     `;
 }
 

@@ -4,25 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Dishes - HomeyChef</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dishes.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700;800&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <!-- Navigation -->
-   <nav class="navbar">
-        <div class="container">
-            <div class="nav-brand">
-                <a href="index.html"><h1>🍽️ HomeyChef</h1></a>
-            </div>
-            <div class="nav-links">
-                <a href="dashboard-chef.html">Dashboard</a>
-                <a href="dishes.html" class="active">My Dishes</a>
-                <a href="orders.html">Orders</a>
-                <a href="#" id="logout-btn">Logout</a>
-            </div>
+    <nav class="site-nav" aria-label="Main">
+    <div class="container nav-shell">
+        <a href="index.html" class="nav-brand" aria-label="HomeyChef Home">
+            <span class="brand-mark" aria-hidden="true">HC</span>
+            <span class="brand-text">HomeyChef</span>
+        </a>
+
+        <button class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-menu" aria-label="Toggle menu">
+            <span class="nav-toggle-bar"></span>
+            <span class="nav-toggle-bar"></span>
+            <span class="nav-toggle-bar"></span>
+        </button>
+
+        <div class="nav-menu" id="nav-menu">
+            <ul class="nav-list" id="nav-list">
+                <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="menu.html">Menu</a></li>
+            </ul>
+            <ul class="nav-list nav-auth-list" id="nav-auth"></ul>
         </div>
-    </nav>
-    <section class="container" style="padding: 2rem 0;">
+    </div>
+</nav>
+    <section class="container page-section">
         <!-- Page Header -->
         <div class="page-header">
             <h1>Manage Your Dishes</h1>
@@ -49,7 +61,7 @@
         <div class="card form-section" id="form-section">
             <div class="form-header">
                 <h2 id="form-title">Add New Dish</h2>
-                <button type="button" class="btn btn-secondary" id="cancel-edit" style="display: none;">
+                <button type="button" class="btn btn-secondary is-hidden" id="cancel-edit">
                     Cancel Edit
                 </button>
             </div>
@@ -132,7 +144,7 @@
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary" id="submit-btn">
                         <span id="btn-text">Add Dish</span>
-                        <span id="btn-loading" class="loading" style="display: none;"></span>
+                        <span id="btn-loading" class="loading is-hidden"></span>
                     </button>
                     <button type="button" class="btn btn-secondary" onclick="resetForm()">Clear Form</button>
                 </div>
@@ -163,14 +175,14 @@
             </div>
 
             <!-- Empty State -->
-            <div id="empty-state" class="empty-state" style="display: none;">
+            <div id="empty-state" class="empty-state is-hidden">
                 <div class="empty-icon">🍽️</div>
                 <h3>No Dishes Yet</h3>
                 <p>Start by adding your first delicious creation!</p>
             </div>
 
             <!-- Dishes Grid -->
-            <div id="dishes-list" class="cards-grid" style="display: none;"></div>
+            <div id="dishes-list" class="cards-grid is-hidden"></div>
         </div>
     </section>
 
@@ -195,7 +207,12 @@
     </div>
 
     <script src="js/utils.js"></script>
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+    <script src="js/notification-client.js"></script>
     <script src="js/dishes.js"></script>
     <script src="js/navbar.js"></script>
 </body>
 </html>
+
+
+

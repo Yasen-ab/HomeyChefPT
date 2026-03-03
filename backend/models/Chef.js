@@ -45,6 +45,27 @@ const Chef = sequelize.define('Chef', {
     type: DataTypes.TEXT,
     allowNull: true
   },
+  profileImage: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    defaultValue: 'default-chef.jpg'
+  },
+  location: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  rating: {
+    type: DataTypes.FLOAT,
+    defaultValue: 0,
+    validate: {
+      min: 0,
+      max: 5
+    }
+  },
+  responseTime: {
+    type: DataTypes.INTEGER, // بالدقائق
+    defaultValue: 30
+  },
   isActive: {
     type: DataTypes.BOOLEAN,
     defaultValue: true
