@@ -1,13 +1,22 @@
 // Authentication controller
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
 const { Op } = require('sequelize');
 const User = require('../models/User');
 const Chef = require('../models/Chef');
+const PasswordReset = require('../models/PasswordReset');
+const { sendResetEmail } = require('../utils/mailer');
 
 // Initialize Google OAuth Client
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const PASSWORD_MIN_LENGTH = 8;
+const RESET_TOKEN_TTL_MINUTES = 15;
+
+function hashResetToken(token) {
+  return crypto.createHash('sha256').update(token).digest('hex');
+}
 
 // Register Admin/User
 exports.register = async (req, res) => {
@@ -276,6 +285,169 @@ exports.googleLogin = async (req, res) => {
   } catch (error) {
     console.error('Google OAuth error:', error);
     res.status(500).json({ error: error.message || 'Google authentication failed' });
+  }
+};
+
+// Change password (authenticated users only)
+exports.changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword, confirmNewPassword } = req.body;
+
+    if (!currentPassword || !newPassword || !confirmNewPassword) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    if (newPassword.length < PASSWORD_MIN_LENGTH) {
+      return res.status(400).json({ error: 'New password must be at least 8 characters' });
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      return res.status(400).json({ error: 'Confirm password does not match' });
+    }
+
+    const AccountModel = req.userType === 'chef' ? Chef : User;
+    const account = await AccountModel.findByPk(req.userId);
+
+    if (!account || !account.password) {
+      return res.status(400).json({ error: 'Unable to change password' });
+    }
+
+    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, account.password);
+    if (!isCurrentPasswordValid) {
+      return res.status(400).json({ error: 'Unable to change password' });
+    }
+
+    const isSameAsCurrent = await bcrypt.compare(newPassword, account.password);
+    if (isSameAsCurrent) {
+      return res.status(400).json({ error: 'New password must be different from current password' });
+    }
+
+    account.password = await bcrypt.hash(newPassword, 10);
+    await account.save();
+
+    return res.json({ message: 'Password changed successfully' });
+  } catch (error) {
+    console.error('Change password error:', error);
+    return res.status(500).json({ error: 'Unable to process request' });
+  }
+};
+
+// Forgot password (always returns generic response to prevent email enumeration)
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const normalizedEmail = (email || '').trim().toLowerCase();
+
+    const genericResponse = {
+      message: 'A verification code has been sent to your email'
+    };
+
+    if (!normalizedEmail) {
+      return res.json(genericResponse);
+    }
+
+    const user = await User.findOne({ where: { email: normalizedEmail } });
+    if (!user) {
+      return res.json(genericResponse);
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const tokenHash = hashResetToken(otp);
+    const expiresAt = new Date(Date.now() + RESET_TOKEN_TTL_MINUTES * 60 * 1000);
+
+    // Keep reset tokens single-use and short-lived.
+    await PasswordReset.destroy({
+      where: {
+        [Op.or]: [{ userId: user.id }, { expiresAt: { [Op.lte]: new Date() } }]
+      }
+    });
+
+    await PasswordReset.create({
+      userId: user.id,
+      token: tokenHash,
+      expiresAt
+    });
+
+    // Send email via mail provider. Do not surface errors to the client.
+    try {
+      await sendResetEmail(user.email, otp);
+    } catch (mailError) {
+      console.error('Failed to send reset email:', mailError);
+    }
+
+    return res.json(genericResponse);
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    return res.status(500).json({ error: 'Unable to process request' });
+  }
+};
+
+// OTP flow does not require token validation.
+exports.validateResetToken = async (req, res) => {
+  try {
+    return res.status(410).json({ error: 'Invalid or expired code' });
+  } catch (error) {
+    console.error('Validate reset token error:', error);
+    return res.status(500).json({ error: 'Unable to process request' });
+  }
+};
+
+// Reset password using OTP
+exports.resetPassword = async (req, res) => {
+  try {
+    const { otp, newPassword, confirmNewPassword } = req.body;
+
+    if (!otp || !newPassword || !confirmNewPassword) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    if (!/^\d{6}$/.test(String(otp))) {
+      return res.status(400).json({ error: 'Invalid or expired code' });
+    }
+
+    if (newPassword.length < PASSWORD_MIN_LENGTH) {
+      return res.status(400).json({ error: 'New password must be at least 8 characters' });
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      return res.status(400).json({ error: 'Confirm password does not match' });
+    }
+
+    const tokenHash = hashResetToken(String(otp));
+    const resetRecord = await PasswordReset.findOne({
+      where: {
+        token: tokenHash,
+        expiresAt: { [Op.gt]: new Date() }
+      }
+    });
+
+    if (!resetRecord) {
+      return res.status(400).json({ error: 'Invalid or expired code' });
+    }
+
+    // timingSafeEqual defends against subtle token comparison timing leaks.
+    const left = Buffer.from(resetRecord.token, 'hex');
+    const right = Buffer.from(tokenHash, 'hex');
+    if (left.length !== right.length || !crypto.timingSafeEqual(left, right)) {
+      return res.status(400).json({ error: 'Invalid or expired code' });
+    }
+
+    const user = await User.findByPk(resetRecord.userId);
+    if (!user) {
+      await PasswordReset.destroy({ where: { id: resetRecord.id } });
+      return res.status(400).json({ error: 'Invalid or expired code' });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+
+    // Single-use token: delete all active reset tokens for this user after success.
+    await PasswordReset.destroy({ where: { userId: user.id } });
+
+    return res.json({ message: 'Password reset successfully' });
+  } catch (error) {
+    console.error('Reset password error:', error);
+    return res.status(500).json({ error: 'Unable to process request' });
   }
 };
 

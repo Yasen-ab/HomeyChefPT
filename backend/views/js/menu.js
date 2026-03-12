@@ -92,6 +92,8 @@ function createDishCard(dish) {
                      `${API_URL.replace('/api','')}${dish.image}` : 
                      dish.image) || 
                     'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&h=200&fit=crop';
+    const chefId = Number(dish.chefId || dish.Chef?.id) || null;
+    const chefName = dish.Chef?.name || 'Unknown Chef';
     
     const averageRating = dish.averageRating ?? calculateAverageRating(dish);
     const ratingCount = dish.reviewCount ?? (dish.reviews ? dish.reviews.length : 0);
@@ -118,7 +120,10 @@ function createDishCard(dish) {
                 
                 <div class="dish-meta">
                     <span class="category-tag">${dish.category || 'Uncategorized'}</span>
-                    <span class="chef-name">👨‍🍳 ${dish.Chef ? dish.Chef.name : 'Unknown Chef'}</span>
+                    ${chefId
+                        ? `<a class="chef-name chef-link" href="chef-profile.html?chefId=${chefId}" title="View ${chefName} profile">👨‍🍳 ${chefName}</a>`
+                        : `<span class="chef-name">👨‍🍳 ${chefName}</span>`
+                    }
                 </div>
                 
                 <div class="dish-details">

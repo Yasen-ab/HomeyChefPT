@@ -22,6 +22,7 @@ const reviewRoutes = require('./routes/reviews');
 const favoriteRoutes = require('./routes/favorites');
 const notificationRoutes = require('./routes/notifications');
 const cartRoutes = require('./routes/cart');
+const statisticsRoutes = require('./routes/statistics');
 const { initNotificationSocket } = require('./socket/notificationSocket');
 
 // Middleware
@@ -43,6 +44,7 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/favorites', favoriteRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/cart', cartRoutes);
+app.use('/api/statistics', statisticsRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -66,7 +68,11 @@ const htmlFiles = [
   'orders',
   'admin-users',
   'admin-chefs',
-  'admin-dishes'
+  'admin-dishes',
+  'statistics',
+  'change_password',
+  'forgot_password',
+  'reset_password'
 ];
 
 htmlFiles.forEach((file) => {
@@ -89,6 +95,15 @@ app.get('/favorites', (req, res) => {
 
 app.get('/notifications', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'notifications.html'));
+});
+
+// Backward-compatible path aliases for auth recovery pages
+app.get('/forgot-password', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'forgot_password.html'));
+});
+
+app.get('/reset_password', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'reset_password.html'));
 });
 
 const server = http.createServer(app);

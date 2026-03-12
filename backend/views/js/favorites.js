@@ -7,6 +7,8 @@ function dishImage(path) {
 
 function createDishCard(favorite) {
   const dish = favorite.Dish;
+  const chefId = Number(dish.chefId || dish.Chef?.id) || '';
+  const dishId = Number(dish.id) || '';
   return `
     <article class="dish-card">
       <img src="${dishImage(dish.image)}" alt="${dish.name}">
@@ -17,8 +19,8 @@ function createDishCard(favorite) {
         </div>
         <small>Chef: ${dish.Chef?.name || 'Unknown'}</small>
         <div class="dish-actions">
-          <button class="btn-chef" onclick="viewChef(${dish.chefId || dish.Chef?.id || 'null'})">View Chef</button>
-          <button class="btn-remove" onclick="removeFavorite(${dish.id})">Remove</button>
+          <button class="btn-chef" data-action="view-chef" data-chef-id="${chefId}">View Chef</button>
+          <button class="btn-remove" data-action="remove-favorite" data-dish-id="${dishId}">Remove</button>
         </div>
       </div>
     </article>
@@ -66,7 +68,26 @@ function viewChef(chefId) {
   window.location.href = `chef-profile.html?chefId=${id}`;
 }
 
-document.addEventListener('DOMContentLoaded', loadFavorites);
+function bindFavoritesActions() {
+  const grid = document.getElementById('favorites-grid');
+  if (!grid) return;
 
-window.removeFavorite = removeFavorite;
-window.viewChef = viewChef;
+  grid.addEventListener('click', (event) => {
+    const target = event.target.closest('button[data-action]');
+    if (!target || !grid.contains(target)) return;
+
+    const action = target.dataset.action;
+    if (action === 'view-chef') {
+      viewChef(target.dataset.chefId);
+      return;
+    }
+    if (action === 'remove-favorite') {
+      removeFavorite(target.dataset.dishId);
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  bindFavoritesActions();
+  loadFavorites();
+});

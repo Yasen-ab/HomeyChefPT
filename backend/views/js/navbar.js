@@ -39,6 +39,7 @@ function renderNavAuthArea() {
     const dashboardUrl = getDashboardUrl(user);
     if (user && user.role === 'admin') {
       navAuthContainer.innerHTML = `
+        <li class="nav-item"><a class="nav-link" href="statistics.html">Statistics</a></li>
         <li class="nav-item"><a class="nav-link" href="admin-users.html">Users</a></li>
         <li class="nav-item"><a class="nav-link" href="admin-chefs.html">Chefs</a></li>
         <li class="nav-item"><a class="nav-link" href="admin-dishes.html">Dishes</a></li>
@@ -46,6 +47,7 @@ function renderNavAuthArea() {
       `;
     } else if (user && user.role === 'chef') {
       navAuthContainer.innerHTML = `
+        <li class="nav-item"><a class="nav-link" href="statistics.html">Statistics</a></li>
         <li class="nav-item"><a class="nav-link" href="dishes.html">My Dishes</a></li>
         <li class="nav-item"><a class="nav-link" href="orders.html">Orders</a></li>
         <li class="nav-item"><a class="nav-link" href="notifications">Notifications <span data-notification-badge></span></a></li>

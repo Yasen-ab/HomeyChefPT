@@ -379,6 +379,16 @@ a {
   font-size: 0.75rem;
 }
 
+.chef-link {
+  color: var(--accent-2);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.chef-link:hover {
+  opacity: 0.85;
+}
+
 .rating-section {
   border-top: 1px solid var(--border);
   padding-top: 0.8rem;

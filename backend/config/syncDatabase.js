@@ -8,6 +8,7 @@ const OrderItem = require('../models/OrderItem');
 const Review = require('../models/Review');
 const Favorite = require('../models/Favorite');
 const Notification = require('../models/Notification');
+const PasswordReset = require('../models/PasswordReset');
 const bcrypt = require('bcryptjs');
 
 // Define relationships
@@ -17,6 +18,7 @@ const setupRelationships = () => {
   User.hasMany(Review, { foreignKey: 'userId', onDelete: 'CASCADE', as: 'reviews' });
   User.hasMany(Favorite, { foreignKey: 'userId', onDelete: 'CASCADE' });
   User.hasMany(Notification, { foreignKey: 'userId', onDelete: 'CASCADE' });
+  User.hasMany(PasswordReset, { foreignKey: 'userId', onDelete: 'CASCADE' });
 
   // Chef relationships
   Chef.hasMany(Dish, { foreignKey: 'chefId', onDelete: 'CASCADE', as: 'dishes' });
@@ -51,6 +53,9 @@ const setupRelationships = () => {
   Notification.belongsTo(User, { foreignKey: 'userId' });
   Notification.belongsTo(Chef, { foreignKey: 'chefId' });
   Notification.belongsTo(Order, { foreignKey: 'orderId' });
+
+  // Password reset relationships
+  PasswordReset.belongsTo(User, { foreignKey: 'userId' });
 };
 
 // Sync database and create default admin
