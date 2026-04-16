@@ -26,8 +26,8 @@ async function loadDashboardStats() {
         document.getElementById('total-users').textContent = users.length;
         
         // Load chefs
-        const chefs = await apiRequest('/chefs');
-        document.getElementById('total-chefs').textContent = chefs.length;
+        const chefsResponse = await apiRequest('/admin/chefs?page=1&limit=1');
+        document.getElementById('total-chefs').textContent = chefsResponse.totalCount || 0;
         
         // Load dishes
         const dishes = await apiRequest('/dishes');

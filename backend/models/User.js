@@ -41,6 +41,15 @@ const User = sequelize.define('User', {
     type: DataTypes.TEXT,
     allowNull: true
   },
+  status: {
+    type: DataTypes.VIRTUAL,
+    get() {
+      return this.getDataValue('isActive') === false ? 'inactive' : 'active';
+    },
+    set(value) {
+      this.setDataValue('isActive', value !== 'inactive');
+    }
+  },
   isActive: {
     type: DataTypes.BOOLEAN,
     defaultValue: true

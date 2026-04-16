@@ -8,14 +8,40 @@ const User = require('../models/User');
 const Chef = require('../models/Chef');
 const PasswordReset = require('../models/PasswordReset');
 const { sendResetEmail } = require('../utils/mailer');
+const { isInactiveAccount } = require('../utils/accountStatus');
 
 // Initialize Google OAuth Client
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const PASSWORD_MIN_LENGTH = 8;
 const RESET_TOKEN_TTL_MINUTES = 15;
+const CHEF_APPROVAL_PENDING = 'pending';
+const CHEF_APPROVAL_APPROVED = 'approved';
+const CHEF_APPROVAL_REJECTED = 'rejected';
 
 function hashResetToken(token) {
   return crypto.createHash('sha256').update(token).digest('hex');
+}
+
+function normalizeChefApprovalStatus(chef) {
+  return chef?.approvalStatus || CHEF_APPROVAL_APPROVED;
+}
+
+function getChefAccessError(chef) {
+  const approvalStatus = normalizeChefApprovalStatus(chef);
+
+  if (approvalStatus === CHEF_APPROVAL_PENDING) {
+    return 'Your chef account is pending admin approval';
+  }
+
+  if (approvalStatus === CHEF_APPROVAL_REJECTED) {
+    return 'Your chef registration was rejected. Please contact support';
+  }
+
+  if (isInactiveAccount(chef)) {
+    return 'This account has been deactivated';
+  }
+
+  return null;
 }
 
 // Register Admin/User
@@ -84,24 +110,20 @@ exports.registerChef = async (req, res) => {
       phone,
       address,
       specialties,
-      bio
+      bio,
+      approvalStatus: CHEF_APPROVAL_PENDING,
+      isActive: false
     });
 
-    // Generate token
-    const token = jwt.sign(
-      { userId: chef.id, role: 'chef', userType: 'chef' },
-      process.env.JWT_SECRET,
-      { expiresIn: '24h' }
-    );
-
     res.status(201).json({
-      message: 'Chef registered successfully',
-      token,
+      message: 'Chef registration submitted successfully. Please wait for admin approval.',
+      pendingApproval: true,
       chef: {
         id: chef.id,
         name: chef.name,
         email: chef.email,
-        role: 'chef'
+        role: 'chef',
+        approvalStatus: normalizeChefApprovalStatus(chef)
       }
     });
   } catch (error) {
@@ -125,6 +147,10 @@ exports.login = async (req, res) => {
 
     // Prioritize admin User if exists
     if (dbUser && dbUser.role === 'admin') {
+      if (isInactiveAccount(dbUser)) {
+        return res.status(403).json({ error: 'This account has been deactivated' });
+      }
+
       const isPasswordValid = await bcrypt.compare(password, dbUser.password);
       if (!isPasswordValid) {
         console.warn(`Failed admin login attempt for ${email}`);
@@ -134,6 +160,11 @@ exports.login = async (req, res) => {
       user = dbUser;
       tokenData = { userId: dbUser.id, role: dbUser.role || 'user', userType: 'user' };
     } else if (chef) {
+      const chefAccessError = getChefAccessError(chef);
+      if (chefAccessError) {
+        return res.status(403).json({ error: chefAccessError });
+      }
+
       // If not admin, prefer chef account when present
       const isPasswordValid = await bcrypt.compare(password, chef.password);
       if (!isPasswordValid) {
@@ -144,6 +175,10 @@ exports.login = async (req, res) => {
       user = chef;
       tokenData = { userId: chef.id, role: 'chef', userType: 'chef' };
     } else if (dbUser) {
+      if (isInactiveAccount(dbUser)) {
+        return res.status(403).json({ error: 'This account has been deactivated' });
+      }
+
       // Fallback to regular user
       const isPasswordValid = await bcrypt.compare(password, dbUser.password);
       if (!isPasswordValid) {
@@ -225,6 +260,10 @@ exports.googleLogin = async (req, res) => {
 
     // Prioritize admin User if exists
     if (existingUser && existingUser.role === 'admin') {
+      if (isInactiveAccount(existingUser)) {
+        return res.status(403).json({ error: 'This account has been deactivated' });
+      }
+
       // Update Google ID if not set
       if (!existingUser.googleId) {
         existingUser.googleId = googleId;
@@ -233,6 +272,11 @@ exports.googleLogin = async (req, res) => {
       user = existingUser;
       userType = 'user';
     } else if (existingChef) {
+      const chefAccessError = getChefAccessError(existingChef);
+      if (chefAccessError) {
+        return res.status(403).json({ error: chefAccessError });
+      }
+
       // Update Google ID if not set
       if (!existingChef.googleId) {
         existingChef.googleId = googleId;
@@ -241,6 +285,10 @@ exports.googleLogin = async (req, res) => {
       user = existingChef;
       userType = 'chef';
     } else if (existingUser) {
+      if (isInactiveAccount(existingUser)) {
+        return res.status(403).json({ error: 'This account has been deactivated' });
+      }
+
       // Update Google ID if not set
       if (!existingUser.googleId) {
         existingUser.googleId = googleId;
@@ -479,7 +527,8 @@ exports.getMe = async (req, res) => {
         email: user.email,
         role: decoded.userType === 'chef' ? 'chef' : user.role,
         phone: user.phone,
-        address: user.address
+        address: user.address,
+        approvalStatus: decoded.userType === 'chef' ? normalizeChefApprovalStatus(user) : undefined
       }
     });
   } catch (error) {

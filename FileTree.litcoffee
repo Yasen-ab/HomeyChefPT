@@ -1,7 +1,7 @@
 # File Tree: backend
 
-**Generated:** 2/2/2026, 9:32:31 PM
-**Root Path:** `c:\Users\ASUS\Desktop\HomeyChef\backend`
+**Generated:** 4/1/2026, 1:50:50 PM
+**Root Path:** `c:\Users\ASUS\Downloads\HomeyChef\backend`
 
 backend
 ├── config
@@ -9,72 +9,108 @@ backend
 │   └── syncDatabase.js
 ├── controllers
 │   ├── authController.js
+│   ├── cartController.js
 │   ├── chefController.js
 │   ├── dishController.js
+│   ├── favoriteController.js
+│   ├── notificationController.js
 │   ├── orderController.js
 │   ├── reviewController.js
+│   ├── statisticsController.js
 │   └── userController.js
 ├── middleware
 │   └── auth.js
 ├── models
 │   ├── Chef.js
 │   ├── Dish.js
+│   ├── Favorite.js
+│   ├── Notification.js
 │   ├── Order.js
 │   ├── OrderItem.js
+│   ├── PasswordReset.js
 │   ├── Review.js
 │   └── User.js
 ├── routes
 │   ├── auth.js
+│   ├── cart.js
 │   ├── chefs.js
 │   ├── dishes.js
+│   ├── favorites.js
+│   ├── notifications.js
 │   ├── orders.js
 │   ├── reviews.js
+│   ├── statistics.js
 │   └── users.js
+├── services
+│   └── notificationService.js
+├── socket
+│   └── notificationSocket.js
+├── utils
+│   └── mailer.js
 ├── views
 │   ├── css
 │   │   ├── admin-chefs.css
 │   │   ├── admin-dishes.css
 │   │   ├── admin-users.css
+│   │   ├── chef-profile.css
 │   │   ├── dashboard-admin.css
 │   │   ├── dashboard-chef.css
 │   │   ├── dashboard-user.css
 │   │   ├── dishes.css
+│   │   ├── favorites.css
 │   │   ├── index.css
 │   │   ├── login.css
 │   │   ├── menu.css
+│   │   ├── notifications.css
 │   │   ├── orders.css
-│   │   └── register.css
+│   │   ├── password-auth.css
+│   │   ├── register.css
+│   │   └── statistics.css
 │   ├── js
 │   │   ├── admin-chefs.js
 │   │   ├── admin-dishes.js
 │   │   ├── admin-users.js
 │   │   ├── auth.js
+│   │   ├── change-password.js
+│   │   ├── chef-profile.js
 │   │   ├── dashboard-admin.js
 │   │   ├── dashboard-chef.js
 │   │   ├── dashboard-user.js
 │   │   ├── dishes.js
+│   │   ├── favorites.js
+│   │   ├── forgot-password.js
 │   │   ├── index.js
 │   │   ├── login.js
 │   │   ├── menu.js
 │   │   ├── navbar.js
+│   │   ├── notification-client.js
+│   │   ├── notifications.js
 │   │   ├── orders.js
+│   │   ├── reset-password.js
 │   │   ├── social-auth.js
+│   │   ├── statistics.js
 │   │   └── utils.js
 │   ├── admin-chefs.html
 │   ├── admin-dishes.html
 │   ├── admin-users.html
+│   ├── change_password.html
+│   ├── chef-profile.html
 │   ├── dashboard-admin.html
 │   ├── dashboard-chef.html
 │   ├── dashboard-user.html
 │   ├── dishes.html
+│   ├── favorites.html
+│   ├── forgot_password.html
 │   ├── index.html
 │   ├── login.html
 │   ├── menu.html
+│   ├── notifications.html
 │   ├── orders.html
-│   └── register.html
+│   ├── register.html
+│   ├── reset_password.html
+│   └── statistics.html
 ├── .env.example
 ├── .gitignore
-├── FileTree.md
 ├── package-lock.json
 ├── package.json
 └── server.js

@@ -47,14 +47,21 @@ async function apiRequest(url, options = {}) {
             ...options,
             headers
         });
-
-        const data = await response.json();
+        const contentType = response.headers.get('content-type') || '';
+        const raw = await response.text();
+        const data = contentType.includes('application/json')
+            ? JSON.parse(raw || '{}')
+            : null;
         
         if (!response.ok) {
-            throw new Error(data.error || 'Request failed');
+            throw new Error((data && data.error) || raw || 'Request failed');
         }
 
-        return data;
+        if (data !== null) {
+            return data;
+        }
+
+        throw new Error('Server returned a non-JSON response');
     } catch (error) {
         console.error('API Error:', error);
         throw error;

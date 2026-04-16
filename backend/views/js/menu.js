@@ -164,7 +164,7 @@ function createDishCard(dish) {
                 
                 ${dish.isAvailable && isAuthenticated() && isUser() ? `
                     <button class="btn btn-primary btn-order" onclick="orderNow(${dish.id}, '${dish.name.replace(/'/g, "&#39;")}', ${dish.price})">
-                        🛒 Order Now
+                        🛒 Add to Cart
                     </button>
                 ` : !dish.isAvailable ? `
                     <button class="btn btn-disabled" disabled>Currently Unavailable</button>
@@ -554,7 +554,7 @@ function showEmptyState() {
     document.getElementById('load-more-container').style.display = 'none';
 }
 
-// Order now function (existing)
+// Add the selected dish to the cart from the menu page.
 async function orderNow(dishId, dishName, price) {
     try {
         if (!isAuthenticated()) {
@@ -566,25 +566,15 @@ async function orderNow(dishId, dishName, price) {
             return;
         }
 
-        const deliveryAddress = prompt(`Enter delivery address for ${dishName}:`);
-        if (!deliveryAddress) return;
-
-        const token = getAuthToken();
-        const response = await fetch(`${API_URL}/orders`, {
+        await apiRequest('/cart/add', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
             body: JSON.stringify({
-                items: [{ dishId, quantity: 1 }],
-                deliveryAddress
+                dishId,
+                quantity: 1
             })
         });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || 'Failed to place order');
 
-        showNotification('Order placed successfully!');
+        showNotification(`${dishName} added to cart`, 'success');
     } catch (e) {
         showNotification(e.message, 'error');
     }

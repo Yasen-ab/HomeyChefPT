@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Cart - HomeyChef</title>
+    <link rel="stylesheet" href="css/cart.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700;800&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="site-nav" aria-label="Main">
+        <div class="container nav-shell">
+            <a href="index.html" class="nav-brand" aria-label="HomeyChef Home">
+                <span class="brand-mark" aria-hidden="true">HC</span>
+                <span class="brand-text">HomeyChef</span>
+            </a>
+
+            <button class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-menu" aria-label="Toggle menu">
+                <span class="nav-toggle-bar"></span>
+                <span class="nav-toggle-bar"></span>
+                <span class="nav-toggle-bar"></span>
+            </button>
+
+            <div class="nav-menu" id="nav-menu">
+                <ul class="nav-list" id="nav-list">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="menu.html">Menu</a></li>
+                </ul>
+                <ul class="nav-list nav-auth-list" id="nav-auth"></ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="cart-page">
+        <div class="container cart-layout">
+            <section class="cart-main">
+                <div class="page-header">
+                    <h1>Your Cart</h1>
+                    <p>Review your dishes, manage quantities, and complete checkout.</p>
+                </div>
+
+                <div class="loading-state" id="loading-state">
+                    <div class="loading-spinner"></div>
+                    <p>Loading your cart...</p>
+                </div>
+
+                <div class="empty-state" id="empty-state">
+                    <div class="empty-icon"><i class="fas fa-shopping-cart"></i></div>
+                    <h2>Your cart is empty</h2>
+                    <p>Add dishes from the menu or chef profile to start your order.</p>
+                    <a class="btn btn-primary" href="menu.html">Browse Menu</a>
+                </div>
+
+                <div class="cart-items" id="cart-items"></div>
+            </section>
+
+            <aside class="cart-sidebar" id="cart-sidebar">
+                <section class="summary-card">
+                    <div class="summary-header">
+                        <h2>Order Summary</h2>
+                        <button class="btn btn-secondary btn-small" id="clear-cart-btn" type="button">Clear Cart</button>
+                    </div>
+
+                    <div class="summary-row">
+                        <span>Total items</span>
+                        <strong id="summary-items">0</strong>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Total amount</span>
+                        <strong id="summary-total">$0.00</strong>
+                    </div>
+
+                    <form id="checkout-form" class="checkout-form">
+                        <label for="delivery-address">Delivery address</label>
+                        <textarea id="delivery-address" rows="3" placeholder="Enter your full delivery address" required></textarea>
+
+                        <label for="delivery-date">Delivery date</label>
+                        <input id="delivery-date" type="datetime-local">
+
+                        <label for="order-notes">Notes</label>
+                        <textarea id="order-notes" rows="3" placeholder="Any delivery notes or special instructions"></textarea>
+
+                        <button class="btn btn-primary btn-full" type="submit">Checkout</button>
+                    </form>
+                </section>
+            </aside>
+        </div>
+    </main>
+
+    <script src="js/utils.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/navbar.js"></script>
+</body>
+</html>

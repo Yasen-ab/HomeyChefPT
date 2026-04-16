@@ -8,12 +8,11 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Ensure Sequelize associations are registered
-const { setupRelationships } = require('./config/syncDatabase');
-setupRelationships();
+const { syncDatabase } = require('./config/syncDatabase');
 
 // Import routes
 const authRoutes = require('./routes/auth');
+const singleChefRoutes = require('./routes/chef');
 const userRoutes = require('./routes/users');
 const chefRoutes = require('./routes/chefs');
 const dishRoutes = require('./routes/dishes');
@@ -23,6 +22,7 @@ const favoriteRoutes = require('./routes/favorites');
 const notificationRoutes = require('./routes/notifications');
 const cartRoutes = require('./routes/cart');
 const statisticsRoutes = require('./routes/statistics');
+const adminRoutes = require('./routes/admin');
 const { initNotificationSocket } = require('./socket/notificationSocket');
 
 // Middleware
@@ -36,6 +36,8 @@ app.use(express.static(path.join(__dirname, 'views')));
 
 // API Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/chef', singleChefRoutes);
+app.use('/api/admin', adminRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/chefs', chefRoutes);
 app.use('/api/dishes', dishRoutes);
@@ -61,6 +63,7 @@ const htmlFiles = [
   'login',
   'register',
   'menu',
+  'cart',
   'dashboard-user',
   'dashboard-chef',
   'dashboard-admin',
@@ -109,8 +112,18 @@ app.get('/reset_password', (req, res) => {
 const server = http.createServer(app);
 initNotificationSocket(server);
 
-// Start server
-server.listen(PORT, () => {
-  console.log(`HomeyChef Server running on port ${PORT}`);
-  console.log(`API available at http://localhost:${PORT}/`);
-});
+async function startServer() {
+  try {
+    await syncDatabase();
+
+    server.listen(PORT, () => {
+      console.log(`HomeyChef Server running on port ${PORT}`);
+      console.log(`API available at http://localhost:${PORT}/`);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+}
+
+startServer();

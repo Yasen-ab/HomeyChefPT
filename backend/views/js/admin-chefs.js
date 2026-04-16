@@ -1,387 +1,438 @@
-        // Global variables
-        let currentChefs = [];
-        let currentPage = 1;
-        const itemsPerPage = 10;
-        let totalPages = 1;
+let currentChefs = [];
+let currentPage = 1;
+const itemsPerPage = 10;
+let totalPages = 1;
 
-      
+document.addEventListener('DOMContentLoaded', () => {
+  checkAuth();
+  initLogoutButton();
+  initializePage();
+});
 
-        document.addEventListener('DOMContentLoaded', () => {
-            checkAuth();
-            initLogoutButton();
-            initializePage();
-        });
-        function checkAuth() {
-    if (!isAuthenticated()) {
-        window.location.href = 'login.html';
-    }
+function checkAuth() {
+  if (!isAuthenticated()) {
+    window.location.href = 'login.html';
+    return;
+  }
+
+  if (!isAdmin()) {
+    redirectToDashboard();
+  }
 }
 
-        async function initializePage() {
-            await loadChefs();
-            setupEventListeners();
-        }
-
-        function setupEventListeners() {
-            // Search with debounce
-            let searchTimeout;
-            document.getElementById('chefs-search').addEventListener('input', (e) => {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(() => {
-                    currentPage = 1;
-                    loadChefs();
-                }, 300);
-            });
-        }
-
-        async function loadChefs() {
-    showLoading();
-    
-    try {
-        const searchQuery = document.getElementById('chefs-search')?.value?.trim() || '';
-        const statusFilter = document.getElementById('status-filter')?.value || '';
-        const sortBy = document.getElementById('sort-by')?.value || 'newest';
-
-        const params = new URLSearchParams();
-
-        // البحث
-        if (searchQuery) {
-            params.append('search', searchQuery);
-        }
-
-        // ← التعديل الأهم هنا: ما بنرسل status إلا إذا كانت قيمة حقيقية (مش all أو فارغ)
-        if (statusFilter && statusFilter !== '' && statusFilter.toLowerCase() !== 'all') {
-            params.append('status', statusFilter.toLowerCase());
-        }
-
-        // الترتيب
-        if (sortBy) {
-            params.append('sort', sortBy);
-        }
-
-        params.append('page', currentPage);
-        params.append('limit', itemsPerPage);
-
-        // للتصحيح (ممكن تشيله بعد التأكد)
-        console.log("الرابط اللي بنرسله:", `/chefs?${params.toString()}`);
-
-        const response = await apiRequest(`/chefs?${params}`);
-        currentChefs = response.chefs || response || [];
-        
-        updateStatistics();
-        renderChefsTable();
-        updatePagination(response.totalCount || currentChefs.length || 0);
-        
-    } catch (error) {
-        console.error('Failed to load chefs:', error);
-        showNotification('تعذر تحميل بيانات الشيفات، حاول مرة أخرى', 'error');
-        showEmptyState();
-    } finally {
-        hideLoading();
-    }
+async function initializePage() {
+  setupEventListeners();
+  await loadChefs();
 }
 
-        function updateStatistics() {
-            const total = currentChefs.length;
-            const active = currentChefs.filter(c => c.isActive).length;
-            const pending = currentChefs.filter(c => c.status === 'pending').length;
+function setupEventListeners() {
+  let searchTimeout;
+  const searchInput = document.getElementById('chefs-search');
 
-            document.getElementById('total-chefs').textContent = total;
-            document.getElementById('active-chefs').textContent = active;
-            document.getElementById('pending-chefs').textContent = pending;
-        }
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        currentPage = 1;
+        loadChefs();
+      }, 300);
+    });
+  }
 
-        function renderChefsTable() {
-            const tbody = document.getElementById('chefs-tbody');
-            tbody.innerHTML = '';
+  ['status-filter', 'sort-by'].forEach((id) => {
+    const element = document.getElementById(id);
+    if (!element) return;
 
-            if (currentChefs.length === 0) {
-                showEmptyState();
-                return;
-            }
+    element.addEventListener('change', () => {
+      currentPage = 1;
+      loadChefs();
+    });
+  });
+}
 
-            currentChefs.forEach(chef => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-<td>
-  <div class="chef-card">
-    <div class="avatar-circle ${chef.isActive ? 'active' : 'inactive'}">
-      ${getInitials(chef.name)}
+async function loadChefs() {
+  showLoading();
+
+  try {
+    const params = new URLSearchParams();
+    const searchQuery = document.getElementById('chefs-search')?.value?.trim() || '';
+    const statusFilter = document.getElementById('status-filter')?.value || '';
+    const sortBy = document.getElementById('sort-by')?.value || 'newest';
+
+    if (searchQuery) params.append('search', searchQuery);
+    if (statusFilter) params.append('status', statusFilter);
+    if (sortBy) params.append('sort', sortBy);
+    params.append('page', currentPage);
+    params.append('limit', itemsPerPage);
+
+    const response = await apiRequest(`/admin/chefs?${params.toString()}`);
+    currentChefs = Array.isArray(response.chefs) ? response.chefs : [];
+
+    updateStatistics(response);
+    renderChefsTable();
+    updatePagination(response.totalCount || 0);
+  } catch (error) {
+    console.error('Failed to load chefs:', error);
+    showNotification(error.message || 'Unable to load chef registrations', 'error');
+    showEmptyState();
+  } finally {
+    hideLoading();
+  }
+}
+
+function updateStatistics(response) {
+  const total = response?.summary?.totalChefs ?? response?.totalCount ?? currentChefs.length;
+  const active = response?.summary?.activeChefs ?? currentChefs.filter((chef) => chef.isActive).length;
+  const pending =
+    response?.summary?.pendingChefs ??
+    currentChefs.filter((chef) => chef.approvalStatus === 'pending').length;
+
+  document.getElementById('total-chefs').textContent = total;
+  document.getElementById('active-chefs').textContent = active;
+  document.getElementById('pending-chefs').textContent = pending;
+}
+
+function renderChefsTable() {
+  const tbody = document.getElementById('chefs-tbody');
+  tbody.innerHTML = '';
+
+  if (!currentChefs.length) {
+    showEmptyState();
+    return;
+  }
+
+  currentChefs.forEach((chef) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <div class="chef-card">
+          <div class="avatar-circle ${chef.isActive ? 'active' : 'inactive'}">
+            ${getInitials(chef.name)}
+          </div>
+          <div class="chef-meta">
+            <span class="chef-name">${escapeHtml(chef.name || 'N/A')}</span>
+            <span class="chef-id">#${chef.id}</span>
+          </div>
+        </div>
+      </td>
+      <td>
+        <div class="contact-stack">
+          <span>${escapeHtml(chef.email || 'N/A')}</span>
+          <span>${escapeHtml(chef.phone || 'N/A')}</span>
+        </div>
+      </td>
+      <td>
+        <div class="badge-stack">
+          <span class="status-pill ${getApprovalStatusClass(chef.approvalStatus)}">
+            ${getApprovalStatusText(chef.approvalStatus)}
+          </span>
+          <span class="status-pill ${chef.isActive ? 'status-active' : 'status-inactive'}">
+            ${chef.isActive ? 'Active' : 'Inactive'}
+          </span>
+        </div>
+      </td>
+      <td>
+        <div class="time-stack">
+          <span>${formatDate(chef.createdAt)}</span>
+          <small>${formatTimeAgo(chef.createdAt)}</small>
+        </div>
+      </td>
+      <td>
+        <div class="action-cluster">
+          <button class="icon-btn info" onclick="viewChef(${chef.id})" title="View chef details">
+            <i class="fas fa-eye"></i>
+          </button>
+          ${buildApprovalAction(chef)}
+          ${buildActivationAction(chef)}
+        </div>
+      </td>
+    `;
+
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById('table-container').style.display = 'block';
+  document.getElementById('empty-state').style.display = 'none';
+}
+
+function buildApprovalAction(chef) {
+  if (chef.approvalStatus === 'pending') {
+    return `
+      <button class="icon-btn success" onclick="reviewChef(${chef.id}, 'approve')" title="Approve chef">
+        <i class="fas fa-check"></i>
+      </button>
+      <button class="icon-btn danger" onclick="reviewChef(${chef.id}, 'reject')" title="Reject chef">
+        <i class="fas fa-times"></i>
+      </button>
+    `;
+  }
+
+  if (chef.approvalStatus === 'rejected') {
+    return `
+      <button class="icon-btn success" onclick="reviewChef(${chef.id}, 'approve')" title="Approve rejected chef">
+        <i class="fas fa-user-check"></i>
+      </button>
+    `;
+  }
+
+  return '';
+}
+
+function buildActivationAction(chef) {
+  if (chef.approvalStatus !== 'approved') {
+    return '';
+  }
+
+  return chef.isActive
+    ? `
+      <button class="icon-btn warning" onclick="toggleChefActivation(${chef.id}, false)" title="Deactivate chef">
+        <i class="fas fa-user-slash"></i>
+      </button>
+    `
+    : `
+      <button class="icon-btn success" onclick="toggleChefActivation(${chef.id}, true)" title="Reactivate chef">
+        <i class="fas fa-power-off"></i>
+      </button>
+    `;
+}
+
+async function viewChef(id) {
+  try {
+    const chef = await apiRequest(`/admin/chefs/${id}`);
+    showChefModal(chef);
+  } catch (error) {
+    console.error('Failed to load chef details:', error);
+    showNotification(error.message || 'Failed to load chef details', 'error');
+  }
+}
+
+function showChefModal(chef) {
+  const modal = document.getElementById('chef-modal');
+  const details = document.getElementById('chef-details');
+
+  details.innerHTML = `
+    <div class="chef-profile-card">
+      <div class="chef-header">
+        <div class="avatar-xl ${chef.isActive ? 'active' : 'inactive'}">
+          ${getInitials(chef.name)}
+        </div>
+        <div class="chef-header-info">
+          <h2 class="chef-name">${escapeHtml(chef.name || 'Unknown Chef')}</h2>
+          <span class="chef-role">Professional Chef Application</span>
+          <div class="badge-stack">
+            <span class="status-pill ${getApprovalStatusClass(chef.approvalStatus)}">
+              ${getApprovalStatusText(chef.approvalStatus)}
+            </span>
+            <span class="status-pill ${chef.isActive ? 'status-active' : 'status-inactive'}">
+              ${chef.isActive ? 'Active' : 'Inactive'}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chef-info-grid">
+        <div class="info-item">
+          <label>Email</label>
+          <span>${escapeHtml(chef.email || 'N/A')}</span>
+        </div>
+        <div class="info-item">
+          <label>Phone</label>
+          <span>${escapeHtml(chef.phone || 'N/A')}</span>
+        </div>
+        <div class="info-item">
+          <label>Address</label>
+          <span>${escapeHtml(chef.address || 'N/A')}</span>
+        </div>
+        <div class="info-item">
+          <label>Specialties</label>
+          <span>${escapeHtml(chef.specialties || 'N/A')}</span>
+        </div>
+        <div class="info-item">
+          <label>Registered</label>
+          <span>${formatDate(chef.createdAt)}</span>
+        </div>
+        <div class="info-item">
+          <label>Orders</label>
+          <span>${chef.ordersCount ?? 0}</span>
+        </div>
+        <div class="info-item">
+          <label>Dishes</label>
+          <span>${chef.dishesCount ?? 0}</span>
+        </div>
+        <div class="info-item">
+          <label>Rating</label>
+          <span>${Number(chef.rating || 0).toFixed(1)}</span>
+        </div>
+      </div>
+
+      ${chef.bio ? `
+        <div class="chef-bio-section">
+          <h4>Bio</h4>
+          <p>${escapeHtml(chef.bio)}</p>
+        </div>
+      ` : ''}
     </div>
+  `;
 
-    <div class="chef-meta">
-      <span class="chef-name">${chef.name || 'N/A'}</span>
-      <span class="chef-id">#${chef.id}</span>
-    </div>
-  </div>
-</td>
+  modal.style.display = 'flex';
+}
 
-<td>
-  <div class="contact-stack">
-    <span>📧 ${chef.email || 'N/A'}</span>
-    <span>📞 ${chef.phone || 'N/A'}</span>
-  </div>
-</td>
+async function reviewChef(id, decision) {
+  const actionText = decision === 'approve' ? 'approve' : 'reject';
+  if (!confirm(`Are you sure you want to ${actionText} this chef registration?`)) {
+    return;
+  }
 
-<td>
-  <span class="status-pill ${getStatusClass(chef)}">
-    ${getStatusText(chef)}
-  </span>
-</td>
+  try {
+    await apiRequest(`/admin/chefs/${id}/approval`, {
+      method: 'PATCH',
+      body: JSON.stringify({ decision })
+    });
 
-<td>
-  <div class="time-stack">
-    <span>${formatDate(chef.createdAt)}</span>
-    <small>${formatTimeAgo(chef.createdAt)}</small>
-  </div>
-</td>
+    showNotification(
+      decision === 'approve' ? 'Chef approved successfully' : 'Chef rejected successfully',
+      'success'
+    );
+    await loadChefs();
+  } catch (error) {
+    console.error('Failed to review chef:', error);
+    showNotification(error.message || 'Failed to update chef approval', 'error');
+  }
+}
 
-<td>
-  <div class="action-cluster">
-    <button class="icon-btn info" onclick="viewChef(${chef.id})" title="View">
-      👁️
-    </button>
+async function toggleChefActivation(id, shouldActivate) {
+  const action = shouldActivate ? 'reactivate' : 'deactivate';
+  if (!confirm(`Are you sure you want to ${action} this chef account?`)) {
+    return;
+  }
 
-    <button class="icon-btn warning" onclick="editChef(${chef.id})" title="Edit">
-      ✏️
-    </button>
+  try {
+    await apiRequest(`/admin/chefs/${id}/${action}`, {
+      method: 'PATCH'
+    });
 
-    <button class="icon-btn ${chef.isActive ? 'danger' : 'success'}"
-            onclick="toggleChefStatus(${chef.id}, ${!chef.isActive})"
-            title="${chef.isActive ? 'Deactivate' : 'Activate'}">
-      ${chef.isActive ? '⛔' : '✅'}
-    </button>
-    ${isAdmin() ? `
+    showNotification(
+      shouldActivate ? 'Chef reactivated successfully' : 'Chef deactivated successfully',
+      'success'
+    );
+    await loadChefs();
+  } catch (error) {
+    console.error('Failed to update chef activation:', error);
+    showNotification(error.message || 'Failed to update chef status', 'error');
+  }
+}
 
-    <button class="icon-btn danger" onclick="deleteChef(${chef.id})" title="Delete">
-      🗑️
-    </button>
-    ` : ''}
-  </div>
-</td>
-`;
+function changePage(direction) {
+  const nextPage = currentPage + direction;
+  if (nextPage < 1 || nextPage > totalPages) {
+    return;
+  }
 
-                tbody.appendChild(tr);
-            });
+  currentPage = nextPage;
+  loadChefs();
+}
 
-            document.getElementById('table-container').style.display = 'block';
-            document.getElementById('empty-state').style.display = 'none';
-        }
+function updatePagination(totalCount) {
+  const pagination = document.getElementById('pagination');
+  const pageInfo = document.getElementById('page-info');
+  const prevBtn = document.getElementById('prev-btn');
+  const nextBtn = document.getElementById('next-btn');
 
-        async function viewChef(id) {
-            try {
-                const chef = await apiRequest(`/chefs/${id}`);
-                showChefModal(chef);
-            } catch (error) {
-                console.error('Failed to load chef details:', error);
-                showNotification('Failed to load chef details', 'error');
-            }
-        }
+  totalPages = Math.max(Math.ceil(totalCount / itemsPerPage), 1);
 
-        function showChefModal(chef) {
-            const modal = document.getElementById('chef-modal');
-            const details = document.getElementById('chef-details');
-            
-            details.innerHTML = `
-<div class="chef-profile-card">
+  if (totalCount <= itemsPerPage) {
+    pagination.style.display = 'none';
+    return;
+  }
 
-  <!-- ===== HEADER ===== -->
-  <div class="chef-header">
-    <div class="avatar-xl ${chef.isActive ? 'active' : 'inactive'}">
-      ${getInitials(chef.name)}
-    </div>
+  pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+  prevBtn.disabled = currentPage === 1;
+  nextBtn.disabled = currentPage === totalPages;
+  pagination.style.display = 'flex';
+}
 
-    <div class="chef-header-info">
-      <h2 class="chef-name">${chef.name}</h2>
-      <span class="chef-role">👨‍🍳 Professional Chef</span>
+function showLoading() {
+  document.getElementById('loading-state').style.display = 'grid';
+  document.getElementById('table-container').style.display = 'none';
+  document.getElementById('empty-state').style.display = 'none';
+}
 
-      <span class="status-pill ${getStatusClass(chef)}">
-        ${getStatusText(chef)}
-      </span>
-    </div>
-  </div>
+function hideLoading() {
+  document.getElementById('loading-state').style.display = 'none';
+}
 
-  <!-- ===== DETAILS GRID ===== -->
-  <div class="chef-info-grid">
-    <div class="info-item">
-      <label>Email</label>
-      <span>${chef.email || 'N/A'}</span>
-    </div>
+function showEmptyState() {
+  document.getElementById('table-container').style.display = 'none';
+  document.getElementById('empty-state').style.display = 'block';
+  document.getElementById('pagination').style.display = 'none';
+}
 
-    <div class="info-item">
-      <label>Phone</label>
-      <span>${chef.phone || 'N/A'}</span>
-    </div>
+function clearFilters() {
+  document.getElementById('chefs-search').value = '';
+  document.getElementById('status-filter').value = '';
+  document.getElementById('sort-by').value = 'newest';
+  currentPage = 1;
+  loadChefs();
+}
 
-    <div class="info-item">
-      <label>Address</label>
-      <span>${chef.address || 'N/A'}</span>
-    </div>
+function closeModal() {
+  document.getElementById('chef-modal').style.display = 'none';
+}
 
-    <div class="info-item">
-      <label>Registered</label>
-      <span>${formatDate(chef.createdAt)}</span>
-    </div>
-  </div>
+function exportChefs() {
+  showNotification('Export feature coming soon!', 'info');
+}
 
-  <!-- ===== BIO ===== -->
-  ${chef.bio ? `
-  <div class="chef-bio-section">
-    <h4>📝 Bio</h4>
-    <p>${chef.bio}</p>
-  </div>
-  ` : ''}
+function showAddChefModal() {
+  showNotification('Chef applications are now created from the public registration page.', 'info');
+}
 
-</div>
-`;
+function getInitials(name) {
+  return String(name || '?')
+    .split(' ')
+    .filter(Boolean)
+    .map((part) => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+}
 
-            
-            modal.style.display = 'block';
-        }
+function getApprovalStatusClass(status) {
+  if (status === 'pending') return 'status-pending';
+  if (status === 'rejected') return 'status-rejected';
+  return 'status-approved';
+}
 
-        async function toggleChefStatus(id, newStatus) {
-            const action = newStatus ? 'activate' : 'deactivate';
-            if (!confirm(`Are you sure you want to ${action} this chef?`)) return;
-            
-            try {
-                await apiRequest(`/chefs/${id}/status`, {
-                    method: 'PATCH',
-                    body: JSON.stringify({ isActive: newStatus })
-                });
-                
-                showNotification(`Chef ${newStatus ? 'activated' : 'deactivated'} successfully`, 'success');
-                await loadChefs();
-            } catch (error) {
-                console.error('Failed to update chef status:', error);
-                showNotification('Failed to update chef status', 'error');
-            }
-        }
+function getApprovalStatusText(status) {
+  if (status === 'pending') return 'Pending Approval';
+  if (status === 'rejected') return 'Rejected';
+  return 'Approved';
+}
 
-            async function deleteChef(id) {
-              if (!confirm('Are you sure you want to permanently delete this chef?')) return;
+function formatTimeAgo(dateString) {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffTime = Math.abs(now - date);
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-              try {
-                await apiRequest(`/chefs/${id}`, {
-                  method: 'DELETE'
-                });
+  if (diffDays === 1) return '1 day ago';
+  if (diffDays < 7) return `${diffDays} days ago`;
+  if (diffDays < 30) return `${Math.ceil(diffDays / 7)} weeks ago`;
+  return `${Math.ceil(diffDays / 30)} months ago`;
+}
 
-                showNotification('Chef deleted successfully', 'success');
-                await loadChefs();
-              } catch (error) {
-                console.error('Failed to delete chef:', error);
-                showNotification('Failed to delete chef', 'error');
-              }
-            }
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
 
-        function changePage(direction) {
-            const newPage = currentPage + direction;
-            if (newPage >= 1 && newPage <= totalPages) {
-                currentPage = newPage;
-                loadChefs();
-            }
-        }
-
-        function updatePagination(totalCount) {
-            const pagination = document.getElementById('pagination');
-            const pageInfo = document.getElementById('page-info');
-            const prevBtn = document.getElementById('prev-btn');
-            const nextBtn = document.getElementById('next-btn');
-
-            totalPages = Math.ceil(totalCount / itemsPerPage);
-            
-            if (totalPages <= 1) {
-                pagination.style.display = 'none';
-                return;
-            }
-
-            pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
-            prevBtn.disabled = currentPage === 1;
-            nextBtn.disabled = currentPage === totalPages;
-            pagination.style.display = 'flex';
-        }
-
-        function showLoading() {
-            document.getElementById('loading-state').style.display = 'block';
-            document.getElementById('table-container').style.display = 'none';
-            document.getElementById('empty-state').style.display = 'none';
-        }
-
-        function hideLoading() {
-            document.getElementById('loading-state').style.display = 'none';
-        }
-
-        function showEmptyState() {
-            document.getElementById('table-container').style.display = 'none';
-            document.getElementById('empty-state').style.display = 'block';
-            document.getElementById('pagination').style.display = 'none';
-        }
-
-        function clearFilters() {
-            document.getElementById('chefs-search').value = '';
-            document.getElementById('status-filter').value = '';
-            document.getElementById('sort-by').value = 'newest';
-            currentPage = 1;
-            loadChefs();
-        }
-
-        function closeModal() {
-            document.getElementById('chef-modal').style.display = 'none';
-        }
-
-        // Utility functions
-        function getInitials(name) {
-            return name ? name.split(' ').map(n => n[0]).join('').toUpperCase() : '?';
-        }
-
-        function getStatusClass(chef) {
-            if (!chef.isActive) return 'status-inactive';
-            if (chef.status === 'pending') return 'status-pending';
-            return 'status-active';
-        }
-
-        function getStatusText(chef) {
-            if (!chef.isActive) return 'Inactive';
-            if (chef.status === 'pending') return 'Pending Approval';
-            return 'Active';
-        }
-
-        function formatDate(dateString) {
-            return new Date(dateString).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric'
-            });
-        }
-
-        function formatTimeAgo(dateString) {
-            const date = new Date(dateString);
-            const now = new Date();
-            const diffTime = Math.abs(now - date);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
-            if (diffDays === 1) return '1 day ago';
-            if (diffDays < 7) return `${diffDays} days ago`;
-            if (diffDays < 30) return `${Math.ceil(diffDays / 7)} weeks ago`;
-            return `${Math.ceil(diffDays / 30)} months ago`;
-        }
-
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            const modal = document.getElementById('chef-modal');
-            if (event.target === modal) {
-                closeModal();
-            }
-        }
-
-        // Placeholder functions for future implementation
-        function exportChefs() {
-            showNotification('Export feature coming soon!', 'info');
-        }
-
-        function showAddChefModal() {
-            showNotification('Add chef feature coming soon!', 'info');
-        }
-
-        function editChef(id) {
-            showNotification('Edit chef feature coming soon!', 'info');
-        }
+window.onclick = function(event) {
+  const modal = document.getElementById('chef-modal');
+  if (event.target === modal) {
+    closeModal();
+  }
+};

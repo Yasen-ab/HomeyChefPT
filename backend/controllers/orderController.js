@@ -7,6 +7,100 @@ const User = require('../models/User');
 const Chef = require('../models/Chef');
 const { createNotification } = require('../services/notificationService');
 
+async function buildOrderPayload(items) {
+  if (!items || items.length === 0) {
+    throw new Error('Order items required');
+  }
+
+  const normalizedItems = [];
+
+  for (const item of items) {
+    const quantity = Number(item.quantity) || 0;
+    if (!item.dishId || quantity < 1) {
+      throw new Error('Each order item must include a valid dishId and quantity');
+    }
+
+    const dish = await Dish.findByPk(item.dishId);
+    if (!dish || !dish.isAvailable) {
+      throw new Error(`Dish ${item.dishId} not available`);
+    }
+
+    normalizedItems.push({
+      dishId: dish.id,
+      chefId: dish.chefId,
+      quantity,
+      price: Number(dish.price),
+      subtotal: Number(dish.price) * quantity
+    });
+  }
+
+  return normalizedItems;
+}
+
+async function createOrdersForUser({ userId, items, deliveryAddress, deliveryDate = null, notes = null }) {
+  if (!deliveryAddress || !String(deliveryAddress).trim()) {
+    throw new Error('Delivery address is required');
+  }
+
+  const orderItems = await buildOrderPayload(items);
+  const chefGroups = {};
+
+  for (const item of orderItems) {
+    if (!chefGroups[item.chefId]) {
+      chefGroups[item.chefId] = [];
+    }
+    chefGroups[item.chefId].push(item);
+  }
+
+  const createdOrders = [];
+
+  for (const chefId of Object.keys(chefGroups)) {
+    const chefItems = chefGroups[chefId];
+    const chefTotal = chefItems.reduce((sum, item) => sum + Number(item.subtotal || 0), 0);
+
+    const order = await Order.create({
+      orderNumber: `ORD-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
+      userId,
+      chefId: Number(chefId),
+      status: 'pending',
+      totalAmount: chefTotal,
+      deliveryAddress: String(deliveryAddress).trim(),
+      deliveryDate,
+      notes
+    });
+
+    for (const item of chefItems) {
+      await OrderItem.create({
+        orderId: order.id,
+        dishId: item.dishId,
+        quantity: item.quantity,
+        price: item.price,
+        subtotal: item.subtotal
+      });
+    }
+
+    createdOrders.push(order);
+
+    await createNotification({
+      userId,
+      orderId: order.id,
+      type: 'order_confirmed',
+      title: 'Order confirmed',
+      body: `Your order #${order.orderNumber} has been placed successfully.`
+    });
+
+    await createNotification({
+      chefId: order.chefId,
+      orderId: order.id,
+      type: 'new_order',
+      title: 'New order received',
+      body: `You received a new order #${order.orderNumber}.`
+    });
+  }
+
+  return createdOrders;
+}
+
 // Get all orders (Admin or Chef can see their orders)
 exports.getAllOrders = async (req, res) => {
   try {
@@ -113,101 +207,31 @@ exports.getOrderById = async (req, res) => {
 // Create order (Users)
 exports.createOrder = async (req, res) => {
   try {
+    if (req.role !== 'user') {
+      return res.status(403).json({ error: 'Only users can place orders' });
+    }
+
     const { items, deliveryAddress, deliveryDate, notes } = req.body;
-
-    if (!items || items.length === 0) {
-      return res.status(400).json({ error: 'Order items required' });
-    }
-
-    // Validate items and calculate total
-    let totalAmount = 0;
-    const orderItems = [];
-    
-    for (const item of items) {
-      const dish = await Dish.findByPk(item.dishId);
-      if (!dish || !dish.isAvailable) {
-        return res.status(400).json({ error: `Dish ${item.dishId} not available` });
-      }
-
-      const subtotal = dish.price * item.quantity;
-      totalAmount += subtotal;
-
-      orderItems.push({
-        dishId: dish.id,
-        quantity: item.quantity,
-        price: dish.price,
-        subtotal
-      });
-    }
-
-    // Group items by chef
-    const chefGroups = {};
-    for (const item of items) {
-      const dish = await Dish.findByPk(item.dishId);
-      if (!chefGroups[dish.chefId]) {
-        chefGroups[dish.chefId] = [];
-      }
-      chefGroups[dish.chefId].push({
-        dishId: dish.id,
-        quantity: item.quantity,
-        price: dish.price,
-        subtotal: dish.price * item.quantity
-      });
-    }
-
-    // Create separate orders for each chef
-    const createdOrders = [];
-    
-    for (const chefId in chefGroups) {
-      const chefItems = chefGroups[chefId];
-      const chefTotal = chefItems.reduce((sum, item) => sum + parseFloat(item.subtotal), 0);
-      
-      const order = await Order.create({
-        orderNumber: `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        userId: req.userId,
-        chefId: parseInt(chefId),
-        status: 'pending',
-        totalAmount: chefTotal,
-        deliveryAddress,
-        deliveryDate,
-        notes
-      });
-
-      // Create order items
-      for (const item of chefItems) {
-        await OrderItem.create({
-          orderId: order.id,
-          dishId: item.dishId,
-          quantity: item.quantity,
-          price: item.price,
-          subtotal: item.subtotal
-        });
-      }
-
-      createdOrders.push(order);
-
-      await createNotification({
-        userId: req.userId,
-        orderId: order.id,
-        type: 'order_confirmed',
-        title: 'Order confirmed',
-        body: `Your order #${order.orderNumber} has been placed successfully.`
-      });
-
-      await createNotification({
-        chefId: order.chefId,
-        orderId: order.id,
-        type: 'new_order',
-        title: 'New order received',
-        body: `You received a new order #${order.orderNumber}.`
-      });
-    }
+    const createdOrders = await createOrdersForUser({
+      userId: req.userId,
+      items,
+      deliveryAddress,
+      deliveryDate,
+      notes
+    });
 
     res.status(201).json({ message: 'Order created successfully', orders: createdOrders });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    const statusCode = ['Order items required', 'Delivery address is required'].includes(error.message) ||
+      error.message.includes('not available') ||
+      error.message.includes('valid dishId')
+      ? 400
+      : 500;
+    res.status(statusCode).json({ error: error.message });
   }
 };
+
+exports.createOrdersForUser = createOrdersForUser;
 
 // Update order status (Chef or Admin)
 exports.updateOrderStatus = async (req, res) => {

@@ -5,6 +5,7 @@ let currentUserType = 'user';
 document.addEventListener('DOMContentLoaded', () => {
     initTabs();
     initForms();
+    updateFormFields();
 });
 
 // Initialize user type tabs
@@ -53,6 +54,7 @@ function initForms() {
     const registerForm = document.getElementById('register-form');
     
     if (loginForm) {
+        loginForm.dataset.authBound = 'true';
         loginForm.addEventListener('submit', handleLogin);
     }
     
@@ -74,7 +76,7 @@ async function handleLogin(e) {
 
     try {
         // Send only email & password. Server will detect whether account is chef or user/admin.
-        const response = await apiRequest('api/auth/login', {
+        const response = await apiRequest('/auth/login', {
             method: 'POST',
             body: JSON.stringify({
                 email,
@@ -145,15 +147,24 @@ async function handleRegister(e) {
             });
         }
 
-        // Auth success path
-        setAuthToken(response.token);
-        setUserData(response.user || response.chef);
+        if (response.token) {
+            setAuthToken(response.token);
+            setUserData(response.user || response.chef);
 
-        showNotification('Registration successful! 🚀');
+            showNotification('Registration successful!');
+
+            setTimeout(() => {
+                redirectToDashboard();
+            }, 800);
+            return;
+        }
+
+        removeAuthToken();
+        showNotification(response.message || 'Registration submitted successfully');
 
         setTimeout(() => {
-            redirectToDashboard();
-        }, 800);
+            window.location.href = 'login.html';
+        }, 1200);
 
     } catch (error) {
         console.error('Register error:', error);

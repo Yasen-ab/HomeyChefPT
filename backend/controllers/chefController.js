@@ -6,12 +6,58 @@ const Review = require('../models/Review');
 const Order = require('../models/Order');
 const { Op } = require('sequelize');
 const OrderItem = require('../models/OrderItem');
+const { createNotification } = require('../services/notificationService');
+const { ACTIVE_STATUS, applyAccountStatus } = require('../utils/accountStatus');
+const CHEF_APPROVAL_PENDING = 'pending';
+const CHEF_APPROVAL_APPROVED = 'approved';
+const CHEF_APPROVAL_REJECTED = 'rejected';
+
+function normalizeChefApprovalStatus(chef) {
+  return chef?.approvalStatus || CHEF_APPROVAL_APPROVED;
+}
+
+function isChefApproved(chef) {
+  return normalizeChefApprovalStatus(chef) === CHEF_APPROVAL_APPROVED;
+}
+
+function isChefVisibleToCustomers(chef) {
+  return Boolean(chef?.isActive) && isChefApproved(chef);
+}
+
+function serializeChefForAdmin(chef) {
+  const approvalStatus = normalizeChefApprovalStatus(chef);
+
+  return {
+    id: chef.id,
+    name: chef.name,
+    email: chef.email,
+    phone: chef.phone,
+    address: chef.address,
+    bio: chef.bio,
+    specialties: chef.specialties,
+    profileImage: chef.profileImage,
+    location: chef.location,
+    rating: chef.rating,
+    responseTime: chef.responseTime,
+    isActive: chef.isActive,
+    approvalStatus,
+    status: approvalStatus,
+    createdAt: chef.createdAt,
+    updatedAt: chef.updatedAt
+  };
+}
 
 // Get all chefs
 exports.getAllChefs = async (req, res) => {
   try {
     const chefs = await Chef.findAll({
-      where: { isActive: true },
+      where: {
+        isActive: true,
+        [Op.or]: [
+          { approvalStatus: CHEF_APPROVAL_APPROVED },
+          { approvalStatus: null }
+        ]
+      },
       order: [['createdAt', 'DESC']]
     });
     res.json(chefs);
@@ -29,7 +75,7 @@ exports.getChefById = async (req, res) => {
     const offset = (page - 1) * limit;
 
     const chef = await Chef.findByPk(chefId);
-    if (!chef) {
+    if (!chef || !isChefVisibleToCustomers(chef)) {
       return res.status(404).json({ error: 'Chef not found' });
     }
 
@@ -135,6 +181,178 @@ exports.deleteChef = async (req, res) => {
 
     await chef.destroy();
     res.json({ message: 'Chef deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.deactivateChef = async (req, res) => {
+  try {
+    const chef = await Chef.findByPk(req.params.id);
+    if (!chef) {
+      return res.status(404).json({ error: 'Chef not found' });
+    }
+
+    applyAccountStatus(chef, 'inactive');
+    await chef.save();
+
+    res.json({ message: 'Chef deactivated successfully', chef });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.reactivateChef = async (req, res) => {
+  try {
+    const chef = await Chef.findByPk(req.params.id);
+    if (!chef) {
+      return res.status(404).json({ error: 'Chef not found' });
+    }
+
+    if (!isChefApproved(chef)) {
+      return res.status(400).json({ error: 'Only approved chefs can be reactivated' });
+    }
+
+    applyAccountStatus(chef, ACTIVE_STATUS);
+    await chef.save();
+
+    res.json({ message: 'Chef reactivated successfully', chef });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getAdminChefs = async (req, res) => {
+  try {
+    const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 10, 1), 50);
+    const offset = (page - 1) * limit;
+    const search = (req.query.search || '').trim();
+    const status = (req.query.status || '').trim().toLowerCase();
+    const sort = (req.query.sort || 'newest').trim().toLowerCase();
+    const where = {};
+    const filters = [];
+
+    if (search) {
+      filters.push({
+        [Op.or]: [
+          { name: { [Op.like]: `%${search}%` } },
+          { email: { [Op.like]: `%${search}%` } },
+          { phone: { [Op.like]: `%${search}%` } },
+          { specialties: { [Op.like]: `%${search}%` } }
+        ]
+      });
+    }
+
+    if ([CHEF_APPROVAL_PENDING, CHEF_APPROVAL_APPROVED, CHEF_APPROVAL_REJECTED].includes(status)) {
+      if (status === CHEF_APPROVAL_APPROVED) {
+        filters.push({
+          [Op.or]: [
+            { approvalStatus: CHEF_APPROVAL_APPROVED },
+            { approvalStatus: null }
+          ]
+        });
+      } else {
+        where.approvalStatus = status;
+      }
+    } else if (status === 'active') {
+      where.isActive = true;
+    } else if (status === 'inactive') {
+      where.isActive = false;
+    }
+
+    if (filters.length) {
+      where[Op.and] = filters;
+    }
+
+    let order = [['createdAt', 'DESC']];
+    if (sort === 'oldest') {
+      order = [['createdAt', 'ASC']];
+    } else if (sort === 'name') {
+      order = [['name', 'ASC']];
+    }
+
+    const [{ rows, count }, totalChefs, activeChefs, pendingChefs] = await Promise.all([
+      Chef.findAndCountAll({
+        where,
+        order,
+        limit,
+        offset
+      }),
+      Chef.count(),
+      Chef.count({ where: { isActive: true } }),
+      Chef.count({ where: { approvalStatus: CHEF_APPROVAL_PENDING } })
+    ]);
+
+    res.json({
+      chefs: rows.map(serializeChefForAdmin),
+      totalCount: count,
+      currentPage: page,
+      totalPages: Math.ceil(count / limit),
+      summary: {
+        totalChefs,
+        activeChefs,
+        pendingChefs
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getAdminChefById = async (req, res) => {
+  try {
+    const chef = await Chef.findByPk(req.params.id);
+    if (!chef) {
+      return res.status(404).json({ error: 'Chef not found' });
+    }
+
+    const [dishesCount, ordersCount] = await Promise.all([
+      Dish.count({ where: { chefId: chef.id } }),
+      Order.count({ where: { chefId: chef.id } })
+    ]);
+
+    res.json({
+      ...serializeChefForAdmin(chef),
+      dishesCount,
+      ordersCount
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.reviewChefRegistration = async (req, res) => {
+  try {
+    const requestedDecision = (req.body.decision || req.body.status || '').trim().toLowerCase();
+
+    if (!['approve', 'approved', 'reject', 'rejected'].includes(requestedDecision)) {
+      return res.status(400).json({ error: 'Decision must be approve or reject' });
+    }
+
+    const chef = await Chef.findByPk(req.params.id);
+    if (!chef) {
+      return res.status(404).json({ error: 'Chef not found' });
+    }
+
+    const isApproval = requestedDecision.startsWith('approve');
+    chef.approvalStatus = isApproval ? CHEF_APPROVAL_APPROVED : CHEF_APPROVAL_REJECTED;
+    chef.isActive = isApproval;
+    await chef.save();
+
+    await createNotification({
+      chefId: chef.id,
+      type: isApproval ? 'chef_registration_approved' : 'chef_registration_rejected',
+      title: isApproval ? 'Chef registration approved' : 'Chef registration rejected',
+      body: isApproval
+        ? 'Your chef account has been approved. You can now log in and start using HomeyChef.'
+        : 'Your chef registration was rejected by the admin team.'
+    });
+
+    res.json({
+      message: isApproval ? 'Chef approved successfully' : 'Chef rejected successfully',
+      chef: serializeChefForAdmin(chef)
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

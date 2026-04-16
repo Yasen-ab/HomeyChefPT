@@ -47,7 +47,18 @@ exports.getAllDishes = async (req, res) => {
       where,
       attributes: { include: ratingAttributes },
       include: [
-        { model: Chef, as: 'Chef', attributes: ['name', 'id'] },
+        {
+          model: Chef,
+          as: 'Chef',
+          attributes: ['name', 'id'],
+          where: {
+            isActive: true,
+            [Op.or]: [
+              { approvalStatus: 'approved' },
+              { approvalStatus: null }
+            ]
+          }
+        },
         {
           model: Review,
           as: 'reviews',
@@ -92,7 +103,18 @@ exports.getDishById = async (req, res) => {
     const dish = await Dish.findByPk(req.params.id, {
       attributes: { include: ratingAttributes },
       include: [
-        { model: Chef, as: 'Chef', attributes: ['name', 'id', 'bio'] },
+        {
+          model: Chef,
+          as: 'Chef',
+          attributes: ['name', 'id', 'bio'],
+          where: {
+            isActive: true,
+            [Op.or]: [
+              { approvalStatus: 'approved' },
+              { approvalStatus: null }
+            ]
+          }
+        },
         {
           model: Review,
           as: 'reviews',

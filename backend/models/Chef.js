@@ -66,8 +66,14 @@ const Chef = sequelize.define('Chef', {
     type: DataTypes.INTEGER, // بالدقائق
     defaultValue: 30
   },
+  approvalStatus: {
+    type: DataTypes.ENUM('pending', 'approved', 'rejected'),
+    allowNull: false,
+    defaultValue: 'approved'
+  },
   isActive: {
     type: DataTypes.BOOLEAN,
+    allowNull: false,
     defaultValue: true
   }
 }, {

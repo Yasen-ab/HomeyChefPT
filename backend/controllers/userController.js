@@ -3,6 +3,7 @@ const User = require('../models/User');
 const Order = require('../models/Order');
 const OrderItem = require('../models/OrderItem');
 const Dish = require('../models/Dish');
+const { ACTIVE_STATUS, applyAccountStatus, resolveAccountStatus } = require('../utils/accountStatus');
 
 // Get all users (Admin only)
 exports.getAllUsers = async (req, res) => {
@@ -52,9 +53,11 @@ exports.updateUser = async (req, res) => {
     // Build update payload. Admins can update email/role/isActive, regular users only their own basic fields.
     const updateData = { name, phone, address };
     if (req.role === 'admin') {
+      const nextStatus = resolveAccountStatus(req.body.status, isActive);
       if (typeof email !== 'undefined') updateData.email = email;
       if (typeof role !== 'undefined') updateData.role = role;
       if (typeof isActive !== 'undefined') updateData.isActive = isActive;
+      if (nextStatus) updateData.isActive = nextStatus === ACTIVE_STATUS;
     }
 
     await user.update(updateData);
@@ -67,17 +70,53 @@ exports.updateUser = async (req, res) => {
 // Patch user status (activate/deactivate) - Admin only
 exports.updateUserStatus = async (req, res) => {
   try {
-    const { isActive } = req.body;
+    const nextStatus = resolveAccountStatus(req.body.status, req.body.isActive);
+    if (!nextStatus) {
+      return res.status(400).json({ error: 'Status must be active or inactive' });
+    }
+
     const user = await User.findByPk(req.params.id);
 
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    user.isActive = !!isActive;
+    applyAccountStatus(user, nextStatus);
     await user.save();
 
     res.json({ message: 'User status updated', user });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.deactivateUser = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    applyAccountStatus(user, 'inactive');
+    await user.save();
+
+    res.json({ message: 'User deactivated successfully', user });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.reactivateUser = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    applyAccountStatus(user, ACTIVE_STATUS);
+    await user.save();
+
+    res.json({ message: 'User reactivated successfully', user });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

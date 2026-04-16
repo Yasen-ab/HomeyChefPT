@@ -56,6 +56,7 @@ function renderNavAuthArea() {
       `;
     } else {
       navAuthContainer.innerHTML = `
+        <li class="nav-item"><a class="nav-link" href="cart.html">Cart</a></li>
         <li class="nav-item"><a class="nav-link" href="orders.html">Orders</a></li>
         <li class="nav-item"><a class="nav-link" href="favorites">Favorites</a></li>
         <li class="nav-item"><a class="nav-link" href="notifications">Notifications <span data-notification-badge></span></a></li>
