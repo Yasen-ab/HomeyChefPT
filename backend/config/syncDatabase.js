@@ -9,6 +9,7 @@ const Review = require('../models/Review');
 const Favorite = require('../models/Favorite');
 const Notification = require('../models/Notification');
 const PasswordReset = require('../models/PasswordReset');
+const ChefAvailability = require('../models/ChefAvailability');
 const bcrypt = require('bcryptjs');
 
 // Define relationships
@@ -24,6 +25,10 @@ const setupRelationships = () => {
   Chef.hasMany(Dish, { foreignKey: 'chefId', onDelete: 'CASCADE', as: 'dishes' });
   Chef.hasMany(Order, { foreignKey: 'chefId', onDelete: 'SET NULL' });
   Chef.hasMany(Notification, { foreignKey: 'chefId', onDelete: 'CASCADE' });
+  Chef.hasMany(ChefAvailability, { foreignKey: 'chefId', onDelete: 'CASCADE', as: 'availabilities' });
+
+  // Chef availability relationships
+  ChefAvailability.belongsTo(Chef, { foreignKey: 'chefId', as: 'chef' });
 
   // Dish relationships
   Dish.belongsTo(Chef, { foreignKey: 'chefId', as: 'Chef' });

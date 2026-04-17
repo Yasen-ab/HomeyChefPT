@@ -40,6 +40,36 @@ function renderHeader(chef) {
   badge.textContent = isAvailable ? 'Available' : 'Unavailable';
   badge.classList.toggle('open', isAvailable);
   badge.classList.toggle('closed', !isAvailable);
+
+  renderAvailabilitySchedule(chef.availability || { slots: [], disabledDays: [] });
+}
+
+function renderAvailabilitySchedule(availability) {
+  const container = document.getElementById('availability-schedule');
+  if (!container) return;
+
+  const slots = availability.slots || [];
+  const disabledDays = availability.disabledDays || [];
+  const slotRows = slots
+    .map((slot) => `<li>${['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][slot.dayOfWeek]}: ${slot.startTime} - ${slot.endTime}${slot.description ? ` (${slot.description})` : ''}</li>`)
+    .join('');
+  const disabledRows = disabledDays
+    .map((holiday) => `<li>${holiday.date}${holiday.description ? ` — ${holiday.description}` : ''}</li>`)
+    .join('');
+
+  container.innerHTML = `
+    <div class="schedule-summary">
+      <h3>Schedule</h3>
+      <div class="schedule-block">
+        <strong>Slots</strong>
+        <ul>${slotRows || '<li>No weekly slots defined.</li>'}</ul>
+      </div>
+      <div class="schedule-block">
+        <strong>Holidays / Leaves</strong>
+        <ul>${disabledRows || '<li>No holidays planned.</li>'}</ul>
+      </div>
+    </div>
+  `;
 }
 
 function renderDishes(dishes) {

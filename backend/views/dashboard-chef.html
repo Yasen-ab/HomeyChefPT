@@ -71,6 +71,79 @@
                 </div>
             </div>
 
+            <div class="dashboard-section dashboard-section-highlighted">
+                <h2>Manage Your Availability</h2>
+                <p class="section-note">Set weekly service slots and mark holidays or leave days so orders are only accepted when you're ready.</p>
+                <div class="availability-panel">
+                    <div class="availability-forms">
+                        <div class="availability-card">
+                            <h3>Weekly Availability Slot</h3>
+                            <div class="form-group">
+                                <label>Day Range</label>
+                                <div class="day-range-row">
+                                    <select id="availability-day-start" class="form-control">
+                                        <option value="0">Sunday</option>
+                                        <option value="1">Monday</option>
+                                        <option value="2">Tuesday</option>
+                                        <option value="3">Wednesday</option>
+                                        <option value="4">Thursday</option>
+                                        <option value="5">Friday</option>
+                                        <option value="6">Saturday</option>
+                                    </select>
+                                    <span class="day-range-separator">to</span>
+                                    <select id="availability-day-end" class="form-control">
+                                        <option value="0">Sunday</option>
+                                        <option value="1">Monday</option>
+                                        <option value="2">Tuesday</option>
+                                        <option value="3">Wednesday</option>
+                                        <option value="4">Thursday</option>
+                                        <option value="5">Friday</option>
+                                        <option value="6">Saturday</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="availability-start">Start Time</label>
+                                <input type="time" id="availability-start" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="availability-end">End Time</label>
+                                <input type="time" id="availability-end" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="availability-description">Note</label>
+                                <input type="text" id="availability-description" class="form-control" placeholder="Optional note">
+                            </div>
+                            <div class="profile-actions">
+                                <button class="btn btn-primary" id="save-availability-slot-btn">Save Slot</button>
+                                <button class="btn btn-secondary" id="clear-availability-slot-btn" type="button">Clear</button>
+                            </div>
+                        </div>
+
+                        <div class="availability-card">
+                            <h3>Holiday / Leave</h3>
+                            <div class="form-group">
+                                <label for="holiday-date">Date</label>
+                                <input type="date" id="holiday-date" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="holiday-description">Description</label>
+                                <input type="text" id="holiday-description" class="form-control" placeholder="Reason for holiday">
+                            </div>
+                            <div class="profile-actions">
+                                <button class="btn btn-primary" id="save-holiday-btn">Save Holiday</button>
+                                <button class="btn btn-secondary" id="clear-holiday-btn" type="button">Clear</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="availability-list-card">
+                        <h3>Current Availability</h3>
+                        <div id="availability-list" class="availability-list"></div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Recent Orders -->
             <div class="dashboard-section">
                 <h2>Recent Orders</h2>

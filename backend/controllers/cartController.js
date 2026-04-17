@@ -250,7 +250,7 @@ exports.checkoutCart = async (req, res) => {
       cart: await serializeCart({ chefId: null, items: [] })
     });
   } catch (error) {
-    const statusCode = ['Cart is empty', 'Delivery address is required', 'Order items required'].includes(error.message) ||
+    const statusCode = ['Cart is empty', 'Delivery address is required', 'Order items required', 'Invalid delivery date'].includes(error.message) ||
       error.message.includes('not available') ||
       error.message.includes('valid dishId')
       ? 400

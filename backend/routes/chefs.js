@@ -26,8 +26,19 @@ router.get('/', chefController.getAllChefs);
 // Get own chef profile
 router.get('/profile', authenticate, isChef, chefController.getChefProfile);
 
+// Get own availability (Chef only)
+router.get('/profile/availability', authenticate, isChef, chefController.getChefAvailability);
+
+// Create availability slot or holiday leave
+router.post('/profile/availability', authenticate, isChef, chefController.createChefAvailability);
+router.put('/profile/availability/:slotId', authenticate, isChef, chefController.updateChefAvailability);
+router.delete('/profile/availability/:slotId', authenticate, isChef, chefController.deleteChefAvailability);
+
 // Get single chef
 router.get('/:id', chefController.getChefById);
+
+// Get single chef availability (public)
+router.get('/:id/availability', chefController.getChefAvailabilityById);
 
 // Update own chef profile (with image upload)
 router.put('/profile', authenticate, isChef, upload.single('profileImage'), chefController.updateChefProfile);

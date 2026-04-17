@@ -1,6 +1,7 @@
 // Chef management controller
 const sequelize = require('../config/database');
 const Chef = require('../models/Chef');
+const ChefAvailability = require('../models/ChefAvailability');
 const Dish = require('../models/Dish');
 const Review = require('../models/Review');
 const Order = require('../models/Order');
@@ -22,6 +23,99 @@ function isChefApproved(chef) {
 
 function isChefVisibleToCustomers(chef) {
   return Boolean(chef?.isActive) && isChefApproved(chef);
+}
+
+const TIME_REGEX = /^([01]\d|2[0-3]):([0-5]\d)$/;
+const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+
+function normalizeDateOnly(date) {
+  const parsed = new Date(date);
+  if (Number.isNaN(parsed.getTime())) {
+    return null;
+  }
+  return parsed.toISOString().slice(0, 10);
+}
+
+function isValidTime(value) {
+  return typeof value === 'string' && TIME_REGEX.test(value);
+}
+
+function isValidAvailabilityPayload(payload) {
+  if (!payload || typeof payload !== 'object') return false;
+  if (!['slot', 'holiday'].includes(payload.type)) return false;
+  if (payload.type === 'slot') {
+    const dayStart = Number(payload.dayOfWeekStart ?? payload.dayOfWeek);
+    const dayEnd = Number(payload.dayOfWeekEnd ?? payload.dayOfWeek);
+    if (!Number.isInteger(dayStart) || dayStart < 0 || dayStart > 6) return false;
+    if (!Number.isInteger(dayEnd) || dayEnd < 0 || dayEnd > 6) return false;
+    if (dayStart > dayEnd) return false;
+    return isValidTime(payload.startTime) && isValidTime(payload.endTime) && payload.startTime < payload.endTime;
+  }
+  if (payload.type === 'holiday') {
+    return DATE_REGEX.test(payload.date);
+  }
+  return false;
+}
+
+function serializeAvailability(slot) {
+  return {
+    id: slot.id,
+    type: slot.type,
+    dayOfWeek: slot.dayOfWeek,
+    startTime: slot.startTime,
+    endTime: slot.endTime,
+    date: slot.date,
+    description: slot.description,
+    createdAt: slot.createdAt,
+    updatedAt: slot.updatedAt
+  };
+}
+
+function hasAnySlotRules(availability) {
+  return availability.some((item) => item.type === 'slot');
+}
+
+function getSlotsForDay(availability, dayOfWeek) {
+  return availability.filter((item) => item.type === 'slot' && item.dayOfWeek === dayOfWeek);
+}
+
+function isChefAvailableAt(availability, requestedDate, allowFutureToday = true) {
+  if (!requestedDate) {
+    requestedDate = new Date();
+  }
+
+  const dateOnly = normalizeDateOnly(requestedDate);
+  if (!dateOnly) return false;
+
+  if (availability.some((item) => item.type === 'holiday' && item.date === dateOnly)) {
+    return false;
+  }
+
+  const dayOfWeek = requestedDate.getDay();
+  const slots = getSlotsForDay(availability, dayOfWeek);
+
+  if (!slots.length) {
+    return !hasAnySlotRules(availability);
+  }
+
+  const isToday = dateOnly === normalizeDateOnly(new Date());
+  if (!isToday) {
+    return true;
+  }
+
+  const currentTime = requestedDate.toTimeString().slice(0, 5);
+  if (allowFutureToday) {
+    return slots.some((slot) => slot.endTime >= currentTime);
+  }
+  return slots.some((slot) => slot.startTime <= currentTime && slot.endTime >= currentTime);
+}
+
+function buildAvailabilityResponse(availability) {
+  return {
+    isAvailable: isChefAvailableAt(availability, new Date()),
+    slots: availability.filter((item) => item.type === 'slot').map(serializeAvailability),
+    disabledDays: availability.filter((item) => item.type === 'holiday').map(serializeAvailability)
+  };
 }
 
 function serializeChefForAdmin(chef) {
@@ -106,6 +200,10 @@ exports.getChefById = async (req, res) => {
     const avgRatingFromReviews = Number(reviewStats?.avgRating || 0);
     const reviewCount = Number(reviewStats?.reviewCount || 0);
 
+    const availabilityRules = await ChefAvailability.findAll({
+      where: { chefId }
+    });
+
     const chefPayload = {
       id: chef.id,
       name: chef.name,
@@ -116,8 +214,9 @@ exports.getChefById = async (req, res) => {
         reviewCount
       },
       availability: {
-        isAvailable: Boolean(chef.isActive),
-        openHours: null
+        isAvailable: Boolean(chef.isActive) && isChefApproved(chef) && isChefAvailableAt(availabilityRules, new Date()),
+        slots: availabilityRules.filter((item) => item.type === 'slot').map(serializeAvailability),
+        disabledDays: availabilityRules.filter((item) => item.type === 'holiday').map(serializeAvailability)
       }
     };
 
@@ -412,6 +511,10 @@ exports.getChefProfile = async (req, res) => {
       return res.status(404).json({ error: 'Chef not found' });
     }
 
+    const availabilityRules = await ChefAvailability.findAll({
+      where: { chefId: chef.id }
+    });
+
     res.json({
       chef: {
         id: chef.id,
@@ -419,9 +522,159 @@ exports.getChefProfile = async (req, res) => {
         email: chef.email,
         phone: chef.phone,
         bio: chef.bio,
-        profileImage: chef.profileImage
+        profileImage: chef.profileImage,
+        availability: buildAvailabilityResponse(availabilityRules)
       }
     });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getChefAvailability = async (req, res) => {
+  try {
+    if (req.userType !== 'chef') {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const availabilityRules = await ChefAvailability.findAll({
+      where: { chefId: req.userId },
+      order: [['type', 'ASC'], ['dayOfWeek', 'ASC'], ['startTime', 'ASC'], ['date', 'ASC']]
+    });
+
+    res.json({
+      availability: buildAvailabilityResponse(availabilityRules)
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getChefAvailabilityById = async (req, res) => {
+  try {
+    const chefId = Number(req.params.id);
+    const chef = await Chef.findByPk(chefId);
+
+    if (!chef || !isChefVisibleToCustomers(chef)) {
+      return res.status(404).json({ error: 'Chef not found' });
+    }
+
+    const availabilityRules = await ChefAvailability.findAll({
+      where: { chefId },
+      order: [['type', 'ASC'], ['dayOfWeek', 'ASC'], ['startTime', 'ASC'], ['date', 'ASC']]
+    });
+
+    res.json({
+      availability: buildAvailabilityResponse(availabilityRules)
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.createChefAvailability = async (req, res) => {
+  try {
+    if (req.userType !== 'chef') {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const payload = req.body;
+    if (!isValidAvailabilityPayload(payload)) {
+      return res.status(400).json({ error: 'Invalid availability payload' });
+    }
+
+    if (payload.type === 'slot') {
+      const startDay = Number(payload.dayOfWeekStart ?? payload.dayOfWeek);
+      const endDay = Number(payload.dayOfWeekEnd ?? payload.dayOfWeek);
+      const slots = [];
+
+      for (let day = startDay; day <= endDay; day += 1) {
+        slots.push({
+          chefId: req.userId,
+          type: 'slot',
+          dayOfWeek: day,
+          startTime: payload.startTime,
+          endTime: payload.endTime,
+          description: payload.description ? String(payload.description).trim() : null
+        });
+      }
+
+      const createdAvailability = await ChefAvailability.bulkCreate(slots);
+      res.status(201).json({
+        message: 'Availability slots created successfully',
+        availability: createdAvailability.map(serializeAvailability)
+      });
+      return;
+    }
+
+    const newAvailability = await ChefAvailability.create({
+      chefId: req.userId,
+      type: payload.type,
+      dayOfWeek: null,
+      startTime: null,
+      endTime: null,
+      date: payload.type === 'holiday' ? payload.date : null,
+      description: payload.description ? String(payload.description).trim() : null
+    });
+
+    res.status(201).json({
+      message: 'Availability record created successfully',
+      availability: serializeAvailability(newAvailability)
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.updateChefAvailability = async (req, res) => {
+  try {
+    if (req.userType !== 'chef') {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const slotId = Number(req.params.slotId);
+    const availability = await ChefAvailability.findByPk(slotId);
+    if (!availability || availability.chefId !== req.userId) {
+      return res.status(404).json({ error: 'Availability record not found' });
+    }
+
+    const payload = req.body;
+    if (!isValidAvailabilityPayload(payload)) {
+      return res.status(400).json({ error: 'Invalid availability payload' });
+    }
+
+    await availability.update({
+      type: payload.type,
+      dayOfWeek: payload.type === 'slot' ? Number(payload.dayOfWeek) : null,
+      startTime: payload.type === 'slot' ? payload.startTime : null,
+      endTime: payload.type === 'slot' ? payload.endTime : null,
+      date: payload.type === 'holiday' ? payload.date : null,
+      description: payload.description ? String(payload.description).trim() : null
+    });
+
+    res.json({
+      message: 'Availability record updated successfully',
+      availability: serializeAvailability(availability)
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.deleteChefAvailability = async (req, res) => {
+  try {
+    if (req.userType !== 'chef') {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const slotId = Number(req.params.slotId);
+    const availability = await ChefAvailability.findByPk(slotId);
+    if (!availability || availability.chefId !== req.userId) {
+      return res.status(404).json({ error: 'Availability record not found' });
+    }
+
+    await availability.destroy();
+    res.json({ message: 'Availability record deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

@@ -5,6 +5,7 @@ const OrderItem = require('../models/OrderItem');
 const Dish = require('../models/Dish');
 const User = require('../models/User');
 const Chef = require('../models/Chef');
+const ChefAvailability = require('../models/ChefAvailability');
 const { createNotification } = require('../services/notificationService');
 
 async function buildOrderPayload(items) {
@@ -20,7 +21,9 @@ async function buildOrderPayload(items) {
       throw new Error('Each order item must include a valid dishId and quantity');
     }
 
-    const dish = await Dish.findByPk(item.dishId);
+    const dish = await Dish.findByPk(item.dishId, {
+      include: [{ model: Chef, as: 'Chef', attributes: ['id', 'name'] }]
+    });
     if (!dish || !dish.isAvailable) {
       throw new Error(`Dish ${item.dishId} not available`);
     }
@@ -28,6 +31,7 @@ async function buildOrderPayload(items) {
     normalizedItems.push({
       dishId: dish.id,
       chefId: dish.chefId,
+      chefName: dish.Chef?.name || `Chef ${dish.chefId}`,
       quantity,
       price: Number(dish.price),
       subtotal: Number(dish.price) * quantity
@@ -45,6 +49,54 @@ async function createOrdersForUser({ userId, items, deliveryAddress, deliveryDat
   const orderItems = await buildOrderPayload(items);
   const chefGroups = {};
 
+  const requestedDate = deliveryDate ? new Date(String(deliveryDate).trim()) : new Date();
+  if (isNaN(requestedDate.getTime())) {
+    throw new Error('Invalid delivery date');
+  }
+
+  const chefIds = Array.from(new Set(orderItems.map((item) => item.chefId)));
+  const chefAvailability = await ChefAvailability.findAll({
+    where: { chefId: { [Op.in]: chefIds } }
+  });
+
+  const availabilityByChef = chefAvailability.reduce((acc, item) => {
+    if (!acc[item.chefId]) acc[item.chefId] = [];
+    acc[item.chefId].push(item);
+    return acc;
+  }, {});
+
+  const isChefAvailable = (chefId, targetDate) => {
+    const availabilityRules = availabilityByChef[chefId] || [];
+    const normalizeDateOnly = (value) => {
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return null;
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
+    const requestedDateOnly = normalizeDateOnly(targetDate);
+    if (!requestedDateOnly) return false;
+
+    const isHoliday = availabilityRules.some((rule) => rule.type === 'holiday' && rule.date === requestedDateOnly);
+    if (isHoliday) return false;
+
+    const dayOfWeek = new Date(targetDate).getDay();
+    const slotsForDay = availabilityRules.filter((rule) => rule.type === 'slot' && rule.dayOfWeek === dayOfWeek);
+    if (!slotsForDay.length) {
+      return !availabilityRules.some((rule) => rule.type === 'slot');
+    }
+
+    const isToday = requestedDateOnly === normalizeDateOnly(new Date());
+    if (!isToday) {
+      return slotsForDay.length > 0;
+    }
+
+    const currentTime = new Date().toTimeString().slice(0, 5);
+    return slotsForDay.some((slot) => slot.endTime >= currentTime);
+  };
+
   for (const item of orderItems) {
     if (!chefGroups[item.chefId]) {
       chefGroups[item.chefId] = [];
@@ -56,6 +108,12 @@ async function createOrdersForUser({ userId, items, deliveryAddress, deliveryDat
 
   for (const chefId of Object.keys(chefGroups)) {
     const chefItems = chefGroups[chefId];
+    const chefName = chefItems[0]?.chefName || `Chef ${chefId}`;
+    const requestedDateOnly = `${requestedDate.getFullYear()}-${String(requestedDate.getMonth() + 1).padStart(2, '0')}-${String(requestedDate.getDate()).padStart(2, '0')}`;
+
+    if (!isChefAvailable(Number(chefId), requestedDate)) {
+      throw new Error(`عذراً، ${chefName} غير متاح للتوصيل في ${requestedDateOnly}. يرجى اختيار تاريخ آخر أو الاتصال بالشيف.`);
+    }
     const chefTotal = chefItems.reduce((sum, item) => sum + Number(item.subtotal || 0), 0);
 
     const order = await Order.create({
