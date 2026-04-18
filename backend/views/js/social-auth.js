@@ -2,7 +2,7 @@ class SocialAuth {
     constructor() {
         this.googleClientId = '528298969514-aq4htpt99eopq0ri4f9ijbn1c5usfpu7.apps.googleusercontent.com';
         this.useFedCM = false;
-        this.baseApiUrl = 'http://localhost:3001/api';
+        this.baseApiUrl = '/api';
 
         const googleScript = document.querySelector('script[data-google-client-id]');
         if (googleScript) {
