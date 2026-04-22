@@ -26,9 +26,7 @@
         }
 
         function setupEventListeners() {
-            // Search with debounce
             let searchTimeout;
-            // فلتر البحث مع تأخير
             document.getElementById('dishes-search').addEventListener('input', (e) => {
                 clearTimeout(searchTimeout);
                 searchTimeout = setTimeout(() => {
@@ -85,7 +83,6 @@
                 const availabilityFilter = document.getElementById('availability-filter').value;
                 const chefFilter = document.getElementById('chef-filter').value;
                 const sortBy = document.getElementById('sort-by').value;
-// إعداد معلمات الاستعلام و طلب البيانات من API 
                 const params = new URLSearchParams();
                 if (searchQuery) params.append('search', searchQuery);
                 if (categoryFilter) params.append('category', categoryFilter);

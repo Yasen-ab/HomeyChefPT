@@ -129,8 +129,6 @@ class SocialAuth {
         this.showLoading(false);
     }
 
-    // ========== إعداد مستمعي الأحداث ==========
-
     setupEventListeners() {
         const googleBtn = document.getElementById('googleSignIn');
         if (googleBtn) {
@@ -140,8 +138,6 @@ class SocialAuth {
             });
         }
     }
-
-    // ========== دوال مساعدة ==========
 
     handleSuccess(user, token) {
         this.saveUserData(user, token);
@@ -298,7 +294,6 @@ class SocialAuth {
     }
 }
 
-// تهيئة عند تحميل DOM
 document.addEventListener('DOMContentLoaded', function() {
     let socialAuth;
     try {

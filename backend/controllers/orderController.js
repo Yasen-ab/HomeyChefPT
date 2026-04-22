@@ -79,21 +79,30 @@ async function createOrdersForUser({ userId, items, deliveryAddress, deliveryDat
     const requestedDateOnly = normalizeDateOnly(targetDate);
     if (!requestedDateOnly) return false;
 
-    const isHoliday = availabilityRules.some((rule) => rule.type === 'holiday' && rule.date === requestedDateOnly);
+    const isHoliday = availabilityRules.some((rule) => rule.type === 'holiday' && (rule.specificDate || rule.date) === requestedDateOnly);
     if (isHoliday) return false;
 
-    const dayOfWeek = new Date(targetDate).getDay();
-    const slotsForDay = availabilityRules.filter((rule) => rule.type === 'slot' && rule.dayOfWeek === dayOfWeek);
-    if (!slotsForDay.length) {
-      return !availabilityRules.some((rule) => rule.type === 'slot');
+    const specificDateRules = availabilityRules.filter((rule) => rule.type === 'specific_date' && (rule.specificDate || rule.date) === requestedDateOnly);
+    const isToday = requestedDateOnly === normalizeDateOnly(new Date());
+    if (specificDateRules.length > 0) {
+      if (!isToday) {
+        return specificDateRules.length > 0;
+      }
+      const currentTime = new Date().toTimeString().slice(0, 8);
+      return specificDateRules.some((slot) => slot.endTime >= currentTime);
     }
 
-    const isToday = requestedDateOnly === normalizeDateOnly(new Date());
+    const dayOfWeek = new Date(targetDate).getDay();
+    const slotsForDay = availabilityRules.filter((rule) => rule.type === 'weekly_slot' && rule.dayOfWeek === dayOfWeek);
+    if (!slotsForDay.length) {
+      return false;
+    }
+
     if (!isToday) {
       return slotsForDay.length > 0;
     }
 
-    const currentTime = new Date().toTimeString().slice(0, 5);
+    const currentTime = new Date().toTimeString().slice(0, 8);
     return slotsForDay.some((slot) => slot.endTime >= currentTime);
   };
 
@@ -112,7 +121,7 @@ async function createOrdersForUser({ userId, items, deliveryAddress, deliveryDat
     const requestedDateOnly = `${requestedDate.getFullYear()}-${String(requestedDate.getMonth() + 1).padStart(2, '0')}-${String(requestedDate.getDate()).padStart(2, '0')}`;
 
     if (!isChefAvailable(Number(chefId), requestedDate)) {
-      throw new Error(`عذراً، ${chefName} غير متاح للتوصيل في ${requestedDateOnly}. يرجى اختيار تاريخ آخر أو الاتصال بالشيف.`);
+      throw new Error(`${chefName} is not available on ${requestedDateOnly}. Please choose a different date or contact the chef.`);
     }
     const chefTotal = chefItems.reduce((sum, item) => sum + Number(item.subtotal || 0), 0);
 

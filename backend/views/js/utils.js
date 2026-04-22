@@ -97,12 +97,10 @@ function showNotification(message, type = 'success') {
     
     document.body.appendChild(notification);
     
-    // إظهار الإشعار
     setTimeout(() => {
         notification.classList.add('show');
     }, 10);
-    
-    // إخفاء الإشعار بعد 3 ثواني
+
     setTimeout(() => {
         notification.classList.remove('show');
         setTimeout(() => {
@@ -113,7 +111,6 @@ function showNotification(message, type = 'success') {
     }, 3000);
 }
 
-// إضافة CSS للإشعارات
 const notificationStyles = document.createElement('style');
 notificationStyles.textContent = `
     .notification-toast {

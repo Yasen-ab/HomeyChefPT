@@ -20,7 +20,7 @@ async function loadDishes() {
         if (isAuthenticated() && isUser()) {
             await loadFavorites();
         }
-        const dishes = await apiRequest('/dishes'); // بدل ratings
+        const dishes = await apiRequest('/dishes');
         allDishes = dishes;
         filteredDishes = [...dishes];
         displayDishes();
@@ -588,7 +588,7 @@ window.onclick = function(event) {
     }
 }
 
-// تحديث عرض الفلاتر النشطة
+// Update active filters display in the UI
 function updateActiveFiltersDisplay() {
     const activeFiltersContainer = document.getElementById('active-filters');
     const summaryContainer = document.getElementById('filters-summary');
@@ -597,7 +597,6 @@ function updateActiveFiltersDisplay() {
     
     const activeFilters = [];
     
-    // جمع الفلاتر النشطة
     const categoryFilter = document.getElementById('category-filter');
     const chefFilter = document.getElementById('chef-filter');
     const ratingFilter = document.getElementById('rating-filter');
@@ -644,7 +643,6 @@ function updateActiveFiltersDisplay() {
         });
     }
     
-    // عرض الفلاتر النشطة
     if (activeFilters.length > 0) {
         activeFiltersContainer.innerHTML = activeFilters.map(filter => `
             <div class="filter-tag" data-type="${filter.type}">
@@ -663,7 +661,7 @@ function updateActiveFiltersDisplay() {
     }
 }
 
-// دالة إزالة فلتر محدد
+// Remove a specific active filter by type
 function removeFilter(filterType) {
     switch(filterType) {
         case 'category':
@@ -683,16 +681,14 @@ function removeFilter(filterType) {
             break;
     }
     
-    // تحديث الفلاتر
     updateActiveFiltersDisplay();
-    
-    // إعادة تحميل الأطباق مع الفلاتر المحدثة
+
     if (typeof filterDishes === 'function') {
         filterDishes();
     }
 }
 
-// دالة لتبديل العرض بين الشبكة والقائمة
+// Toggle between grid and list view for dishes
 function setupViewToggle() {
     const viewToggleBtn = document.getElementById('viewToggle');
     const gridViewIcon = viewToggleBtn.querySelector('.grid-view');
@@ -705,14 +701,12 @@ function setupViewToggle() {
         const isGridView = gridViewIcon.style.display !== 'none';
         
         if (isGridView) {
-            // التبديل إلى عرض القائمة
             gridViewIcon.style.display = 'none';
             listViewIcon.style.display = 'inline';
             dishesContainer.classList.add('list-view');
             dishesContainer.classList.remove('grid-view');
             viewToggleBtn.title = 'Switch to Grid View';
         } else {
-            // التبديل إلى عرض الشبكة
             gridViewIcon.style.display = 'inline';
             listViewIcon.style.display = 'none';
             dishesContainer.classList.add('grid-view');
@@ -722,7 +716,7 @@ function setupViewToggle() {
     });
 }
 
-// دالة لتحديث عدد النتائج بشكل متحرك
+// Animate the results count from current to new value
 function animateCountUpdate(newCount) {
     const countElement = document.getElementById('results-count');
     if (!countElement) return;
@@ -732,7 +726,7 @@ function animateCountUpdate(newCount) {
     
     if (currentCount === targetCount) return;
     
-    const duration = 1000; // مدة الحركة بالمللي ثانية
+    const duration = 1000;
     const startTime = Date.now();
     const increment = targetCount > currentCount ? 1 : -1;
     
@@ -740,7 +734,6 @@ function animateCountUpdate(newCount) {
         const elapsed = Date.now() - startTime;
         const progress = Math.min(elapsed / duration, 1);
         
-        // استخدام دالة توقيعية للحركة
         const easeOutQuart = 1 - Math.pow(1 - progress, 4);
         const currentValue = Math.round(currentCount + (targetCount - currentCount) * easeOutQuart);
         
@@ -756,17 +749,14 @@ function animateCountUpdate(newCount) {
     update();
 }
 
-// تهيئة أزرار الإجراءات السريعة
+// Setup export and share quick action buttons
 function setupQuickActions() {
     const exportBtn = document.getElementById('exportBtn');
     const shareBtn = document.getElementById('shareBtn');
     
     if (exportBtn) {
         exportBtn.addEventListener('click', function() {
-            // محاكاة تصدير النتائج
             showNotification('📤 Exporting menu results...', 'info');
-            
-            // يمكنك هنا إضافة منطق التصدير الحقيقي
             setTimeout(() => {
                 showNotification('✅ Results exported successfully!', 'success');
             }, 1500);
@@ -775,7 +765,6 @@ function setupQuickActions() {
     
     if (shareBtn) {
         shareBtn.addEventListener('click', function() {
-            // مشاركة القائمة
             if (navigator.share) {
                 navigator.share({
                     title: 'HomeyChef Menu',
@@ -783,7 +772,6 @@ function setupQuickActions() {
                     url: window.location.href
                 });
             } else {
-                // نسخ الرابط
                 navigator.clipboard.writeText(window.location.href);
                 showNotification('🔗 Link copied to clipboard!', 'success');
             }
@@ -791,7 +779,6 @@ function setupQuickActions() {
     }
 }
 
-// إضافة أنماط CSS لعرض القائمة
 const listViewStyles = `
 <style>
     .dishes-container.list-view .dishes-grid {
@@ -845,13 +832,11 @@ const listViewStyles = `
 
 document.head.insertAdjacentHTML('beforeend', listViewStyles);
 
-// تهيئة كل شيء عند تحميل الصفحة
 document.addEventListener('DOMContentLoaded', function() {
     updateActiveFiltersDisplay();
     setupViewToggle();
     setupQuickActions();
-    
-    // تحديث الفلاتر عند التغيير
+
     const filterElements = [
         'category-filter',
         'chef-filter',
@@ -869,7 +854,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// دالة مساعدة لعرض الإشعارات
+// Show a toast notification at the top-right of the screen
 function showNotification(message, type = 'info') {
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;

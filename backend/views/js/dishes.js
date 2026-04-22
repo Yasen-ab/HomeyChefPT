@@ -113,20 +113,20 @@ function renderDishCard(dish) {
                  alt="${dish.name}" 
                  onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop&crop=entropy&auto=format'"
                  loading="lazy">
-            ${!isAvailable ? '<span class="unavailable-badge">غير متوفر</span>' : ''}
+            ${!isAvailable ? '<span class="unavailable-badge">Unavailable</span>' : ''}
         </div>
 
         <div class="dish-actions">
-            <button class="btn-icon btn-edit" 
-                    onclick="editDish(${dish.id})" 
-                    title="تعديل الطبق"
-                    aria-label="تعديل">
+            <button class="btn-icon btn-edit"
+                    onclick="editDish(${dish.id})"
+                    title="Edit dish"
+                    aria-label="Edit">
                 ✏️
             </button>
-            <button class="btn-icon btn-delete" 
-                    onclick="showDeleteModal(${dish.id}, '${dish.name.replace(/'/g, "&#39;")}')" 
-                    title="حذف الطبق"
-                    aria-label="حذف">
+            <button class="btn-icon btn-delete"
+                    onclick="showDeleteModal(${dish.id}, '${dish.name.replace(/'/g, "&#39;")}')"
+                    title="Delete dish"
+                    aria-label="Delete">
                 🗑️
             </button>
         </div>
@@ -136,35 +136,35 @@ function renderDishCard(dish) {
         <h3 class="dish-name">${dish.name}</h3>
         
         <p class="dish-description">
-            ${dish.description || 'لا يوجد وصف متاح.'}
+            ${dish.description || 'No description available.'}
         </p>
 
         <div class="dish-details">
             <div class="detail-item">
-                <span class="label">التصنيف:</span>
-                <span class="value category-tag">${dish.category || 'غير مصنف'}</span>
+                <span class="label">Category:</span>
+                <span class="value category-tag">${dish.category || 'Uncategorized'}</span>
             </div>
-            
+
             <div class="detail-item">
-                <span class="label">السعر:</span>
+                <span class="label">Price:</span>
                 <span class="value price">${formatCurrency(dish.price)}</span>
             </div>
-            
+
             <div class="detail-item">
-                <span class="label">وقت التحضير:</span>
-                <span class="value">${dish.preparationTime || 30} دقيقة</span>
+                <span class="label">Prep time:</span>
+                <span class="value">${dish.preparationTime || 30} min</span>
             </div>
-            
+
             ${dish.calories ? `
             <div class="detail-item">
-                <span class="label">السعرات:</span>
-                <span class="value">${dish.calories} سعرة</span>
+                <span class="label">Calories:</span>
+                <span class="value">${dish.calories} kcal</span>
             </div>` : ''}
         </div>
 
         <div class="dish-meta">
             <span class="availability-badge ${isAvailable ? 'available' : 'unavailable'}">
-                ${isAvailable ? 'متوفر' : 'غير متوفر'}
+                ${isAvailable ? 'Available' : 'Unavailable'}
             </span>
             <span class="created-date">
                 ${formatDate(dish.createdAt)}
@@ -368,7 +368,6 @@ async function confirmDelete() {
             }
         });
 
-        // ✅ حذف طبيعي
         if (response.ok) {
             showNotification('Dish deleted successfully!', 'success');
             closeDeleteModal();
@@ -376,7 +375,7 @@ async function confirmDelete() {
             return;
         }
 
-        // 🟡 مرتبط بطلبات → تعطيل تلقائي
+        // Dish has existing orders — disable instead of delete
         if (response.status === 409) {
             await disableDishInstead();
             return;

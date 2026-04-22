@@ -22,7 +22,7 @@ async function sendResetEmail(toEmail, otp) {
   const fromAddress = EMAIL_FROM || EMAIL_USER;
 
   const mailOptions = {
-    from: `"HomeyChef" <${fromAddress}>`,   // ← هذا السر: يظهر "HomeyChef" بشكل فخم
+    from: `"HomeyChef" <${fromAddress}>`,
     to: toEmail,
     subject: 'HomeyChef - Your Secure Verification Code',
     text: `Your HomeyChef verification code is: ${otp}\n\n` +

@@ -70,7 +70,7 @@ const syncDatabase = async () => {
     setupRelationships();
     
     // Sync all models
-    await sequelize.sync({ alter: false }); // Set to true if you want Sequelize to automatically alter tables to match models (use with caution in production)
+    await sequelize.sync({ alter: true }); // Set to true if you want Sequelize to automatically alter tables to match models (use with caution in production)
     console.log('✅ Database tables synced successfully');
     
     // Create default admin if doesn't exist

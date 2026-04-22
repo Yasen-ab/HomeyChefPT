@@ -63,7 +63,7 @@ const Chef = sequelize.define('Chef', {
     }
   },
   responseTime: {
-    type: DataTypes.INTEGER, // بالدقائق
+    type: DataTypes.INTEGER,
     defaultValue: 30
   },
   approvalStatus: {

@@ -43,7 +43,6 @@
     showLoading();
 
     try {
-        // كل المتغيرات معرّفة هون من أول سطر
         const searchInput = document.getElementById('users-search');
         const roleSelect  = document.getElementById('role-filter');
         const statusSelect = document.getElementById('status-filter');
@@ -68,9 +67,6 @@
         params.append('page', currentPage);
         params.append('limit', itemsPerPage);
 
-        // للتصحيح (شيلها بعد ما تتأكد)
-        console.log("Sending request:", `/users?${params.toString()}`);
-
         const response = await apiRequest(`/users?${params}`);
 
         currentUsers = Array.isArray(response.users) ? response.users : response || [];
@@ -88,14 +84,6 @@
         hideLoading();
     }
 }
-console.log("الفلاتر المرسلة:", {
-  search: searchQuery,
-  role: roleFilter,
-  status: statusFilter,
-  sort: sortBy
-});
-
-console.log("الرابط الكامل:", `/users?${params.toString()}`);
 
         function updateStatistics() {
             const total = currentUsers.length;
@@ -346,7 +334,7 @@ async function deleteUser(id) {
         });
 
         showNotification('User has been successfully deleted', 'success');
-        await loadUsers(); // تحديث القائمة بعد الحذف
+        await loadUsers();
 
     } catch (error) {
         console.error('Delete error details:', error);
@@ -354,13 +342,11 @@ async function deleteUser(id) {
         let message = 'An error occurred while trying to delete the user';
         let type = 'error';
 
-        // 1. ممنوع حذف حسابك الخاص
         if (error.message?.toLowerCase().includes('own account') ||
             error.message?.toLowerCase().includes('cannot delete self') ||
             error.message?.toLowerCase().includes('self')) {
             message = 'You cannot delete your own admin account';
         }
-        // 2. المستخدم لديه طلبات (السبب الأكثر شيوعاً حالياً)
         else if (
             error.status === 409 ||
             error.message?.includes('foreign key') ||
@@ -369,20 +355,14 @@ async function deleteUser(id) {
             error.message?.includes('ORDER')
         ) {
             message = 'Cannot delete this user because they have existing orders';
-            type = 'warning'; // أقل حدة من error، لأنه ليس خطأ تقني بل قيد منطقي
-        }
-        // 3. عدم وجود صلاحية
-        else if (error.status === 403) {
+            type = 'warning';
+        } else if (error.status === 403) {
             message = "You don't have permission to delete this user";
-        }
-        // 4. المستخدم غير موجود
-        else if (error.status === 404) {
+        } else if (error.status === 404) {
             message = 'The user does not exist or has already been deleted';
             type = 'info';
-        }
-        // 5. أي خطأ آخر (شبكة، سيرفر، إلخ)
-        else if (error.message) {
-            message = error.message; // إذا الـ backend بعث رسالة واضحة
+        } else if (error.message) {
+            message = error.message;
         }
 
         showNotification(message, type);

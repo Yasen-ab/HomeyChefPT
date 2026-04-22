@@ -12,9 +12,9 @@ const ChefAvailability = sequelize.define('ChefAvailability', {
     allowNull: false
   },
   type: {
-    type: DataTypes.ENUM('slot', 'holiday'),
+    type: DataTypes.ENUM('weekly_slot', 'specific_date', 'holiday'),
     allowNull: false,
-    defaultValue: 'slot'
+    defaultValue: 'weekly_slot'
   },
   dayOfWeek: {
     type: DataTypes.INTEGER,
@@ -24,16 +24,17 @@ const ChefAvailability = sequelize.define('ChefAvailability', {
       max: 6
     }
   },
+  specificDate: {
+    type: DataTypes.DATEONLY,
+    allowNull: true,
+    field: 'date'
+  },
   startTime: {
     type: DataTypes.STRING,
     allowNull: true
   },
   endTime: {
     type: DataTypes.STRING,
-    allowNull: true
-  },
-  date: {
-    type: DataTypes.DATEONLY,
     allowNull: true
   },
   description: {

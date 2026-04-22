@@ -25,7 +25,7 @@ function isChefVisibleToCustomers(chef) {
   return Boolean(chef?.isActive) && isChefApproved(chef);
 }
 
-const TIME_REGEX = /^([01]\d|2[0-3]):([0-5]\d)$/;
+const TIME_REGEX = /^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/;
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
 function normalizeDateOnly(date) {
@@ -36,50 +36,132 @@ function normalizeDateOnly(date) {
   return parsed.toISOString().slice(0, 10);
 }
 
-function isValidTime(value) {
-  return typeof value === 'string' && TIME_REGEX.test(value);
+function normalizeAvailabilityType(payload) {
+  if (!payload || typeof payload !== 'object') return null;
+  if (payload.type === 'slot') return 'weekly_slot';
+  if (payload.type === 'holiday') return 'holiday';
+  if (payload.type === 'specific_date') return 'specific_date';
+  return payload.type;
+}
+
+function normalizeTime(value) {
+  if (typeof value !== 'string') return null;
+  const match = value.match(TIME_REGEX);
+  if (!match) return null;
+  return match[3] ? value : `${value}:00`;
+}
+
+function getWeeklyDayRange(payload) {
+  const startDay = Number(payload.dayOfWeek ?? payload.dayOfWeekStart);
+  const endDay = Number(payload.dayOfWeekEnd ?? payload.dayOfWeek ?? payload.dayOfWeekStart);
+  if (!Number.isInteger(startDay) || !Number.isInteger(endDay)) {
+    return null;
+  }
+  return { startDay, endDay };
+}
+
+function buildAvailabilityAttrs(payload) {
+  const type = normalizeAvailabilityType(payload);
+  return {
+    type,
+    dayOfWeek: Number(payload.dayOfWeek ?? payload.dayOfWeekStart),
+    specificDate: normalizeSpecificDateValue(payload),
+    startTime: type !== 'holiday' ? normalizeTime(payload.startTime) : null,
+    endTime: type !== 'holiday' ? normalizeTime(payload.endTime) : null,
+    description: payload.description ? String(payload.description).trim() : null
+  };
+}
+
+function buildAvailabilityCreateData(chefId, attrs) {
+  return {
+    chefId,
+    type: attrs.type,
+    dayOfWeek: attrs.type === 'weekly_slot' ? attrs.dayOfWeek : null,
+    specificDate: attrs.type !== 'weekly_slot' ? attrs.specificDate : null,
+    startTime: attrs.startTime,
+    endTime: attrs.endTime,
+    description: attrs.description
+  };
+}
+
+function buildAvailabilityUpdateData(attrs) {
+  return {
+    type: attrs.type,
+    dayOfWeek: attrs.type === 'weekly_slot' ? attrs.dayOfWeek : null,
+    specificDate: attrs.type !== 'weekly_slot' ? attrs.specificDate : null,
+    startTime: attrs.startTime,
+    endTime: attrs.endTime,
+    description: attrs.description
+  };
 }
 
 function isValidAvailabilityPayload(payload) {
   if (!payload || typeof payload !== 'object') return false;
-  if (!['slot', 'holiday'].includes(payload.type)) return false;
-  if (payload.type === 'slot') {
-    const dayStart = Number(payload.dayOfWeekStart ?? payload.dayOfWeek);
-    const dayEnd = Number(payload.dayOfWeekEnd ?? payload.dayOfWeek);
-    if (!Number.isInteger(dayStart) || dayStart < 0 || dayStart > 6) return false;
-    if (!Number.isInteger(dayEnd) || dayEnd < 0 || dayEnd > 6) return false;
-    if (dayStart > dayEnd) return false;
-    return isValidTime(payload.startTime) && isValidTime(payload.endTime) && payload.startTime < payload.endTime;
+
+  const type = normalizeAvailabilityType(payload);
+  if (!['weekly_slot', 'specific_date', 'holiday'].includes(type)) return false;
+
+  const specificDate = payload.specificDate ?? payload.date;
+  const dayOfWeek = Number(payload.dayOfWeek ?? payload.dayOfWeekStart);
+  const dayOfWeekEnd = Number(payload.dayOfWeekEnd ?? payload.dayOfWeek);
+
+  if (type === 'weekly_slot') {
+    const startTime = normalizeTime(payload.startTime);
+    const endTime = normalizeTime(payload.endTime);
+    if (!Number.isInteger(dayOfWeek) || dayOfWeek < 0 || dayOfWeek > 6) return false;
+    if (!startTime || !endTime || startTime >= endTime) return false;
+    if (payload.dayOfWeekStart != null && payload.dayOfWeekEnd != null) {
+      if (!Number.isInteger(dayOfWeekEnd) || dayOfWeekEnd < 0 || dayOfWeekEnd > 6) return false;
+      if (dayOfWeek > dayOfWeekEnd) return false;
+    }
+    return true;
   }
-  if (payload.type === 'holiday') {
-    return DATE_REGEX.test(payload.date);
+
+  if (!DATE_REGEX.test(specificDate)) return false;
+
+  if (type === 'specific_date') {
+    const startTime = normalizeTime(payload.startTime);
+    const endTime = normalizeTime(payload.endTime);
+    if (!startTime || !endTime || startTime >= endTime) return false;
+    return true;
   }
+
+  if (type === 'holiday') {
+    return true;
+  }
+
   return false;
 }
 
 function serializeAvailability(slot) {
+  const specificDate = slot.specificDate || slot.date || null;
   return {
     id: slot.id,
     type: slot.type,
     dayOfWeek: slot.dayOfWeek,
+    specificDate,
+    date: specificDate,
     startTime: slot.startTime,
     endTime: slot.endTime,
-    date: slot.date,
     description: slot.description,
     createdAt: slot.createdAt,
     updatedAt: slot.updatedAt
   };
 }
 
-function hasAnySlotRules(availability) {
-  return availability.some((item) => item.type === 'slot');
+function getWeeklySlotsForDay(availability, dayOfWeek) {
+  return availability.filter((item) => item.type === 'weekly_slot' && item.dayOfWeek === dayOfWeek);
 }
 
-function getSlotsForDay(availability, dayOfWeek) {
-  return availability.filter((item) => item.type === 'slot' && item.dayOfWeek === dayOfWeek);
+function getSpecificDateSlots(availability, dateOnly) {
+  return availability.filter((item) => item.type === 'specific_date' && item.specificDate === dateOnly);
 }
 
-function isChefAvailableAt(availability, requestedDate, allowFutureToday = true) {
+function getHolidayRecords(availability, dateOnly) {
+  return availability.filter((item) => item.type === 'holiday' && item.specificDate === dateOnly);
+}
+
+function isChefAvailableAt(availability, requestedDate) {
   if (!requestedDate) {
     requestedDate = new Date();
   }
@@ -87,35 +169,108 @@ function isChefAvailableAt(availability, requestedDate, allowFutureToday = true)
   const dateOnly = normalizeDateOnly(requestedDate);
   if (!dateOnly) return false;
 
-  if (availability.some((item) => item.type === 'holiday' && item.date === dateOnly)) {
+  if (getHolidayRecords(availability, dateOnly).length > 0) {
     return false;
   }
 
-  const dayOfWeek = requestedDate.getDay();
-  const slots = getSlotsForDay(availability, dayOfWeek);
-
-  if (!slots.length) {
-    return !hasAnySlotRules(availability);
-  }
-
+  const specificDateSlots = getSpecificDateSlots(availability, dateOnly);
   const isToday = dateOnly === normalizeDateOnly(new Date());
-  if (!isToday) {
-    return true;
+  const currentTime = requestedDate.toTimeString().slice(0, 8);
+
+  if (specificDateSlots.length > 0) {
+    if (!isToday) {
+      return specificDateSlots.length > 0;
+    }
+    return specificDateSlots.some((slot) => slot.endTime >= currentTime);
   }
 
-  const currentTime = requestedDate.toTimeString().slice(0, 5);
-  if (allowFutureToday) {
-    return slots.some((slot) => slot.endTime >= currentTime);
+  const dayOfWeek = requestedDate.getDay();
+  const weeklySlots = getWeeklySlotsForDay(availability, dayOfWeek);
+  if (!weeklySlots.length) {
+    return false;
   }
-  return slots.some((slot) => slot.startTime <= currentTime && slot.endTime >= currentTime);
+
+  if (!isToday) {
+    return weeklySlots.length > 0;
+  }
+
+  return weeklySlots.some((slot) => slot.endTime >= currentTime);
 }
+
+const AVAILABILITY_ORDER = [['type', 'ASC'], ['dayOfWeek', 'ASC'], ['startTime', 'ASC'], ['date', 'ASC']];
 
 function buildAvailabilityResponse(availability) {
   return {
     isAvailable: isChefAvailableAt(availability, new Date()),
-    slots: availability.filter((item) => item.type === 'slot').map(serializeAvailability),
+    slots: availability.filter((item) => item.type === 'weekly_slot').map(serializeAvailability),
+    specificDates: availability.filter((item) => item.type === 'specific_date').map(serializeAvailability),
     disabledDays: availability.filter((item) => item.type === 'holiday').map(serializeAvailability)
   };
+}
+
+async function loadAvailabilityRules(chefId) {
+  return ChefAvailability.findAll({
+    where: { chefId },
+    order: AVAILABILITY_ORDER
+  });
+}
+
+function normalizeSpecificDateValue(payload) {
+  return payload.specificDate ?? payload.date ?? null;
+}
+
+function timesOverlap(startA, endA, startB, endB) {
+  return startA < endB && startB < endA;
+}
+
+async function ensureNoOverlappingAvailability(chefId, payload, excludeId = null) {
+  const type = normalizeAvailabilityType(payload);
+  const attrs = buildAvailabilityAttrs(payload);
+  const baseWhere = { chefId };
+  if (excludeId) baseWhere.id = { [Op.ne]: excludeId };
+
+  if (type === 'weekly_slot') {
+    const dayRange = getWeeklyDayRange(payload);
+    const daysToCheck = dayRange
+      ? Array.from({ length: dayRange.endDay - dayRange.startDay + 1 }, (_, index) => dayRange.startDay + index)
+      : [attrs.dayOfWeek];
+
+    for (const dayOfWeek of daysToCheck) {
+      const existing = await ChefAvailability.findAll({
+        where: { ...baseWhere, type: 'weekly_slot', dayOfWeek }
+      });
+      if (existing.some((slot) => timesOverlap(attrs.startTime, attrs.endTime, slot.startTime, slot.endTime))) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  if (type === 'specific_date') {
+    const conflictingHoliday = await ChefAvailability.findOne({
+      where: { ...baseWhere, type: 'holiday', specificDate: attrs.specificDate }
+    });
+    if (conflictingHoliday) return true;
+
+    const existing = await ChefAvailability.findAll({
+      where: { ...baseWhere, type: 'specific_date', specificDate: attrs.specificDate }
+    });
+    return existing.some((slot) => timesOverlap(attrs.startTime, attrs.endTime, slot.startTime, slot.endTime));
+  }
+
+  if (type === 'holiday') {
+    const conflictingSpecificDate = await ChefAvailability.findOne({
+      where: { ...baseWhere, type: 'specific_date', specificDate: attrs.specificDate }
+    });
+    if (conflictingSpecificDate) return true;
+
+    const existingHoliday = await ChefAvailability.findOne({
+      where: { ...baseWhere, type: 'holiday', specificDate: attrs.specificDate }
+    });
+    return Boolean(existingHoliday);
+  }
+
+  return false;
 }
 
 function serializeChefForAdmin(chef) {
@@ -200,9 +355,7 @@ exports.getChefById = async (req, res) => {
     const avgRatingFromReviews = Number(reviewStats?.avgRating || 0);
     const reviewCount = Number(reviewStats?.reviewCount || 0);
 
-    const availabilityRules = await ChefAvailability.findAll({
-      where: { chefId }
-    });
+    const availabilityRules = await loadAvailabilityRules(chefId);
 
     const chefPayload = {
       id: chef.id,
@@ -215,7 +368,8 @@ exports.getChefById = async (req, res) => {
       },
       availability: {
         isAvailable: Boolean(chef.isActive) && isChefApproved(chef) && isChefAvailableAt(availabilityRules, new Date()),
-        slots: availabilityRules.filter((item) => item.type === 'slot').map(serializeAvailability),
+        slots: availabilityRules.filter((item) => item.type === 'weekly_slot').map(serializeAvailability),
+        specificDates: availabilityRules.filter((item) => item.type === 'specific_date').map(serializeAvailability),
         disabledDays: availabilityRules.filter((item) => item.type === 'holiday').map(serializeAvailability)
       }
     };
@@ -511,9 +665,7 @@ exports.getChefProfile = async (req, res) => {
       return res.status(404).json({ error: 'Chef not found' });
     }
 
-    const availabilityRules = await ChefAvailability.findAll({
-      where: { chefId: chef.id }
-    });
+    const availabilityRules = await loadAvailabilityRules(chef.id);
 
     res.json({
       chef: {
@@ -537,10 +689,7 @@ exports.getChefAvailability = async (req, res) => {
       return res.status(403).json({ error: 'Access denied' });
     }
 
-    const availabilityRules = await ChefAvailability.findAll({
-      where: { chefId: req.userId },
-      order: [['type', 'ASC'], ['dayOfWeek', 'ASC'], ['startTime', 'ASC'], ['date', 'ASC']]
-    });
+    const availabilityRules = await loadAvailabilityRules(req.userId);
 
     res.json({
       availability: buildAvailabilityResponse(availabilityRules)
@@ -559,10 +708,7 @@ exports.getChefAvailabilityById = async (req, res) => {
       return res.status(404).json({ error: 'Chef not found' });
     }
 
-    const availabilityRules = await ChefAvailability.findAll({
-      where: { chefId },
-      order: [['type', 'ASC'], ['dayOfWeek', 'ASC'], ['startTime', 'ASC'], ['date', 'ASC']]
-    });
+    const availabilityRules = await loadAvailabilityRules(chefId);
 
     res.json({
       availability: buildAvailabilityResponse(availabilityRules)
@@ -583,43 +729,31 @@ exports.createChefAvailability = async (req, res) => {
       return res.status(400).json({ error: 'Invalid availability payload' });
     }
 
-    if (payload.type === 'slot') {
-      const startDay = Number(payload.dayOfWeekStart ?? payload.dayOfWeek);
-      const endDay = Number(payload.dayOfWeekEnd ?? payload.dayOfWeek);
-      const slots = [];
+    const attrs = buildAvailabilityAttrs(payload);
+    if (await ensureNoOverlappingAvailability(req.userId, payload)) {
+      return res.status(400).json({ error: 'Overlapping availability record exists for this chef on the same day.' });
+    }
 
-      for (let day = startDay; day <= endDay; day += 1) {
-        slots.push({
-          chefId: req.userId,
-          type: 'slot',
-          dayOfWeek: day,
-          startTime: payload.startTime,
-          endTime: payload.endTime,
-          description: payload.description ? String(payload.description).trim() : null
-        });
+    const dayRange = attrs.type === 'weekly_slot' ? getWeeklyDayRange(payload) : null;
+    if (attrs.type === 'weekly_slot' && dayRange) {
+      const createdAvailability = [];
+      for (let dayOfWeek = dayRange.startDay; dayOfWeek <= dayRange.endDay; dayOfWeek += 1) {
+        const record = await ChefAvailability.create(buildAvailabilityCreateData(req.userId, { ...attrs, dayOfWeek }));
+        createdAvailability.push(record);
       }
 
-      const createdAvailability = await ChefAvailability.bulkCreate(slots);
       res.status(201).json({
-        message: 'Availability slots created successfully',
+        message: 'Availability records created successfully',
         availability: createdAvailability.map(serializeAvailability)
       });
       return;
     }
 
-    const newAvailability = await ChefAvailability.create({
-      chefId: req.userId,
-      type: payload.type,
-      dayOfWeek: null,
-      startTime: null,
-      endTime: null,
-      date: payload.type === 'holiday' ? payload.date : null,
-      description: payload.description ? String(payload.description).trim() : null
-    });
+    const createdAvailability = await ChefAvailability.create(buildAvailabilityCreateData(req.userId, attrs));
 
     res.status(201).json({
       message: 'Availability record created successfully',
-      availability: serializeAvailability(newAvailability)
+      availability: serializeAvailability(createdAvailability)
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -643,14 +777,12 @@ exports.updateChefAvailability = async (req, res) => {
       return res.status(400).json({ error: 'Invalid availability payload' });
     }
 
-    await availability.update({
-      type: payload.type,
-      dayOfWeek: payload.type === 'slot' ? Number(payload.dayOfWeek) : null,
-      startTime: payload.type === 'slot' ? payload.startTime : null,
-      endTime: payload.type === 'slot' ? payload.endTime : null,
-      date: payload.type === 'holiday' ? payload.date : null,
-      description: payload.description ? String(payload.description).trim() : null
-    });
+    const attrs = buildAvailabilityAttrs(payload);
+    if (await ensureNoOverlappingAvailability(req.userId, payload, slotId)) {
+      return res.status(400).json({ error: 'Overlapping availability record exists for this chef on the same day.' });
+    }
+
+    await availability.update(buildAvailabilityUpdateData(attrs));
 
     res.json({
       message: 'Availability record updated successfully',
