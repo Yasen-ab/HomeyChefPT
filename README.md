@@ -206,46 +206,57 @@ HomeyChefPT/
 
 ## 📋 Use Cases
 
-The system implements **29+ use cases** across two capstone phases:
+The system implements **33 use cases** across two capstone phases:
 
 ### Capstone 1 (UC01 – UC14)
 
-| ID   | Use Case                    |
-|:-----|:----------------------------|
-| UC01 | User Registration           |
-| UC02 | User Login                  |
-| UC03 | Browse Chefs                |
-| UC04 | Browse Dishes               |
-| UC05 | Place Order                 |
-| UC06 | Track Order Status          |
-| UC07 | Rate & Review Chef          |
-| UC08 | Manage Profile              |
-| UC09 | Chef: Manage Dishes         |
-| UC10 | Chef: View Orders           |
-| UC11 | Chef: Update Order Status   |
-| UC12 | Admin: Manage Users         |
-| UC13 | Admin: Manage Chefs         |
-| UC14 | Admin: View Statistics      |
+| ID     | Use Case                    |
+|:-------|:----------------------------|
+| UC01   | Login                       |
+| UC02   | Register                    |
+| UC03   | Update Profile              |
+| UC04   | Delete User                 |
+| UC05   | Chef Registration           |
+| UC06.1 | Add Dish                    |
+| UC06.2 | Edit Dish                   |
+| UC06.3 | Delete Dish                 |
+| UC07   | View Assigned Orders        |
+| UC08   | View Dishes                 |
+| UC09   | Create Order                |
+| UC10   | Track Order                 |
+| UC11   | Update Order Status         |
+| UC12   | Rate Dish                   |
+| UC13   | View Dish Ratings           |
+| UC14   | Logout                      |
 
-### Capstone 2 (UC15 – UC29+)
+### Capstone 2 (UC15 – UC33)
 
-| ID   | Use Case                       |
-|:-----|:-------------------------------|
-| UC15 | Add to Favorites               |
-| UC16 | Remove from Favorites          |
-| UC17 | View Favorites List            |
-| UC18 | Cancel Order                   |
-| UC19 | OTP Password Reset (Request)   |
-| UC20 | OTP Password Reset (Verify)    |
-| UC21 | OTP Password Reset (Reset)     |
-| UC22 | Google OAuth2 Login            |
-| UC23 | Chef: Edit Profile             |
-| UC24 | Chef: View Statistics          |
-| UC25 | View Notifications             |
-| UC26 | Mark Notification as Read      |
-| UC27 | Admin: Deactivate Account      |
-| UC28 | Admin: Platform Statistics     |
-| UC29 | Admin: Content Moderation      |
+| ID     | Use Case                              |
+|:-------|:--------------------------------------|
+| UC15   | View Chef Profile                     |
+| UC16   | Add Dish to Favorites                 |
+| UC17   | View Favorite Dishes                  |
+| UC18   | Remove Dish from Favorites            |
+| UC19   | Cancel Order                          |
+| UC20   | Update Chef Profile                   |
+| UC21   | View Sales Statistics                 |
+| UC22   | Approve / Reject Chef Registration    |
+| UC23   | Change Password                       |
+| UC24   | Forget Password (OTP)                 |
+| UC25   | View Platform Statistics              |
+| UC26   | Deactivate Accounts                   |
+| UC27   | Upload Images for Dishes              |
+| UC28   | Set Dish Availability                 |
+| UC28.1 | Add Availability Slot                 |
+| UC28.2 | Edit Availability Slot                |
+| UC28.3 | Delete Availability Slot              |
+| UC28.4 | Disable Day (Holiday / Leave)         |
+| UC28.5 | Auto Reject Order Outside Availability|
+| UC29   | Login Using Google Account            |
+| UC30   | Add Dish to Cart                      |
+| UC31   | View & Manage Cart                    |
+| UC32   | Checkout                              |
+| UC33   | Order & System Notifications          |
 
 ---
 
@@ -284,9 +295,8 @@ The system implements **29+ use cases** across two capstone phases:
 | Security Testing      | ✅ Complete    |
 | Documentation (SRS)   | ✅ Complete    |
 
+
 ---
-
-
 
 ## 👨‍💻 Authors
 
@@ -294,8 +304,8 @@ Built with ☕ and clean architecture by:
 
 - **Yasen** — Software Engineering Student @ Syrian Private University
 
+**Supervisor:**  ME. Maher Sarem
 
-**Supervisor:** ME. Maher Sarem
 ---
 
 ## 📄 License
