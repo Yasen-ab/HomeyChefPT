@@ -17,7 +17,7 @@ function checkAuth() {
     window.location.href = 'login.html';
     return;
   }
-
+// Only allow admins and chefs to access this page
   const user = getUserData() || decodeTokenUser();
   if (!user || (user.role !== 'admin' && user.role !== 'chef')) {
     redirectToDashboard();
