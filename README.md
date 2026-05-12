@@ -1,6 +1,6 @@
 # 🍽️ HomeyChef
 
-> **From home kitchens to happy customers.**  
+> **From home kitchens to happy customers.**
 > A scalable Node.js platform connecting home chefs with food lovers.
 
 ---
@@ -8,40 +8,49 @@
 ## 🚀 Overview
 
 **HomeyChef** is a modern full-stack platform built with **Node.js** that organizes and streamlines the homemade food ordering experience.
-
 It replaces chaotic social media orders with a **structured, secure, and scalable system** designed for real-world production.
+
+Built as a graduation project at **Syrian Private University (SPU)**, following an **Agile Scrum-Inspired** methodology across **6 sprints**.
 
 ---
 
 ## 🎯 Goals
 
-- Centralize homemade food listings
-- Simplify ordering & tracking
-- Empower home chefs
-- Provide a smooth customer experience
-- Maintain clean, scalable architecture
+- Centralize homemade food listings in one trusted platform
+- Simplify ordering, tracking, and communication
+- Empower home chefs with tools to manage menus, orders, and earnings
+- Provide a smooth, secure customer experience
+- Maintain clean, scalable, and maintainable architecture
 
 ---
 
 ## ✨ Features
 
-### 👤 Users
-- Register / Login (Email & Google OAuth)
-- Browse chefs & dishes
-- Place & track orders
-- Rate & review
-- Profile management
+### 👤 Users (Customers)
+
+- Register / Login (Email + **Google OAuth2**)
+- **OTP-based password reset** (via email, SHA-256 hashed, 15-min expiry)
+- Browse chefs & dishes with search and filters
+- Place, track, and **cancel** orders
+- Rate & review chefs
+- **Add/remove favorites**
+- Profile management with image upload
+- **Real-time notifications**
 
 ### 👨‍🍳 Chefs
-- Chef onboarding
-- Menu & dish management
-- Order lifecycle control
-- Earnings tracking
+
+- Chef onboarding & **profile management**
+- Full menu & dish management (CRUD + image upload)
+- Order lifecycle control (accept / reject / complete)
+- **Earnings & statistics dashboard**
+- Notification system for incoming orders
 
 ### 🛠️ Admin
-- User & chef moderation
-- Platform insights
-- System monitoring
+
+- User & chef moderation (activate / deactivate / delete)
+- **Platform-wide statistics & insights**
+- System monitoring & management
+- Content moderation
 
 ---
 
@@ -49,61 +58,83 @@ It replaces chaotic social media orders with a **structured, secure, and scalabl
 
 The system follows a **layered architecture** with clear separation of concerns:
 
-Client (Web / Mobile)
-↓
-API Routes (Express)
-↓
-Controllers
-↓
-Services (Business Logic)
-↓
-Repositories / Models
-↓
-Database (MySQL)
+```
+Client (HTML / CSS / JS)
+        ↓
+  API Routes (Express)
+        ↓
+    Controllers
+        ↓
+  Services (Business Logic)
+        ↓
+  Models (Sequelize ORM)
+        ↓
+  Database (MySQL)
+```
 
+**Key architectural decisions:**
 
-✔ Maintainable  
-✔ Testable  
-✔ Production-ready  
+- `User` and `Chef` are **separate database tables** (no inheritance) — enabling independent scaling and clear role boundaries.
+- RESTful API design with consistent response formatting.
+- Centralized error handling middleware.
+
+✔ Maintainable · ✔ Testable · ✔ Production-ready
 
 ---
 
 ## 🔐 Security
 
-- JWT Authentication (Access & Refresh Tokens)
-- Role-based authorization (User / Chef / Admin)
-- Password hashing (bcrypt)
+- **JWT Authentication** — Access & Refresh Tokens
+- **Google OAuth2** integration for social login
+- **OTP Password Reset** — Nodemailer + Gmail App Password, SHA-256 hashing, 15-minute expiry, dedicated `PasswordReset` table
+- Role-based authorization (**User / Chef / Admin**)
+- Password hashing with **bcrypt**
 - Input validation & sanitization
-- Secure API design
+- Secure API design with rate limiting considerations
+- Tested with **OWASP ZAP** for vulnerability scanning
 
 ---
 
 ## 🧰 Tech Stack
 
-### Backend
-- **Runtime:** Node.js
-- **Framework:** Express.js
-- **Auth:** JWT + OAuth
-- **ORM:** Sequelize
-- **Database:** MySQL
+| Layer        | Technology                                  |
+|:-------------|:--------------------------------------------|
+| **Runtime**  | Node.js                                     |
+| **Framework**| Express.js                                  |
+| **Database** | MySQL                                       |
+| **ORM**      | Sequelize                                   |
+| **Auth**     | JWT + bcrypt + Google OAuth2                 |
+| **Email**    | Nodemailer (Gmail App Password)              |
+| **Uploads**  | Multer (image handling)                      |
+| **Frontend** | HTML5 / CSS3 / JavaScript                   |
+| **Testing**  | JMeter (performance) · OWASP ZAP (security) |
+| **Tooling**  | Git & GitHub · Postman · PlantUML            |
 
-### Frontend
-- Web  (Html / CSS / Js)
+---
 
-### Tooling
-- Git & GitHub
-- Postman
-- PlantUML
-- RESTful APIs
+## 📊 Database Schema
+
+The system uses **9 core models:**
+
+| Model           | Description                              |
+|:----------------|:-----------------------------------------|
+| `User`          | Customer accounts & profiles             |
+| `Chef`          | Chef accounts & profiles (separate table)|
+| `Dish`          | Menu items with images & pricing         |
+| `Order`         | Order records with status tracking       |
+| `OrderItem`     | Individual items within an order         |
+| `Review`        | Ratings & reviews for chefs              |
+| `Favorite`      | User's favorite dishes/chefs             |
+| `Notification`  | In-app notification system               |
+| `PasswordReset` | OTP tokens for password recovery         |
 
 ---
 
 ## 📦 Installation
 
-
+```bash
 # Clone the repository
 git clone https://github.com/Yasen-ab/HomeyChefPT
-
 
 # Enter the project
 cd backend
@@ -111,39 +142,176 @@ cd backend
 # Install dependencies
 npm install
 
-# Environment variables
+# Set up environment variables
 cp .env.example .env
 
-# Start development server
+# Start the development server
 npm run dev
+```
 
-📈 Project Status
+### Environment Variables
 
-🚧 Active Development
+Create a `.env` file with the following:
 
-Architecture: ✅
+```env
+# Server
+PORT=3001
 
-Auth system: ✅
+# Database
+DB_HOST=localhost
+DB_USER=root
+DB_PASS=your_password
+DB_NAME=homeychef
 
-Database schema: ✅
+# JWT
+JWT_SECRET=your_jwt_secret
+JWT_REFRESH_SECRET=your_refresh_secret
 
-Advanced features: 🔄 In progress
+# Google OAuth2
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
 
-🤝 Contributing
+# Email (for OTP)
+EMAIL_USER=your_email@gmail.com
+EMAIL_PASS=your_gmail_app_password
+```
 
-Contributions are welcome!
+---
 
-Fork the repo
+## 📂 Project Structure
 
-Create a feature branch
+```
+HomeyChefPT/
+├── backend/
+│   ├── config/          # Database & app configuration
+│   ├── controllers/     # Request handlers
+│   ├── middleware/       # Auth, upload, error handling
+│   ├── models/          # Sequelize model definitions
+│   ├── routes/          # API route definitions
+│   ├── services/        # Business logic layer
+│   ├── uploads/         # Uploaded images storage
+│   ├── utils/           # Helper functions
+│   ├── app.js           # Express app setup
+│   └── server.js        # Entry point
+├── frontend/
+│   ├── css/
+│   ├── js/
+│   └── *.html
+├── .env.example
+├── package.json
+└── README.md
+```
 
-Open a Pull Request
+---
 
-Let’s build something meaningful 🚀
+## 📋 Use Cases
 
-👨‍💻 Author
+The system implements **33 use cases** across two capstone phases:
 
-Built with ☕ and clean architecture by
-Yaso — junior Software Engineering Student
+### Capstone 1 (UC01 – UC14)
 
-Good food deserves good systems.
+| ID     | Use Case                    |
+|:-------|:----------------------------|
+| UC01   | Login                       |
+| UC02   | Register                    |
+| UC03   | Update Profile              |
+| UC04   | Delete User                 |
+| UC05   | Chef Registration           |
+| UC06.1 | Add Dish                    |
+| UC06.2 | Edit Dish                   |
+| UC06.3 | Delete Dish                 |
+| UC07   | View Assigned Orders        |
+| UC08   | View Dishes                 |
+| UC09   | Create Order                |
+| UC10   | Track Order                 |
+| UC11   | Update Order Status         |
+| UC12   | Rate Dish                   |
+| UC13   | View Dish Ratings           |
+| UC14   | Logout                      |
+
+### Capstone 2 (UC15 – UC33)
+
+| ID     | Use Case                              |
+|:-------|:--------------------------------------|
+| UC15   | View Chef Profile                     |
+| UC16   | Add Dish to Favorites                 |
+| UC17   | View Favorite Dishes                  |
+| UC18   | Remove Dish from Favorites            |
+| UC19   | Cancel Order                          |
+| UC20   | Update Chef Profile                   |
+| UC21   | View Sales Statistics                 |
+| UC22   | Approve / Reject Chef Registration    |
+| UC23   | Change Password                       |
+| UC24   | Forget Password (OTP)                 |
+| UC25   | View Platform Statistics              |
+| UC26   | Deactivate Accounts                   |
+| UC27   | Upload Images for Dishes              |
+| UC28   | Set Dish Availability                 |
+| UC28.1 | Add Availability Slot                 |
+| UC28.2 | Edit Availability Slot                |
+| UC28.3 | Delete Availability Slot              |
+| UC28.4 | Disable Day (Holiday / Leave)         |
+| UC28.5 | Auto Reject Order Outside Availability|
+| UC29   | Login Using Google Account            |
+| UC30   | Add Dish to Cart                      |
+| UC31   | View & Manage Cart                    |
+| UC32   | Checkout                              |
+| UC33   | Order & System Notifications          |
+
+---
+
+## 🧪 Testing
+
+### Performance Testing (JMeter)
+
+- **Load Testing** — Simulated concurrent users on API endpoints
+- **Stress Testing** — Pushed system beyond expected capacity
+- **Target Endpoint:** `GET /api/chefs` on `localhost:3001`
+- Measured response times, throughput, and error rates
+
+### Security Testing (OWASP ZAP)
+
+- Automated vulnerability scanning
+- Identified and addressed common web vulnerabilities
+- Generated formal security assessment reports
+
+---
+
+## 📈 Project Status
+
+| Component             | Status         |
+|:----------------------|:---------------|
+| Architecture          | ✅ Complete    |
+| Auth System (JWT)     | ✅ Complete    |
+| Google OAuth2         | ✅ Complete    |
+| OTP Password Reset    | ✅ Complete    |
+| Database Schema       | ✅ Complete    |
+| Order Management      | ✅ Complete    |
+| Favorites System      | ✅ Complete    |
+| Notifications         | ✅ Complete    |
+| Chef Dashboard        | ✅ Complete    |
+| Admin Panel           | ✅ Complete    |
+| Performance Testing   | ✅ Complete    |
+| Security Testing      | ✅ Complete    |
+| Documentation (SRS)   | ✅ Complete    |
+
+
+---
+
+## 👨‍💻 Authors
+
+Built with ☕ and clean architecture by:
+
+- **Yasen** — Software Engineering Student @ Syrian Private University
+
+**Supervisor:**  ME. Maher Sarem
+
+---
+
+## 📄 License
+
+This project is developed as a graduation project for the **Software Engineering and Intelligent Information Systems** program at **Syrian Private University (SPU)**.
+
+---
+
+> *Good food deserves good systems.* 🍳
