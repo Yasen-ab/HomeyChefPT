@@ -1,24 +1,13 @@
 // Dish management routes
 const express = require('express');
 const multer = require('multer');
-const path = require('path');
 const { authenticate, isChefOrAdmin } = require('../middleware/auth');
 const dishController = require('../controllers/dishController');
 
 const router = express.Router();
 
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'dish-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
- 
-const upload = multer({ storage: storage });
+// Use in-memory storage so images are uploaded directly to Cloudinary
+const upload = multer({ storage: multer.memoryStorage() });
 
 // Get all dishes (with filters)
 router.get('/', dishController.getAllDishes);

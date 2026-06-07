@@ -7,6 +7,27 @@ const Review = require('../models/Review');
 const User = require('../models/User');
 const OrderItem = require('../models/OrderItem');
 const Order = require('../models/Order');
+const cloudinary = require('cloudinary').v2;
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+const uploadToCloudinary = (buffer, folder) => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder, resource_type: 'image' },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      }
+    );
+
+    stream.end(buffer);
+  });
+};
 
 // Get all dishes (with filters)
 exports.getAllDishes = async (req, res) => {
@@ -214,6 +235,12 @@ exports.createDish = async (req, res) => {
       return res.status(403).json({ error: 'Access denied' });
     }
 
+    let imageUrl = null;
+    if (req.file && req.file.buffer) {
+      const uploadResult = await uploadToCloudinary(req.file.buffer, 'homeychef/dishes');
+      imageUrl = uploadResult.secure_url;
+    }
+
     const dish = await Dish.create({
       name,
       description,
@@ -221,7 +248,7 @@ exports.createDish = async (req, res) => {
       category,
       ingredients,
       preparationTime,
-      image: req.file ? `/uploads/${req.file.filename}` : null,
+      image: imageUrl,
       chefId
     });
 
@@ -247,6 +274,12 @@ exports.updateDish = async (req, res) => {
 
     const { name, description, price, category, ingredients, isAvailable, preparationTime } = req.body;
     
+    let imageUrl = dish.image;
+    if (req.file && req.file.buffer) {
+      const uploadResult = await uploadToCloudinary(req.file.buffer, 'homeychef/dishes');
+      imageUrl = uploadResult.secure_url;
+    }
+
     await dish.update({
       name,
       description,
@@ -255,7 +288,7 @@ exports.updateDish = async (req, res) => {
       ingredients,
       isAvailable,
       preparationTime,
-      image: req.file ? `/uploads/${req.file.filename}` : dish.image
+      image: imageUrl
     });
 
     res.json({ message: 'Dish updated successfully', dish });
