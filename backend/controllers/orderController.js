@@ -41,6 +41,7 @@ async function buildOrderPayload(items) {
   return normalizedItems;
 }
 
+// Helper function to create orders for a user, grouped by chef
 async function createOrdersForUser({ userId, items, deliveryAddress, deliveryDate = null, notes = null }) {
   if (!deliveryAddress || !String(deliveryAddress).trim()) {
     throw new Error('Delivery address is required');

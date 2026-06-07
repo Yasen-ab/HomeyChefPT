@@ -45,7 +45,7 @@ router.get('/reset-password/validate', resetPasswordLimiter, authController.vali
 router.post('/reset-password', resetPasswordLimiter, authController.resetPassword);
 
 // Google OAuth Login
-router.post('/google', authController.googleLogin);
+router.post('/google', loginLimiter, authController.googleLogin);
 
 // Get current user
 router.get('/me', authController.getMe);

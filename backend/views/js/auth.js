@@ -31,6 +31,7 @@ function updateFormFields() {
     const addressGroup = document.getElementById('address-group');
     const specialtiesGroup = document.getElementById('specialties-group');
     const bioGroup = document.getElementById('bio-group');
+ if (!phoneGroup || !addressGroup || !specialtiesGroup || !bioGroup) return;
 
     if (currentUserType === 'chef') {
         // show chef-only fields

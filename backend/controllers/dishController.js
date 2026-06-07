@@ -182,7 +182,7 @@ exports.rateDish = async (req, res) => {
     }
 
     // Check if review exists -> update, else create
-    const Review = require('../models/Review');
+    //const Review = require('../models/Review');
     const existing = await Review.findOne({ where: { userId: req.userId, dishId } });
     let review;
     if (existing) {

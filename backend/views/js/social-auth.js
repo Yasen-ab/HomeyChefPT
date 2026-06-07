@@ -1,3 +1,4 @@
+// social-auth.js - Handles Google OAuth authentication for HomeyChef
 class SocialAuth {
     constructor() {
         this.googleClientId = '528298969514-aq4htpt99eopq0ri4f9ijbn1c5usfpu7.apps.googleusercontent.com';
@@ -13,8 +14,7 @@ class SocialAuth {
         this.setupEventListeners();
     }
 
-    // ========== Google OAuth ==========
-
+    // Initializes Google Sign-In and checks for the availability of the Google accounts object
     initializeGoogle() {
         const checkGoogleScript = () => {
             if (typeof google !== 'undefined' && google.accounts) {
@@ -42,7 +42,7 @@ class SocialAuth {
             window.addEventListener('load', checkGoogleScript);
         }
     }
-
+// Initializes the Google Sign-In client with the specified configuration
     initializeGoogleLegacy() {
         google.accounts.id.initialize({
             client_id: this.googleClientId,
@@ -69,7 +69,7 @@ class SocialAuth {
         this.showLoading(true);
         this.sendGoogleTokenToBackend(response.credential);
     }
-
+// Sends the Google ID token to the backend for verification and authentication
     async sendGoogleTokenToBackend(credential) {
         try {
             const response = await fetch(`${this.baseApiUrl}/auth/google`, {
@@ -89,7 +89,7 @@ class SocialAuth {
             this.showLoading(false);
         }
     }
-
+// Initiates the Google Sign-In process when the user clicks the sign-in button
     googleLogin() {
         if (typeof google === 'undefined' || !google.accounts) {
             this.showError('Google Sign-In service not loaded yet. Please wait or refresh the page.');
@@ -104,7 +104,7 @@ class SocialAuth {
             }
         });
     }
-
+// Displays the Google Sign-In button if the automatic prompt is not displayed or is dismissed
     showGoogleSignInButton() {
         const buttonContainer = document.getElementById('google-signin-button-container');
         if (!buttonContainer) {
@@ -138,7 +138,7 @@ class SocialAuth {
             });
         }
     }
-
+// Handles successful authentication by saving user data, updating the UI, and redirecting to the dashboard
     handleSuccess(user, token) {
         this.saveUserData(user, token);
         this.updateUIAfterLogin(user);
@@ -184,7 +184,7 @@ class SocialAuth {
         if (userName) userName.textContent = user.name || user.email.split('@')[0];
         if (userRole) userRole.textContent = user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'Customer';
     }
-
+// Redirects the user to the appropriate page after successful login, using a stored redirect path if available
     redirectAfterLogin() {
         const redirectTo = sessionStorage.getItem('loginRedirect') || 'index.html';
         sessionStorage.removeItem('loginRedirect');
@@ -253,7 +253,7 @@ class SocialAuth {
             return {};
         }
     }
-
+// Checks if the user is currently authenticated by verifying the presence and validity of stored user data and token
     checkAuthStatus() {
         const user = localStorage.getItem('homeychef_user');
         const token = localStorage.getItem('homeychef_token');
