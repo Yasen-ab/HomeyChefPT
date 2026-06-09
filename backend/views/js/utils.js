@@ -1,5 +1,5 @@
 // Utility functions
-const API_URL = 'https://homeychef-backend.onrender.com/api';
+const API_URL = 'https://homeychef.me/api';
 
 
 // Get auth token from localStorage
