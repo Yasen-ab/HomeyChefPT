@@ -1,5 +1,6 @@
 // Utility functions
 const API_URL = 'https://homeychef.me/api';
+
 const HOMEYCHEF_GA4_ID = 'G-8QK6SHQJNE';
 const HOMEYCHEF_GTAG_SCRIPT_ID = 'homeychef-ga4-script';
 const HOMEYCHEF_ANALYTICS_HELPER_ID = 'homeychef-analytics-helper';
