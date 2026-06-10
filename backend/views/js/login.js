@@ -29,3 +29,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
 });
+
+document.addEventListener('homeychef:login-success', function (event) {
+    const detail = event.detail || {};
+
+    if (typeof trackLoginSuccess === 'function') {
+        trackLoginSuccess(detail.user || {}, detail.method || 'email');
+    }
+});

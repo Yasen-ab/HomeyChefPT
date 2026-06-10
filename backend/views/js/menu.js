@@ -566,6 +566,17 @@ async function orderNow(dishId, dishName, price) {
             return;
         }
 
+        const analyticsDish = {
+            id: dishId,
+            name: dishName,
+            price,
+            quantity: 1
+        };
+
+        if (typeof trackDishSelection === 'function') {
+            trackDishSelection(analyticsDish);
+        }
+
         await apiRequest('/cart/add', {
             method: 'POST',
             body: JSON.stringify({
@@ -573,6 +584,10 @@ async function orderNow(dishId, dishName, price) {
                 quantity: 1
             })
         });
+
+        if (typeof trackAddToCartEvent === 'function') {
+            trackAddToCartEvent(analyticsDish);
+        }
 
         showNotification(`${dishName} added to cart`, 'success');
     } catch (e) {

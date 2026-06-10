@@ -87,6 +87,13 @@ async function handleLogin(e) {
         
         setAuthToken(response.token);
         setUserData(response.user);
+
+        document.dispatchEvent(new CustomEvent('homeychef:login-success', {
+            detail: {
+                user: response.user,
+                method: 'email'
+            }
+        }));
         
         showNotification('Login successful!');
         

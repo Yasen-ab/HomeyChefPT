@@ -135,6 +135,13 @@ async function handleCheckout(event) {
   event.preventDefault();
 
   try {
+    const checkoutItems = (currentCart?.items || []).map((item) => ({
+      id: item.dishId,
+      name: item.dish?.name,
+      price: item.unitPrice,
+      quantity: item.quantity
+    }));
+    const checkoutTotal = Number(currentCart?.summary?.totalAmount || 0);
     const response = await apiRequest('/cart/checkout', {
       method: 'POST',
       body: JSON.stringify({
@@ -147,6 +154,18 @@ async function handleCheckout(event) {
     currentCart = response.cart;
     renderCart();
     event.target.reset();
+
+    if (typeof trackOrderSuccess === 'function') {
+      trackOrderSuccess({
+        orderNumber: (response.orders || [])
+          .map((order) => order.orderNumber)
+          .filter(Boolean)
+          .join(', ') || `checkout-${Date.now()}`,
+        totalAmount: checkoutTotal,
+        items: checkoutItems
+      });
+    }
+
     showNotification('Checkout completed successfully', 'success');
     setTimeout(() => {
       window.location.href = 'orders.html';

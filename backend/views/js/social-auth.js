@@ -144,6 +144,14 @@ class SocialAuth {
         this.updateUIAfterLogin(user);
         if (typeof setAuthToken === 'function') setAuthToken(token);
         if (typeof setUserData === 'function') setUserData(user);
+
+        document.dispatchEvent(new CustomEvent('homeychef:login-success', {
+            detail: {
+                user,
+                method: 'google'
+            }
+        }));
+
         this.showSuccess(`Welcome, ${user.name || user.email}!`);
         setTimeout(() => {
             if (typeof redirectToDashboard === 'function') redirectToDashboard();

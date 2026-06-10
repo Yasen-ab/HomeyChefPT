@@ -244,6 +244,17 @@ async function updateOrderStatus(orderId, status) {
             method: 'PUT',
             body: JSON.stringify({ status })
         });
+
+        const trackedOrder = allOrders.find((order) => order.id === orderId) || {
+            id: orderId,
+            orderNumber: orderId,
+            totalAmount: 0
+        };
+
+        if (typeof trackOrderStatusEvent === 'function') {
+            trackOrderStatusEvent(trackedOrder, status);
+        }
+
         showNotification('Order status updated!');
         loadOrders();
     } catch (error) {
@@ -285,6 +296,14 @@ async function confirmCancelOrder() {
         const order = allOrders.find(o => o.id === pendingCancelOrderId);
         if (order) {
             order.status = 'cancelled';
+        }
+
+        if (typeof trackOrderStatusEvent === 'function') {
+            trackOrderStatusEvent(order || {
+                id: pendingCancelOrderId,
+                orderNumber: pendingCancelOrderId,
+                totalAmount: 0
+            }, 'cancelled');
         }
 
         updateStats(allOrders);
