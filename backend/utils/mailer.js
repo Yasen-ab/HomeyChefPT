@@ -9,6 +9,7 @@ function getTransporter() {
 
   return nodemailer.createTransport({
     service: 'gmail',
+    family: 4,
     auth: {
       user: EMAIL_USER,
       pass: EMAIL_PASS
