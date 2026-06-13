@@ -7,14 +7,18 @@ function getTransporter() {
     throw new Error('Missing EMAIL_USER or EMAIL_PASS for mail transport');
   }
 
-  return nodemailer.createTransport({
-    host: '74.125.142.108',
-    port: 465,         
-    secure: true,      
-    family: 4,
+return nodemailer.createTransport({
+    host: 'smtp.gmail.com', // نرجع للاسم الطبيعي
+    port: 587,             // نغير المنفذ إلى 587 (مفتوح في Render)
+    secure: false,         // يجب أن تكون false مع المنفذ 587 ليتم الترقية لـ TLS لاحقاً
+    family: 4,             // لإجبار استخدام IPv4 وتجنب خطأ الـ Network Unreachable
     auth: {
       user: EMAIL_USER,
-      pass: EMAIL_PASS  
+      pass: EMAIL_PASS    // كود الـ 16 حرف بدون مسافات
+    },
+    tls: {
+      // هذا السطر جوهري لتخطي قيود جدران الحماية (Firewall) الخاصة بـ Render
+      rejectUnauthorized: false 
     }
   });
 }
