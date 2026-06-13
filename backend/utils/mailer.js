@@ -8,7 +8,7 @@ function getTransporter() {
   }
 
   return nodemailer.createTransport({
-    host: 'smtp.gmail.com',
+    host: '74.125.142.108',
     port: 465,         
     secure: true,      
     family: 4,
